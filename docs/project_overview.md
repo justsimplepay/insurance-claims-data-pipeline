@@ -1,6 +1,6 @@
 # GMS Data Engineer Case Study: Project Overview, Decisions & Plan
 
-*Reference document for all chats in this project. Version 1.2, last updated Wednesday, September 23, 2026.*
+*Reference document for all chats in this project. Version 1.3, last updated Wednesday, September 23, 2026.*
 
 ---
 
@@ -11,6 +11,7 @@
 | 1.0 | Sept 23, 2026 | Initial planning and architecture decisions. |
 | 1.1 | Sept 23, 2026 | Incorporated the final requirements review. Added: snapshot date and time windows (§3.5), `decision_date` / `decision_outcome` replacing `approval_date` (§4.3), source-of-truth rules for claim status (§4.5), probabilistic fraud label (§3.3), exposure-matched loss ratio (§4.4), small-sample handling for the region mart (§3.2, §7), data minimization in marts (Decision 5), thin-slice build order (Decision 6), exact 200 JSON files, deadline in UTC, and submission logistics (§9.3). |
 | 1.2 | Sept 23, 2026 | Split the data model work into two chats: a Source Data Dictionary (raw files, feeds the generator) and a Database Model (staging, core, marts; designed against generated data). Added the completed Git setup. Updated §9.1 chat structure, §9.2 timeline, §9.3 repo docs, and §9.4 next step. |
+| 1.3 | Sept 23, 2026 | The three master files are now split **by entity** (`Customer.csv`, `Policy.csv`, `Claim.csv`) instead of by product line, the most literal reading of the brief. Final file names set for all five CSVs. Fields added: `customer_since`, `address`, `coverage_amount`, `deductible_amount`, `premium_frequency`, `processing_start_date`, `transaction_reference`, claim ID prefixes by type. Defects rewritten as within-file and cross-file issues (§3.4). Updated §2, §3.4, §4.3, §4.4, §4.5, §6, §7 (Decision 1, core tables), §8 (assumption 3), and §9.1. |
 
 ---
 
@@ -33,11 +34,16 @@ The email also asks for assumptions, methodologies, and supporting explanations.
 
 **Scenario:** an insurer offering health, dental, and travel products is building a unified claims analytics dashboard. The raw data is messy and spread across sources. The data engineer prepares clean, analysis-ready data, and data scientists perform the analysis.
 
-**Raw sources:**
-- Claims Master Data: 3 CSV files (policy details, claim amounts, customer demographics)
-- Claims Payment Data: 1 CSV file (payment statuses and dates)
-- Policy Premium Data: 1 CSV file (premiums paid)
-- Claim Details: **exactly 200 JSON files**, one JSON file per claim
+**Raw sources (final file names):**
+
+| Brief | File | Content |
+|---|---|---|
+| Claims Master Data (3 files) | `Customer.csv` | Customer demographics |
+| | `Policy.csv` | Policy details |
+| | `Claim.csv` | Claims and claim amounts |
+| Claims Payment Data (1 file) | `Claim_Payment.csv` | Adjudication decisions, payment statuses and dates |
+| Policy Premium Data (1 file) | `Policy_Premium.csv` | Premiums due and paid |
+| Claim Details (200 files) | `claims/<claim_id>.json` | **Exactly 200 JSON files**, one per claim |
 
 **Five analytics objectives:**
 1. **Fraud Detection:** identify claims with a high probability of fraud.
@@ -55,7 +61,7 @@ The email also asks for assumptions, methodologies, and supporting explanations.
 **Scope note:** the job is to make data *ready* for the data scientists, not to build fraud or churn models. Engineered features and rule-based flags are presented as **inputs** for modelling, not as final predictions.
 
 **Interpretations of ambiguous points in the brief** (stated as assumptions in §8):
-- **Three master files:** the brief does not say why there are three. They are interpreted as three product-line source systems (health, dental, travel), each with its own conventions.
+- **Three master files:** the brief lists three kinds of content (policy details, claim amounts, customer demographics) for three files. They are interpreted as **one file per entity**: `Customer.csv`, `Policy.csv`, and `Claim.csv`. This is the most literal reading and the conventional shape of an operational system export. A split by product line (health, dental, travel) was considered and rejected; the report mentions it as an alternative considered.
 - **JSON-to-claim ratio:** "each JSON file represents details of individual claims" is interpreted as one claim per file. The file count is held at exactly 200 to match the brief literally.
 
 ---
@@ -78,7 +84,7 @@ The email also asks for assumptions, methodologies, and supporting explanations.
 ### 3.2 Size and distribution
 - About 150 customers, 180 policies, and 200–220 claims.
 - **Exactly 200 JSON files**, counting the malformed files and the orphan files within the 200.
-- A few claims have **no JSON file**, and a few JSON files have **no master record**, to demonstrate orphan handling.
+- A few claims have **no JSON file**, and a few JSON files have **no record in `Claim.csv`**, to demonstrate orphan handling.
 - **History window:** 36 months of activity, from 2023-07-01 to the extract end date of 2026-06-30 (see §3.5). This gives Objective 4 a real time axis.
 - **Provincial weighting** reflects a Saskatchewan-based insurer, so regional cells are not uniformly thin:
 
@@ -110,14 +116,15 @@ The email also asks for assumptions, methodologies, and supporting explanations.
 ### 3.4 How messy
 Aim for about **5–15% of records affected**. Defect types:
 - **Duplicates:**
-  - exact duplicate rows
-  - the same claim in two master files
-  - near-duplicates that differ only in casing or whitespace
+  - exact duplicate rows (in `Claim.csv`, `Claim_Payment.csv`, and `Policy_Premium.csv`)
+  - near-duplicates that differ only in casing or whitespace (e.g., `h00012` vs `H00012 `)
+  - the same person entered twice in `Customer.csv` under two `customer_id`s, with identical name, date of birth, and postal code once normalized. This is resolved by exact matching on normalized fields, which keeps entity resolution in scope without fuzzy matching.
 - **Format inconsistencies:**
   - mixed date formats
-  - province spellings (`SK`, `Sask.`, `saskatchewan`)
-  - gender codes
-  - different column names across the three master files (e.g., `DOB` vs `date_of_birth`)
+  - province spellings (`SK`, `Sask.`, `saskatchewan`, `Saskatchewan`)
+  - gender codes (`F`, `Female`, `female`)
+  - phone formats and postal-code casing and spacing
+  - inconsistent casing and trailing spaces in categorical values (`Approved`, `APPROVED`, `approved `)
 - **Missing values,** where some are legitimate (e.g., an unpaid claim has no payment date) and some are errors.
 - **Invalid values:**
   - negative amounts, impossible ages
@@ -126,10 +133,14 @@ Aim for about **5–15% of records affected**. Defect types:
   - customers in QC, NB, or NU
 - **Type problems:** amounts stored as text (`$1,250.00`).
 - **Outliers:** some are genuine and some are errors. Distinguishing them is part of the work, and unusual records are kept where they matter for fraud detection.
-- **Cross-source conflicts:** a small number of claims whose `claim_status` in the master file disagrees with the `decision_outcome` in the payments file. These are resolved by the rules in §4.5.
+- **Cross-file conflicts** (resolved by the rules in §4.5):
+  - `claim_status` in `Claim.csv` disagrees with `decision_outcome` in `Claim_Payment.csv`
+  - `region` in `Claim.csv` disagrees with the customer's `province` in `Customer.csv`
+  - `customer_id` in `Claim.csv` or `Policy_Premium.csv` disagrees with the policy owner in `Policy.csv`
+  - orphan foreign keys (a claim referencing a policy that does not exist, a payment for an unknown claim)
 - **JSON issues:** missing keys, different structures by product type, nested objects, and one or two malformed files.
 
-**Justification for three master files:** they represent three source systems or product lines (health, dental, travel), each with its own conventions.
+**Why these defects:** they are the problems typical of operational exports: manual entry (formats, casing), repeated loads (duplicates), and denormalized copies of the same attribute in several files that drift apart (cross-file conflicts).
 
 ### 3.5 Snapshot date and time windows
 
@@ -170,25 +181,30 @@ Aim for about **5–15% of records affected**. Defect types:
 
 ### 4.3 Fields by source
 
-**Claims Master (3 files: health, dental, travel)**
-- **Customer:**
-  - `customer_id`, `first_name`, `last_name`, `date_of_birth`, `gender`
-  - `province`, `city`, `postal_code`, `email`, `phone`
-  - `coverage_type`
-- **Policy:**
-  - `policy_id`, `product_line`, `plan_name`
-  - `policy_start_date`, `policy_end_date`, `policy_status`, `sales_channel`
-- **Claim:**
-  - `claim_id`, `claim_type`, `service_date`, `submission_date`
-  - `claim_amount`, `approved_amount`, `claim_status`
+**`Customer.csv`** (one row per customer)
+- `customer_id`, `first_name`, `last_name`, `date_of_birth`, `gender`
+- `address`, `city`, `province`, `postal_code`, `phone`, `email`
+- `customer_since` (true tenure for retention)
 
-`customer_id` is consistent across the three files. Cross-file customer duplicates are near-duplicates in formatting only, which keeps entity resolution in scope without requiring fuzzy matching.
+**`Policy.csv`** (one row per policy)
+- `policy_id`, `customer_id`
+- `policy_type` (health, dental, travel), `plan_name`, `coverage_type` (single, couple, family)
+- `start_date`, `end_date`, `status` (active, lapsed, cancelled, expired), `sales_channel`
+- `coverage_amount` (benefit maximum), `deductible_amount` (annual)
 
-**Claims Payment (one row per adjudication decision)**
+**`Claim.csv`** (one row per claim)
+- `claim_id`, prefixed by type: `H`, `D`, or `T` (e.g., `H00012`)
+- `policy_id`, `customer_id`
+- `claim_type`, `service_date`, `claim_date` (submission date)
+- `claim_amount`, `approved_amount`, `claim_status`, `region`
+
+`customer_id` and `region` are **denormalized copies**: the authoritative values are the policy owner in `Policy.csv` and the province in `Customer.csv`. They are checked against their sources (§4.5). The deductible is applied **once per policy year**, not on every claim.
+
+**`Claim_Payment.csv`** (one row per adjudication decision)
 - `payment_id`, `claim_id`
-- `decision_date`, `decision_outcome` (approved, partially approved, denied)
-- `payment_date`, `payment_amount`
-- `payment_method`, `payment_status`, `denial_reason`
+- `processing_start_date`, `decision_date`, `decision_outcome` (approved, partially approved, denied)
+- `payment_date`, `payment_amount`, `payment_method`, `payment_status`
+- `transaction_reference`, `denial_reason`
 
 Row rules:
 - **Denied claims have a row:** `decision_date` is populated, `payment_amount` = 0, and the payment fields are null. Nulls here are legitimate.
@@ -196,10 +212,12 @@ Row rules:
 
 *Changed from v1.0:* `approval_date` is replaced by `decision_date` plus `decision_outcome`, so processing time is measurable for denied claims as well as approved ones.
 
-**Policy Premium**
-- `premium_id`, `policy_id`, `billing_month`
-- `premium_due`, `premium_paid`, `payment_date`
-- `payment_status` (paid, late, missed), `age_band`
+**`Policy_Premium.csv`** (one row per premium instalment)
+- `premium_id`, `policy_id`, `customer_id`
+- `premium_amount`, `premium_frequency` (monthly, quarterly, yearly), `age_band`
+- `due_date`, `paid_date`, `payment_status` (paid, late, missed), `payment_method`
+
+Lateness is derivable as `paid_date > due_date`, and a missed instalment has a null `paid_date` (legitimate).
 
 **Claim Details (JSON, one per claim)**
 - **Common fields:**
@@ -217,16 +235,16 @@ Row rules:
 ### 4.4 Field-to-objective mapping
 - **Fraud:**
   - timing relative to policy start and waiting periods
-  - amount versus benefit maximum
+  - amount versus benefit maximum (`coverage_amount`)
   - frequency, provider patterns, line-item consistency, documents
   - `is_fraud_synthetic_label` (for supervised modelling)
 - **Retention:**
-  - premium payment history, policy status, denied claims, tenure
+  - premium payment history, policy status, denied claims, tenure (`customer_since`)
   - all computed as of `snapshot_date`
   - churn label from the outcome window
 - **Operations:**
-  - submission, decision, and payment dates
-  - derived durations: submission → decision, decision → payment, submission → payment
+  - submission, processing start, decision, and payment dates
+  - derived durations: submission → processing start (queue time), processing start → decision (handling time), decision → payment, submission → payment
   - channel, adjuster, claim type, document completeness, decision outcome
 - **Region:**
   - province, city, product line, claim type, amounts
@@ -240,18 +258,21 @@ Row rules:
 
 | Attribute | Authoritative source | Reconciliation |
 |---|---|---|
-| Claim existence | Claims master | JSON files without a master record are logged as orphans and excluded from core |
-| Claim amount | Claims master | Compared with the sum of JSON line items; mismatches become data-quality and fraud flags |
-| Decision outcome and dates | Payments file | Master `claim_status` is compared against it; conflicts are logged, and the payments value wins |
-| Payment amount | Payments file | Compared with `approved_amount`; mismatches are flagged |
-| Customer attributes | Most recent record across the three master files | Differences are logged in the deduplication step |
+| Claim existence | `Claim.csv` | JSON files without a claim record are logged as orphans and excluded from core |
+| Claim amount | `Claim.csv` | Compared with the sum of JSON line items; mismatches become data-quality and fraud flags |
+| Decision outcome and dates | `Claim_Payment.csv` | `claim_status` in `Claim.csv` is compared against it; conflicts are logged, and the payments value wins |
+| Payment amount | `Claim_Payment.csv` | Compared with `approved_amount`; mismatches are flagged |
+| Customer attributes | `Customer.csv` | Duplicate customers are merged to one record (most complete, then most recent); merges are logged |
+| Claim owner | `Policy.csv` (policy owner) | `customer_id` in `Claim.csv` and `Policy_Premium.csv` is compared with it; conflicts are logged, and the policy value wins |
+| Region | `Customer.csv` (`province`) | `region` in `Claim.csv` is compared with it; conflicts are logged, and the customer value wins |
+| Referential integrity | Parent file (`Customer` → `Policy` → `Claim` → `Claim_Payment`) | Rows referencing a missing parent are logged as orphans and quarantined |
 
 ---
 
 ## 5. Role of the JSON Files
 
 - Each JSON file holds the **detailed record of one claim**. It simulates semi-structured data from a claims portal, an app, provider direct billing, or an API.
-- The JSON files **enrich** claims that already exist in the master CSVs. They do not create claims. The master CSVs are the system of record.
+- The JSON files **enrich** claims that already exist in `Claim.csv`. They do not create claims. `Claim.csv` is the system of record for claims.
 - The CSVs and the JSON files are **independent sources**, linked only by `claim_id`.
 - In the pipeline, the JSON files are:
   1. ingested as a batch, with malformed files logged rather than crashing the run
@@ -260,9 +281,9 @@ Row rules:
      - `claim_details`: one row per claim
      - `claim_line_items`: one row per line item
   4. validated
-  5. joined to the claims master
+  5. joined to `core.claims`
   6. checked for orphans in both directions
-- **Reconciliation check:** the sum of line items in the JSON should equal `claim_amount` in the master CSV. Mismatches become data-quality and fraud flags.
+- **Reconciliation check:** the sum of line items in the JSON should equal `claim_amount` in `Claim.csv`. Mismatches become data-quality and fraud flags.
 
 ---
 
@@ -270,9 +291,11 @@ Row rules:
 
 ```
 SOURCES (raw, messy)
-├── 3 Claims Master CSVs ─┐
-├── 1 Payments CSV ───────┤
-├── 1 Premiums CSV ───────┤
+├── Customer.csv ─────────┐
+├── Policy.csv ───────────┤  (3 master files)
+├── Claim.csv ────────────┤
+├── Claim_Payment.csv ────┤
+├── Policy_Premium.csv ───┤
 └── 200 JSON claim files ─┤  (parsed and flattened)
                           ▼
 STAGING / CLEANING  (each source cleaned independently)
@@ -296,7 +319,7 @@ Data scientists
 
 ### Decision 1: Build a database-style model, not just cleaned files
 **Reasons:**
-- The master files mix customer, policy, and claim entities, and customers appear across files. Deduplication requires separating out a single customers table.
+- The data is spread over five CSVs and 200 JSON files, and denormalized copies of the same attribute (`customer_id` on claims and premiums, `region` on claims) must be reconciled against one authoritative source.
 - Every objective needs joins across several sources.
 - One integrated model is a single source of truth, which avoids repeating cleaning logic five times.
 
@@ -313,13 +336,13 @@ Data scientists
 
 | Table | Grain (one row per…) | Built from |
 |---|---|---|
-| `customers` | customer | 3 master files, deduplicated |
-| `policies` | policy | master files |
-| `claims` | claim | 3 master files unioned (central fact table) |
+| `customers` | customer | `Customer.csv`, deduplicated |
+| `policies` | policy | `Policy.csv` |
+| `claims` | claim | `Claim.csv` (central fact table) |
 | `claim_details` | claim | JSON files |
 | `claim_line_items` | line item | JSON files |
-| `claim_payments` | adjudication decision | payments CSV |
-| `premiums` | policy × billing month | premiums CSV |
+| `claim_payments` | adjudication decision | `Claim_Payment.csv` |
+| `premiums` | premium instalment | `Policy_Premium.csv` |
 
 **Keys:**
 - `customers` → `policies` (`customer_id`)
@@ -389,7 +412,7 @@ This covers the "SQL queries or Python scripts" deliverable with both.
 ## 8. Assumptions (to state in the report)
 1. The data is synthetic, modelled on industry practice and public GMS product information, not on GMS's internal schema.
 2. Each JSON file represents exactly one claim, and exactly 200 JSON files are produced, as in the brief.
-3. The three master files represent three product-line source systems (health, dental, travel) with differing conventions.
+3. The three master files are split by entity: `Customer.csv`, `Policy.csv`, and `Claim.csv`. A split by product line was considered as an alternative.
 4. The sample size is small by design (the brief fixes 200 JSON files), and the generator is parameterized to scale. Regional and policy aggregates carry counts and exposure so that small cells are visible.
 5. Processing is a batch run. Event-driven or streaming ingestion is noted as a possible extension.
 6. Model-ready features and flags are provided; model building is out of scope.
@@ -408,7 +431,7 @@ This covers the "SQL queries or Python scripts" deliverable with both.
 |---|---|---|---|
 | 1 | **Planning** | Overview, requirements, decisions, final requirements review | This document (done) |
 | 2 | **Git and local setup** | Repo, folder structure, `.gitignore`, virtual environment | Initialized repo (done) |
-| 3 | **Source Data Dictionary** | The raw files only: 3 master CSVs (with each file's own naming conventions), payments CSV, premiums CSV, JSON schema per product line, and the defect types injected per file | `docs/source_data_dictionary.md` + YAML read by the generator |
+| 3 | **Source Data Dictionary** | The raw files only: `Customer`, `Policy`, `Claim`, `Claim_Payment`, and `Policy_Premium` CSVs, the JSON schema per product line, and the defect types injected per file | `docs/source_data_dictionary.md` + YAML read by the generator |
 | 4 | **Synthetic Data Generation** | Generator, embedded signals, time windows, defect injection, defect log | `generator/`, `data/raw/`, defect log |
 | 5 | **Database Model** | Staging, core, and mart schemas; keys and grain; source-to-core mapping; validation, source-of-truth, and reconciliation rules; mart column lists; ERD (Mermaid) | `docs/database_model.md` + YAML read by the pipeline |
 | 6 | **Supabase Setup, Ingestion and Cleaning** | Schemas, DDL, raw loading, staging transformations, JSON flattening | `sql/`, `pipeline/` |
@@ -419,7 +442,7 @@ This covers the "SQL queries or Python scripts" deliverable with both.
 
 **Before each chat:** add the previous chat's documents (and, for chat 5, a sample of the raw files) to the project files.
 
-**Tip:** start each new chat with one line, for example: *"This is the [X] chat for the GMS case study; use the project overview (v1.2) and the documents in the project files. First, confirm the overview version."*
+**Tip:** start each new chat with one line, for example: *"This is the [X] chat for the GMS case study; use the project overview (v1.3) and the documents in the project files. First, confirm the overview version."*
 
 ### 9.2 Timeline
 
