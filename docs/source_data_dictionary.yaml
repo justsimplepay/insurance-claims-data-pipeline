@@ -9,12 +9,13 @@
 
 meta:
   document: source_data_dictionary
-  version: "1.1"
-  based_on_overview_version: "1.4"
+  version: "1.2"
+  based_on_overview_version: "1.5"
   last_updated: 2026-09-23
   companion_markdown: docs/source_data_dictionary.md
   source_model_assumption: "The three Claims Master Data files are separate entity extracts: Customer.csv, Policy.csv, and Claim.csv, corresponding to customer demographics, policy details, and claim information in the case study. This is a modelling assumption, not the only possible interpretation of the brief."
-  design_principle: "Every field or rule must support an analytics objective, establish an important relationship or grain, or create/resolve a meaningful data-quality or reconciliation case; otherwise remove it."
+  design_principle: "Every field or rule must support an analytics objective, establish an important relationship or grain, or create/resolve a meaningful data-quality or reconciliation case; otherwise remove it. The raw layer may remain purposefully denormalized or heterogeneous where that creates meaningful cleaning, reconciliation, or schema-normalization work; staging/core establish canonical values."
+  source_schema_status: frozen_for_generator_design
 
 conventions:
   encoding: UTF-8
@@ -52,6 +53,7 @@ conventions:
 parameters:
   random_seed: 20260923
   history_start: 2023-07-01
+  retention_observation_start: 2025-04-01
   snapshot_date: 2026-03-31
   outcome_window_start: 2026-04-01
   outcome_window_end: 2026-06-30
@@ -129,12 +131,13 @@ reference_data:
   waiting_periods:
     dental: {days: 90, applies_to_claim_types: [basic, major]}
   eligibility_rules:
-    - id: ELIG_TRAVEL_80
-      rule: "Customer aged 80+ at trip_start is covered for emergency medical only within Canada (destination_country = CA)."
     - id: ELIG_DENTAL_WAIT
-      rule: "Dental basic/major claim with service_date < policy start_date + 90 days is inside the waiting period."
+      rule: "Selected synthetic dental plans use a 90-day waiting period; basic/major claims with service_date < policy start_date + 90 days are inside the synthetic waiting period."
+      source: synthetic_modelling_assumption
     - id: ELIG_SERVED_PROVINCE
       rule: "Customer province must be in provinces_served."
+      source: gms_informed_context
+  removed_rule_note: "A previously proposed universal age-80 travel rule is not part of the frozen source model because it is product-specific and unnecessary for the assessment."
 
   claim_types:                   # claim_type is scoped by product line
     health:
@@ -177,7 +180,7 @@ reference_data:
   claim_payment_methods: [direct_deposit, cheque, provider_direct]   # provider_direct iff submission_channel = provider_direct_billing
   premium_payment_methods: [pad, credit_card, cheque]                # pad = pre-authorized debit
   denial_reasons: [not_covered, waiting_period, benefit_maximum_reached, missing_documentation,
-                   policy_inactive, late_submission, duplicate_claim, suspected_fraud]
+                   policy_inactive, late_submission, duplicate_claim]
   travel_destinations:          # exchange_rate_to_cad drawn uniformly from the range
     - {country: "US", currency: USD, rate_range: [1.3300, 1.4000], share: 0.45}
     - {country: "MX", currency: MXN, rate_range: [0.0700, 0.0820], share: 0.15}
@@ -530,14 +533,6 @@ files:
         references: Customer.province
         objectives: [region]
         pii: none
-      - name: is_fraud_synthetic_label
-        type: boolean
-        description: "Simulated special-investigation outcome, assigned probabilistically from the fraud traits. Target variable only; never a feature. Kept defect-free."
-        allowed: ["true", "false"]
-        nullable: false
-        key_role: none
-        objectives: [fraud]
-        pii: none
     defects:
       - {id: DUP_EXACT, fields: ["*"], target: {count: 6}, detail: "Whole rows repeated (repeated load)."}
       - {id: DUP_NEAR_KEY, fields: [claim_id], target: {count: 4}, detail: "Duplicate rows whose claim_id differs only in case/whitespace, e.g. `h00012` vs `H00012 `."}
@@ -660,7 +655,7 @@ files:
       - name: denial_reason
         type: enum
         description: "Reason for denial, or for the declined part of a partial approval."
-        allowed: [not_covered, waiting_period, benefit_maximum_reached, missing_documentation, policy_inactive, late_submission, duplicate_claim, suspected_fraud]
+        allowed: [not_covered, waiting_period, benefit_maximum_reached, missing_documentation, policy_inactive, late_submission, duplicate_claim]
         nullable: true
         null_meaning: "Legitimate: approved (always null) or partially_approved (optional). Required when denied."
         key_role: none
@@ -799,7 +794,12 @@ json_claim_detail:
   grain: one file per claim
   composition: "194 parseable files matching a claim + 2 malformed files (real claims) + 4 orphan files = 200"
   dirty_row_pool: 0.10          # share of the 194 parseable matched files eligible for rate-based JSON defects
-  structure_rule: "Common fields + line_items[] + exactly ONE product object (health | dental | travel) matching product_line. Product objects differ by design; this is legitimate variation, not a defect."
+  structure_rule: "Common fields + line_items[] + exactly ONE product object (health | dental | travel) matching product_line. All 200 files live in one mixed directory. Product objects differ by design; this is legitimate variation, not a defect."
+  variation_classes:
+    legitimate_heterogeneity: "Expected product-specific objects and conditional nested fields; not defects."
+    recoverable_schema_drift: "Alternative keys, type drift, and array/object/string shape drift normalized deterministically."
+    unrecoverable_or_quarantined: "Malformed JSON, missing routing identity, or orphan claim files are logged and excluded from canonical core records."
+  ingestion_strategy: "Deterministic parsing/schema normalization; no LLM/LangChain required for the structured/semi-structured source."
   common_fields:
     - {name: schema_version, type: string, description: "Version of the portal/API payload schema.", allowed: ["1.0"], nullable: false, key_role: none, objectives: [], pii: none}
     - {name: claim_id, type: string, description: "Claim this file details. Claim.csv decides whether the claim exists.", format: "`H`/`D`/`T` + 5 digits; equals the file name", pattern: '^[HDT]\d{5}$', nullable: false, key_role: foreign_key, references: Claim.claim_id, objectives: [fraud, retention, operations, region, policy], pii: none}
@@ -884,34 +884,50 @@ cross_file_invariants:
   - {id: INV13, rule: "Customer.province is served, and postal_code's first letter belongs to it."}
   - {id: INV14, rule: "JSON reconciliation rules hold (amounts, service_date, submission date)."}
   - {id: INV15, rule: "Payment method provider_direct iff JSON submission_channel = provider_direct_billing."}
+  - {id: INV16, rule: "Policy_Premium.age_band equals the age band derived from Customer.date_of_birth as of Policy_Premium.due_date."}
 
 # -----------------------------------------------------------------------------
 # EMBEDDED SIGNALS (patterns, NOT defects; never written to the defect log)
 # -----------------------------------------------------------------------------
 signals:
   fraud:
-    label_field: Claim.is_fraud_synthetic_label
-    target_fraud_rate: 0.04
-    labelling: "Traits raise the probability of the label; some fraud shows few traits and some legitimate claims show several."
+    target_field: null
+    target_policy: "No synthetic fraud/investigation label is emitted to raw sources or marts. The generator controls prevalence/co-occurrence of suspicious patterns only."
     traits:
       - {id: F1_EARLY_CLAIM,        carriers: [Claim.service_date, Policy.start_date],              rule: "service_date within 30 days of start_date"}
-      - {id: F2_WAITING_PERIOD,     carriers: [Claim.service_date, Policy.start_date, Claim.claim_type], rule: "dental basic/major inside the 90-day waiting period"}
+      - {id: F2_WAITING_PERIOD,     carriers: [Claim.service_date, Policy.start_date, Claim.claim_type], rule: "dental basic/major inside the selected synthetic 90-day waiting period"}
       - {id: F3_NEAR_MAXIMUM,       carriers: [Claim.claim_amount, Policy.coverage_amount, travel.incident_sub_limit], rule: ">= 90% of the applicable maximum"}
       - {id: F4_REPEAT_CLAIMS,      carriers: [Claim.customer_id, Claim.claim_date],                rule: ">= 3 claims by one customer within 30 days"}
-      - {id: F5_PROVIDER_CONCENTRATION, carriers: [provider.provider_id],                          rule: "3-4 providers linked to a disproportionate share of fraud"}
+      - {id: F5_PROVIDER_CONCENTRATION, carriers: [provider.provider_id],                          rule: "3-4 providers linked to a disproportionate share of claims carrying other suspicious traits"}
       - {id: F6_LINE_ITEM_MISMATCH, carriers: [line_items.amount, Claim.claim_amount],              rule: "line items do not add up to claim_amount (inflated header amount)"}
       - {id: F7_MISSING_DOCUMENTS,  carriers: [documents_submitted],                                rule: "required documents missing"}
       - {id: F8_WEEKEND_SUBMISSION, carriers: [Claim.claim_date, submitted_at],                     rule: "submitted Saturday/Sunday or 00:00-05:00"}
-      - {id: F9_TRAVEL_DATES,       carriers: [travel.incident_date, travel.trip_start, travel.trip_end], rule: "incident outside the trip window, or 80+ medical claim abroad"}
+      - {id: F9_TRAVEL_DATES,       carriers: [travel.incident_date, travel.trip_start, travel.trip_end], rule: "incident outside the valid trip window; cancellation follows its documented pre-trip rule"}
     genuine_outliers: {count: 3, detail: "Very large but legitimate claims (e.g. US emergency medical ~CAD 85,000); JSON agrees with Claim.csv. Must be kept."}
   retention:
+    grain: one row per eligible customer
+    eligibility: "At least one active health or dental policy on 2026-03-31; travel-only customers excluded."
+    observation_window: {start: 2025-04-01, end: 2026-03-31}
+    outcome_window: {start: 2026-04-01, end: 2026-06-30}
     drivers: [late or missed premiums, denied claims, short tenure, premium increase at age-band change]
-    rule: "Drivers raise lapse/cancel probability; some lapses fall in the outcome window 2026-04-01..2026-06-30. Travel expiry is not churn."
+    churn_rule: "churned = 1 only when all health/dental policies active at snapshot lapse/cancel during the outcome window and no active/replacement health or dental policy starts by 2026-06-30; otherwise 0. Normal travel expiry is not churn."
   operations:
     slow_segments: [provinces outside SK, travel claims, mail submissions, incomplete documents, 2-3 specific adjusters]
     rule: "Queue and handling times drawn from gamma distributions with larger scale for slow segments; denied claims also carry decision times."
   region_policy:
-    rule: "Claim frequency and severity vary by province, age band and plan so that loss ratios differ across cells."
+    rule: "Claim frequency, approved claim amounts, and premium amounts vary by province, age band and plan so claims-to-premium performance ratios differ across cells."
+    metric_note: "Use an exposure-aligned approved-claims-to-premium-due performance ratio; do not describe it as a formal actuarial loss ratio."
+
+source_schema_freeze:
+  claims_master_files: [Customer.csv, Policy.csv, Claim.csv]
+  product_specific_claim_detail: "Exactly 200 mixed health/dental/travel JSON files in data/raw/json/."
+  claim_payment_semantics: "One row per adjudicated claim; carries adjudication/payment lifecycle information needed for processing-time analysis."
+  fraud_target: "none"
+  retention: "Customer-level, 12-month observation through 2026-03-31 plus 90-day outcome through 2026-06-30; travel-only customers/expiry are not churn."
+  policy_optimization: "Exposure-aligned approved-claims-to-premium-due performance ratio; not a formal actuarial loss ratio."
+  raw_messiness: "Preserve purposeful redundancy, format defects, JSON schema drift, malformed/orphan inputs, and cross-source conflicts where they demonstrate engineering value."
+  gms_assumption_boundary: "Public GMS context informs realism; premiums, limits, deductibles, distributions, and detailed synthetic eligibility rules are not representations of GMS internal configuration."
+  defect_log: "data/raw/_defect_log.csv is evaluation-only; the pipeline must never read it."
 
 # -----------------------------------------------------------------------------
 # DEFECT CATALOGUE AND LOG CONTRACT
@@ -954,7 +970,7 @@ defect_catalogue:
 defect_injection_rules:
   - "Generate and save the clean ground truth first; inject defects into copies only."
   - "At most one value defect per (row, field); key-breaking defects (ORPHAN_FK, DUP_*) are not stacked on the same row."
-  - "Never inject defects into Claim.is_fraud_synthetic_label or into signal carriers in a way that removes the signal."
+  - "Do not inject defects into signal carriers in a way that destroys the intended embedded pattern; signals are patterns to preserve through cleaning, not labels supplied to the pipeline."
   - "Count-based defects (target.count) are absolute numbers of rows/files and may fall anywhere in the file."
   - "Rate-based defects (target.pool_share) apply only to the file's dirty-row pool: sample dirty_row_pool x rows once, then give each defect to pool_share of the pool rows (minimum 1). A pool row may carry several format defects, like a badly keyed record."
   - "Target: about 5-15% of all records affected overall (overview 3.4). Small master files run higher because cross-file defects concentrate on them."
