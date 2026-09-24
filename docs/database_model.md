@@ -457,7 +457,17 @@ Examples of enforced core constraints:
 
 Cross-table business rules that require multiple records or aggregation are enforced by transformation/validation SQL rather than complex triggers.
 
-## 12. Index strategy
+## 12. Security and access model
+
+The `raw`, `staging`, and `core` schemas are internal data-engineering layers. They contain source-level and canonical insurance data and are not intended for direct browser/client access.
+
+Row Level Security (RLS) is enabled on every table in these three schemas with no `anon` or `authenticated` policies. This creates a deny-by-default posture for Supabase client roles while preserving controlled backend/database access for the pipeline.
+
+The `marts` layer is treated separately: when analytical outputs are implemented, access policies can be designed specifically for the intended consumers rather than exposing internal processing tables.
+
+This decision supports least-privilege access and keeps the PostgreSQL model portable because RLS is a native PostgreSQL feature rather than a Supabase-only construct.
+
+## 13. Index strategy
 
 The dataset is small, so indexing is intentionally modest.
 
@@ -479,7 +489,7 @@ No JSONB GIN index is created because JSON is flattened once and arbitrary raw-J
 
 No partitioning is justified at the assessment scale.
 
-## 13. Support for the five analytics objectives
+## 14. Support for the five analytics objectives
 
 | Objective | Core support |
 |---|---|
@@ -493,7 +503,7 @@ The retention mart will use the frozen snapshot and observation/outcome windows,
 
 The policy output will use the documented approved-claims-to-premium-due performance ratio over aligned exposure periods and will not be described as a formal actuarial loss ratio.
 
-## 14. Marts
+## 15. Marts
 
 The `marts` schema is created in the initial DDL, but mart tables are intentionally deferred until their exact analytical output columns are implemented.
 
@@ -507,7 +517,7 @@ Planned grains remain:
 | Region | province x product line x claim type x quarter |
 | Policy | plan x age band x coverage type x province with aligned exposure |
 
-## 15. SQL file layout
+## 16. SQL file layout
 
 Initial database structure:
 
