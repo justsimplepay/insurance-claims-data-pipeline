@@ -13,6 +13,7 @@ from faker import Faker
 
 from . import config as C
 from .defects import build_messy_raw
+from .lifecycle import apply_retention, build_policies, finalize_premiums, generate_premiums, schedule_claims
 
 TZ = timezone(timedelta(hours=-6))
 Q = Decimal("0.01")
@@ -97,22 +98,8 @@ class Generator:
             rows.append({"customer_id":f"C{i+1:05d}","first_name":first,"last_name":last,"date_of_birth":dob,"gender":choose(r,["F","M","X"],[.49,.48,.03]),"address":self.fake.street_address().replace("\n"," "),"city":city,"province":p,"postal_code":postal,"phone":f"+1{area}555{int(r.integers(1000,9999)):04d}","email":f"{first}.{last}.{i+1}@example.ca".lower().replace(" ","."),"customer_since":since,"last_updated":upd,"_reliability":rel[i],"_propensity":prop[i]})
         return pd.DataFrame(rows)
 
-    def policies(self,customers):
-        r=self.rng["policies"]; ids=customers.customer_id.tolist(); plans=[]
-        for p,n in C.PLAN_COUNTS.items(): plans += [p]*n
-        r.shuffle(plans); owners=ids+list(r.choice(ids,size=30,replace=True)); r.shuffle(owners)
-        rows=[]
-        for i,(plan,cid) in enumerate(zip(plans,owners)):
-            x=C.PLANS[plan]; typ=x["type"]
-            if typ=="travel":
-                st=random_date(r,C.HISTORY_START,date(2026,5,31)); en=st+timedelta(days=int(r.integers(20,76))) if plan=="TravelStar" else st+timedelta(days=364); status="expired" if en<=C.EXTRACT_END else "active"
-            else:
-                st=random_date(r,date(2022,1,1),date(2025,12,31)); en=None; status="active"
-            freq="single" if plan=="TravelStar" else (choose(r,["monthly","yearly"],[.7,.3]) if plan=="StudentPlan" else ("monthly" if x["freq"]==["monthly"] else choose(r,["monthly","quarterly","yearly"],[.7,.2,.1])))
-            rows.append({"policy_id":f"P{i+1:05d}","customer_id":cid,"policy_type":typ,"plan_name":plan,"coverage_type":choose(r,list(C.COVERAGE_SHARE),list(C.COVERAGE_SHARE.values())),"start_date":st,"end_date":en,"status":status,"sales_channel":choose(r,list(C.SALES_SHARE),list(C.SALES_SHARE.values())),"coverage_amount":money(x["coverage"]),"deductible_amount":money(choose(r,x["deductibles"])),"_freq":freq})
-        hd=[i for i,x in enumerate(rows) if x["policy_type"] in {"health","dental"}]
-        for idx in hd[-4:]: rows[idx]["start_date"]=random_date(r,date(2026,4,10),date(2026,6,10))
-        return pd.DataFrame(rows)
+    def policies(self, customers):
+        return build_policies(customers, self.rng["policies"])
 
     def premiums(self,customers,policies):
         r=self.rng["premiums_a"]; cmap=customers.set_index("customer_id").to_dict("index"); rows=[]
@@ -161,6 +148,202 @@ class Generator:
         em=df.index[(df.product_line=="travel")&(df.claim_type=="emergency_medical")].tolist()
         for idx in em[:3]: self.signal[df.at[idx,"_tmp"]].add("OUTLIER")
         return df
+
+    def reserve_phase_a_signals(self, claims):
+        """Reserve current signal carriers before Phase-A adjudication.
+
+        F2 must be present before the snapshot because denied-claim history is a
+        retention driver. The remaining reservations keep the current signal
+        counts stable until the dedicated F1-F9 implementation pass.
+        """
+        order = claims.index.tolist()
+        used = set()
+
+        def take(label, n, predicate=lambda row: True):
+            count = 0
+            for idx in order:
+                if idx in used:
+                    continue
+                row = claims.loc[idx]
+                if predicate(row):
+                    self.signal[row["_tmp"]].add(label)
+                    used.add(idx)
+                    count += 1
+                    if count == n:
+                        return
+            raise AssertionError(f"not enough Phase-A carriers for {label}: {count}/{n}")
+
+        take("F2", 6, lambda x: x["product_line"] == "dental" and x["claim_type"] in {"basic", "major"})
+        take("F1", 12)
+        take("F3", 8, lambda x: not (x["product_line"] == "travel" and x["claim_type"] == "emergency_medical"))
+        take("F6", 5)
+        take("F7", 10)
+        take("F8", 12)
+        take("F5", 24)
+        # F4 reserved claims remain distinct here; the exact same-customer/date
+        # construction is completed in the dedicated signal pass.
+        take("F4", 12)
+        travel = [i for i in order if claims.at[i, "product_line"] == "travel"]
+        if len(travel) < 4:
+            raise AssertionError("not enough Phase-A travel claims for F9")
+        for idx in travel[:4]:
+            self.signal[claims.at[idx, "_tmp"]].add("F9")
+        em = [i for i in order if claims.at[i, "product_line"] == "travel" and claims.at[i, "claim_type"] == "emergency_medical"]
+        if len(em) < 3:
+            raise AssertionError("not enough Phase-A emergency claims for outliers")
+        for idx in em[:3]:
+            self.signal[claims.at[idx, "_tmp"]].add("OUTLIER")
+
+    def detail_phase(self, claims, policies, customers, stage_name, as_of):
+        r=self.rng[stage_name]
+        pmap=policies.set_index("policy_id").to_dict("index")
+        cmap=customers.set_index("customer_id").to_dict("index")
+        providers=defaultdict(list)
+        for provider in self.providers:
+            providers[provider["type"]].append(provider)
+
+        docs={}
+        out=claims.copy()
+        payment=[]
+        outlier_values=[Decimal("25000"),Decimal("55000"),Decimal("85000")]
+        outlier_rank={tmp:i for i,tmp in enumerate([x for x in out["_tmp"] if "OUTLIER" in self.signal[x]][:3])}
+
+        for idx,x in out.iterrows():
+            sig=self.signal[x["_tmp"]]
+            p=pmap[x["policy_id"]]
+            ct=x["claim_type"]
+            allowed=C.PROVIDER_TYPES[ct]
+            hot=[z for z in self.providers if z["provider_id"] in self.hot and z["type"] in allowed]
+            provider=choose(r,hot) if "F5" in sig and hot else choose(r,providers[choose(r,allowed)])
+
+            channel=choose(r,["online_portal","mobile_app","mail"],[.58,.32,.10])
+            if provider["type"] in {"pharmacy","dental_clinic"} and r.random()<.22:
+                channel="provider_direct_billing"
+
+            req=C.REQUIRED_DOCS[ct].copy()
+            submitted=req.copy()
+            if "F7" in sig and submitted:
+                submitted.pop(0)
+
+            adjuster=f"ADJ{int(r.integers(1,13)):03d}"
+            hour=int(r.integers(0,6)) if "F8" in sig else int(r.integers(8,22))
+            submit_dt=datetime(x["claim_date"].year,x["claim_date"].month,x["claim_date"].day,hour,int(r.integers(0,60)),tzinfo=TZ)
+
+            mu,sd=C.LOGNORMAL[ct]
+            amount=money(max(20,float(r.lognormal(mu,sd))))
+            limit=money(p["coverage_amount"])
+            travel=None
+
+            if x["product_line"]=="travel":
+                country,currency,fxlo,fxhi,_=choose(r,C.TRAVEL_DESTINATIONS,[z[4] for z in C.TRAVEL_DESTINATIONS])
+                fx=Decimal(str(round(float(r.uniform(fxlo,fxhi)),4)))
+                incident=C.TRAVEL_INCIDENT[ct]
+                sub=limit if ct=="emergency_medical" else money(float(r.uniform(1000,8000))) if ct=="trip_cancellation" else money(C.TRAVEL_SUB_LIMIT[ct])
+                limit=sub
+                if "OUTLIER" in sig:
+                    amount=outlier_values[outlier_rank[x["_tmp"]]]
+                elif "F3" in sig and ct!="emergency_medical":
+                    amount=(sub*Decimal("0.94")).quantize(Q)
+                trip_start=max(p["start_date"],x["service_date"]-timedelta(days=2))
+                trip_end=min(p["end_date"] or C.EXTRACT_END,trip_start+timedelta(days=14))
+                travel={"trip_start":trip_start,"trip_end":trip_end,"destination_country":country,"incident_type":incident,"incident_date":x["service_date"],"currency":currency,"exchange_rate_to_cad":fx,"incident_sub_limit":sub}
+                detail=(amount/fx).quantize(Q)
+            else:
+                if "F3" in sig:
+                    amount=(limit*Decimal("0.94")).quantize(Q)
+                else:
+                    amount=min(amount,(limit*Decimal("0.80")).quantize(Q))
+                detail=amount
+
+            n=2 if detail>Decimal("100") else 1
+            unit=(detail/Decimal(n)).quantize(Q)
+            lines=[]
+            remaining=detail
+            for j in range(n):
+                a=unit if j<n-1 else remaining
+                remaining-=a
+                item={"line_no":j+1,"service_date":x["service_date"],"description":f"Synthetic {ct}","quantity":1,"unit_amount":a,"amount":a}
+                if x["product_line"]=="dental":
+                    item.update({"procedure_code":f"{10000+j}","procedure_category":ct,"tooth_number":None})
+                lines.append(item)
+
+            header=(amount*Decimal("1.20")).quantize(Q) if "F6" in sig else amount
+            doc={"schema_version":"1.0","claim_id":x["_tmp"],"product_line":x["product_line"],"submission_channel":channel,"submitted_at":submit_dt,"provider":provider,"line_items":lines,"adjuster_id":adjuster,"adjuster_notes":None,"documents_submitted":submitted}
+            if x["product_line"]=="health":
+                doc["health"]={"practitioner_type":choose(r,C.PRACTITIONERS) if ct in {"health_practitioner","vision"} else None,"number_of_visits":1 if ct=="health_practitioner" else None,"prescription":None}
+            if x["product_line"]=="dental":
+                doc["dental"]={"claim_category":ct}
+            if travel:
+                doc["travel"]=travel
+            docs[x["_tmp"]]=doc
+            out.at[idx,"claim_amount"]=header
+
+            if bool(x.get("_force_pending",False)):
+                out.at[idx,"approved_amount"]=None
+                out.at[idx,"claim_status"]="pending"
+                continue
+
+            outcome="denied" if "F2" in sig or r.random()<.10 else ("partially_approved" if r.random()<.20 else "approved")
+            approved=Decimal("0") if outcome=="denied" else (header*Decimal("0.80") if outcome=="partially_approved" else header).quantize(Q)
+
+            qm=(1.75 if channel=="mail" else 1)*(1.15 if cmap[x["customer_id"]]["province"]!="SK" else 1)
+            hm=(1.8 if x["product_line"]=="travel" else 1)*(1.6 if len(submitted)<len(req) else 1)*(1.8 if adjuster in self.slow else 1)
+            qs=max(0,int(round(r.gamma(2,.75)*min(qm,3))))
+            hs=max(1,int(round(r.gamma(2.5,1.2)*min(hm,3))))
+            start=x["claim_date"]+timedelta(days=qs)
+            decision=start+timedelta(days=hs)
+
+            # Phase A is deliberately scheduled early enough to be observable at
+            # snapshot. For non-forced Phase B claims, cap the synthetic workflow
+            # at extract end so the only intended pending set is the 15 boundary claims.
+            if decision>as_of:
+                decision=as_of
+                if start>decision:
+                    start=decision
+
+            out.at[idx,"approved_amount"]=approved
+            out.at[idx,"claim_status"]=outcome
+
+            if outcome=="denied":
+                pdate=None; method=None; pstatus=None; txn=None
+                reason="waiting_period" if "F2" in sig else choose(r,["not_covered","missing_documentation","late_submission"])
+            else:
+                method="provider_direct" if channel=="provider_direct_billing" else choose(r,["direct_deposit","cheque"],[.85,.15])
+                lag=1 if method=="provider_direct" else int(r.integers(1,4)) if method=="direct_deposit" else int(r.integers(3,8))
+                pdte=decision+timedelta(days=lag)
+                pstatus="scheduled" if pdte>as_of else "paid"
+                pdate=None if pstatus=="scheduled" else pdte
+                txn=None if pdate is None else f"TXN{int(r.integers(0,10**10)):010d}"
+                reason=None
+
+            payment.append({"_tmp":x["_tmp"],"processing_start_date":start,"decision_date":decision,"decision_outcome":outcome,"payment_date":pdate,"payment_amount":approved,"payment_method":method,"payment_status":pstatus,"transaction_reference":txn,"denial_reason":reason})
+
+        return out,pd.DataFrame(payment),docs
+
+    def finalize_claims(self, claims_a, pay_a, docs_a, claims_b, pay_b, docs_b, customers):
+        out=pd.concat([claims_a,claims_b],ignore_index=True).sort_values(["claim_date","_tmp"]).reset_index(drop=True)
+        mapping={}
+        for i,x in out.iterrows():
+            mapping[x["_tmp"]]=f"{ {'health':'H','dental':'D','travel':'T'}[x['product_line']] }{i+1:05d}"
+        out["claim_id"]=out["_tmp"].map(mapping)
+        cmap=customers.set_index("customer_id").to_dict("index")
+        out["region"]=out["customer_id"].map(lambda x:cmap[x]["province"])
+
+        pay=pd.concat([pay_a,pay_b],ignore_index=True)
+        if len(pay):
+            pay["claim_id"]=pay["_tmp"].map(mapping)
+            pay=pay.sort_values(["decision_date","claim_id"]).reset_index(drop=True)
+            pay.insert(0,"payment_id",[f"PAY{i+1:05d}" for i in range(len(pay))])
+
+        docs={}
+        for source in (docs_a,docs_b):
+            for tmp,d in source.items():
+                nd=copy.deepcopy(d)
+                nd["claim_id"]=mapping[tmp]
+                docs[mapping[tmp]]=nd
+
+        self.signal=defaultdict(set,{mapping[k]:v for k,v in self.signal.items() if k in mapping})
+        return out,pay,docs
 
     def details_and_payments(self,claims,policies,customers):
         r=self.rng["details_a"]; pmap=policies.set_index("policy_id").to_dict("index"); cmap=customers.set_index("customer_id").to_dict("index"); providers=defaultdict(list)
@@ -218,20 +401,79 @@ class Generator:
         self.signal=defaultdict(set,{mapping[k]:v for k,v in self.signal.items()})
         return out,pay,newdocs
 
-    def clean_qa(self,customers,policies,claims,payments,premiums,docs):
+    def clean_qa(self,customers,policies,claims,payments,premiums,docs,retention):
         errors=[]
-        if (len(customers),len(policies),len(claims),len(docs))!=(150,180,210,210): errors.append("base counts")
-        if claims.claim_id.duplicated().any(): errors.append("claim PK")
-        if not set(policies.customer_id)<=set(customers.customer_id): errors.append("policy customer FK")
-        if not set(claims.policy_id)<=set(policies.policy_id): errors.append("claim policy FK")
+        if (len(customers),len(policies),len(claims),len(docs))!=(150,180,210,210):
+            errors.append("base counts")
+        if claims.claim_id.duplicated().any():
+            errors.append("claim PK")
+        if not set(policies.customer_id)<=set(customers.customer_id):
+            errors.append("policy customer FK")
+        if not set(claims.policy_id)<=set(policies.policy_id):
+            errors.append("claim policy FK")
+
         pending=int((claims.claim_status=="pending").sum())
-        if not 10<=pending<=16: errors.append(f"pending {pending}")
-        sig=Counter(s for v in self.signal.values() for s in v); expected={"F1":12,"F2":6,"F3":8,"F4":12,"F5":24,"F6":5,"F7":10,"F8":12,"F9":4,"OUTLIER":3}
+        if not 10<=pending<=16:
+            errors.append(f"pending {pending}")
+
+        phase_counts=claims["phase"].value_counts().to_dict()
+        if phase_counts.get("A",0)!=175 or phase_counts.get("B",0)!=35:
+            errors.append(f"phase counts {phase_counts}")
+
+        eligible=len(retention)
+        churned=int(retention["churned"].sum())
+        replacements=int(retention["replacement_case"].sum())
+        if not 100<=eligible<=120:
+            errors.append(f"eligible {eligible}")
+        if not 12<=churned<=18:
+            errors.append(f"churned {churned}")
+        if replacements!=4:
+            errors.append(f"replacement cases {replacements}")
+
+        # Customer-level churn semantics: all snapshot-active HD policies ended in
+        # outcome and no replacement starts by extract end.
+        for cid in retention.loc[retention["churned"]==1,"customer_id"]:
+            hd=policies[(policies["customer_id"]==cid)&(policies["policy_type"].isin(["health","dental"]))]
+            old=hd[hd["start_date"]<=C.SNAPSHOT_DATE]
+            if len(old)==0 or not old["end_date"].apply(lambda x:isinstance(x,date) and C.OUTCOME_START<=x<=C.EXTRACT_END).all():
+                errors.append(f"churn realization {cid}")
+            repl=hd[(hd["start_date"]>C.SNAPSHOT_DATE)&(hd["start_date"]<=C.EXTRACT_END)&(hd["status"]=="active")]
+            if len(repl):
+                errors.append(f"churn replacement leak {cid}")
+
+        # INV12: every lapsed policy must have a missed premium in prior 90 days.
+        for _,row in policies[policies["status"]=="lapsed"].iterrows():
+            pp=premiums[(premiums["policy_id"]==row["policy_id"])&(premiums["payment_status"]=="missed")]
+            ok=((pp["due_date"]>=row["end_date"]-timedelta(days=90))&(pp["due_date"]<row["end_date"])).any()
+            if not ok:
+                errors.append(f"INV12 {row['policy_id']}")
+
+        # Phase-B claims can only occur while the finalized policy is in force.
+        pmap=policies.set_index("policy_id").to_dict("index")
+        for _,row in claims[claims["phase"]=="B"].iterrows():
+            p=pmap[row["policy_id"]]
+            if row["service_date"]<p["start_date"] or (p["end_date"] is not None and row["service_date"]>p["end_date"]):
+                errors.append(f"PhaseB after termination {row['claim_id']}")
+
+        sig=Counter(s for v in self.signal.values() for s in v)
+        expected={"F1":12,"F2":6,"F3":8,"F4":12,"F5":24,"F6":5,"F7":10,"F8":12,"F9":4,"OUTLIER":3}
         for k,n in expected.items():
-            if sig[k]!=n: errors.append(f"{k} {sig[k]}")
-        if not 3000<=len(premiums)<=4000: errors.append(f"premiums {len(premiums)}")
-        if errors: raise AssertionError("clean QA: "+"; ".join(errors))
-        return {"errors":[],"signal_counts":dict(sig),"pending_claims":pending,"premium_rows":len(premiums),"payment_rows":len(payments)}
+            if sig[k]!=n:
+                errors.append(f"{k} {sig[k]}")
+        if not 3000<=len(premiums)<=4000:
+            errors.append(f"premiums {len(premiums)}")
+
+        if errors:
+            raise AssertionError("clean QA: "+"; ".join(errors))
+        return {
+            "errors":[],
+            "signal_counts":dict(sig),
+            "pending_claims":pending,
+            "premium_rows":len(premiums),
+            "payment_rows":len(payments),
+            "retention":{"eligible_customers":eligible,"churned_customers":churned,"replacement_cases":replacements},
+            "phase_claim_counts":phase_counts,
+        }
 
     def raw(self,customers,policies,claims,payments,premiums,docs):
         return build_messy_raw(
@@ -254,7 +496,35 @@ class Generator:
         return manifest
 
     def run(self):
-        c=self.customers();p=self.policies(c);pr=self.premiums(c,p);cl=self.claims(c,p);cl,pay,docs=self.details_and_payments(cl,p,c);qa=self.clean_qa(c,p,cl,pay,pr,docs);tables,texts,defects,raw_qa=self.raw(c,p,cl,pay,pr,docs);manifest=self.write(tables,texts,defects,qa,raw_qa)
+        # S1-S2
+        customers=self.customers()
+        policies=self.policies(customers)
+
+        # S3A-S6A: only facts observable by the retention snapshot.
+        premiums_a=generate_premiums(customers,policies,self.rng["premiums_a"],phase="A")
+        claims_a=schedule_claims(customers,policies,self.rng["claims_a"],phase="A")
+        self.reserve_phase_a_signals(claims_a)
+        claims_a,pay_a,docs_a=self.detail_phase(claims_a,policies,customers,"details_a",C.SNAPSHOT_DATE)
+
+        # S7: derive snapshot drivers from Phase A, sample churn, then realize
+        # policy outcome state. Nothing from Phase B participates in this step.
+        policies,retention=apply_retention(
+            customers,policies,premiums_a,claims_a,pay_a,self.rng["retention"]
+        )
+
+        # S3B-S6B: only after churn/policy state is known.
+        premiums_b=generate_premiums(customers,policies,self.rng["premiums_b"],phase="B")
+        claims_b=schedule_claims(customers,policies,self.rng["claims_b"],phase="B")
+        claims_b,pay_b,docs_b=self.detail_phase(claims_b,policies,customers,"details_b",C.EXTRACT_END)
+
+        premiums=finalize_premiums(premiums_a,premiums_b)
+        claims,payments,docs=self.finalize_claims(
+            claims_a,pay_a,docs_a,claims_b,pay_b,docs_b,customers
+        )
+
+        qa=self.clean_qa(customers,policies,claims,payments,premiums,docs,retention)
+        tables,texts,defects,raw_qa=self.raw(customers,policies,claims,payments,premiums,docs)
+        manifest=self.write(tables,texts,defects,qa,raw_qa)
         assert len(texts)==200 and len(tables["Customer.csv"])==157 and len(tables["Policy.csv"])==183 and len(tables["Claim.csv"])==220 and len(tables["Claim_Payment.csv"])==203
         return {"qa":qa,"manifest":manifest}
 
