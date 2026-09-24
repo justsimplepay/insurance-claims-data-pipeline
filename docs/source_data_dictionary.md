@@ -1,13 +1,19 @@
 # Source Data Dictionary: Raw Claims Sources
 
-*GMS Data Engineer Case Study. Version 1.0, Wednesday, September 23, 2026. Based on the project overview v1.3.*
+*GMS Data Engineer Case Study. Version 1.1, Wednesday, September 23, 2026. Based on the project overview v1.4.*
 *Machine-readable companion: `docs/source_data_dictionary.yaml` (the YAML is authoritative; the tables below are rendered from it).*
 
 ---
 
 ## 1. Purpose and Scope
 
-This document defines what the **raw, messy source files** look like before any processing: five CSV extracts and 200 JSON claim-detail files. It serves two readers:
+This document defines what the **raw, messy source files** look like before any processing: five CSV extracts and 200 JSON claim-detail files.
+
+**Source-model assumption:** the three Claims Master Data files are represented as separate entity extracts—`Customer.csv`, `Policy.csv`, and `Claim.csv`—corresponding to customer demographics, policy details, and claim information in the case study. This is a modelling assumption, not a claim that the brief permits only this interpretation.
+
+**Design discipline:** source complexity is included only where it serves the assessment. Every field or rule must support at least one analytics objective, establish an important relationship/grain, or create/resolve a meaningful data-quality or reconciliation case. Complexity for its own sake is avoided.
+
+It serves two readers:
 
 - the **generator** (chat 4), which builds a clean ground truth to this specification and then injects the listed defects;
 - the **pipeline** (chats 5 to 7), which must parse, validate and reconcile these files.
