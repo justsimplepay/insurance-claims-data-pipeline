@@ -1008,8 +1008,6 @@ WHERE p.load_id = (SELECT load_id FROM _gms_load_context)
       OR p.claim_id IS NULL
       OR p.decision_outcome NOT IN ('approved','partially_approved','denied')
       OR p.payment_amount IS NULL OR p.payment_amount < 0
-      OR (p.processing_start_date IS NOT NULL AND p.decision_date IS NOT NULL
-          AND p.decision_date < p.processing_start_date)
       OR NOT EXISTS (
           SELECT 1 FROM staging.claims c
           WHERE c.load_id = p.load_id
@@ -1022,6 +1020,31 @@ UPDATE staging.claim_payments
 SET record_status = 'accepted'
 WHERE load_id = (SELECT load_id FROM _gms_load_context)
   AND record_status = 'candidate';
+
+-- A corrupt operational date must not erase an otherwise valid adjudication
+-- decision. Keep the row accepted, log the defect, and let core null the bad
+-- decision_date while retaining Claim_Payment.decision_outcome as authoritative.
+INSERT INTO staging.data_quality_log (
+    load_id, source_name, source_table, source_record_id, business_key,
+    rule_id, field_name, severity, action, original_value, clean_value, details
+)
+SELECT
+    p.load_id, sf.source_name, 'raw.claim_payment_csv', p.raw_row_id, p.payment_id,
+    'INV_DATE_ORDER', 'decision_date', 'error', 'flagged',
+    r.decision_date, NULL,
+    jsonb_build_object(
+        'processing_start_date', p.processing_start_date,
+        'decision_date', p.decision_date,
+        'core_treatment', 'retain decision row and null invalid decision_date'
+    )
+FROM staging.claim_payments p
+JOIN raw.claim_payment_csv r ON r.raw_row_id = p.raw_row_id
+JOIN raw.source_files sf ON sf.source_file_id = r.source_file_id
+WHERE p.load_id = (SELECT load_id FROM _gms_load_context)
+  AND p.record_status = 'accepted'
+  AND p.processing_start_date IS NOT NULL
+  AND p.decision_date IS NOT NULL
+  AND p.decision_date < p.processing_start_date;
 
 -- Premiums: duplicate rows are already excluded. Rows that cannot satisfy the
 -- canonical premium semantics are rejected.
