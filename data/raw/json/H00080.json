@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00080",
+  "product_line": "health",
+  "submission_channel": "online_portal",
+  "submitted_at": "2025-05-20T09:03:00-06:00",
+  "provider": {
+    "provider_id": "PRV0062",
+    "name": "Synthetic hospital 62",
+    "type": "hospital"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-05-20",
+      "description": "Synthetic hospital_cash",
+      "quantity": 1,
+      "unit_amount": 163.38,
+      "amount": 163.38
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-05-20",
+      "description": "Synthetic hospital_cash",
+      "quantity": 1,
+      "unit_amount": 163.38,
+      "amount": 163.38
+    }
+  ],
+  "adjuster_id": "ADJ003",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "hospital_discharge_summary"
+  ],
+  "health": {
+    "practitioner_type": null,
+    "number_of_visits": null,
+    "prescription": null
+  }
+}

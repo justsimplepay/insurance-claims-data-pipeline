@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00031",
+  "product_line": "travel",
+  "submission_channel": "mobile_app",
+  "submitted_at": "2024-07-24T14:24:00-06:00",
+  "provider": {
+    "provider_id": "PRV0065",
+    "name": "Synthetic airline 65",
+    "type": "airline"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2024-07-12",
+      "description": "Synthetic baggage",
+      "quantity": 1,
+      "unit_amount": 132.89,
+      "amount": 132.89
+    },
+    {
+      "line_no": 2,
+      "service_date": "2024-07-12",
+      "description": "Synthetic baggage",
+      "quantity": 1,
+      "unit_amount": 132.89,
+      "amount": 132.89
+    }
+  ],
+  "adjuster_id": "ADJ003",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "baggage_irregularity_report",
+    "receipt",
+    "proof_of_travel"
+  ],
+  "travel": {
+    "trip_start": "2024-07-10",
+    "trip_end": "2024-07-24",
+    "destination_country": "GB",
+    "incident_type": "baggage",
+    "incident_date": "2024-07-12",
+    "currency": "GBP",
+    "exchange_rate_to_cad": 1.7462,
+    "incident_sub_limit": 1000.0
+  }
+}

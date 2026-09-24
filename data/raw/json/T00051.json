@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00051",
+  "product_line": "travel",
+  "submission_channel": "mobile_app",
+  "submitted_at": "2024-11-27T11:23:00-06:00",
+  "provider": {
+    "provider_id": "PRV0075",
+    "name": "Synthetic hospital 75",
+    "type": "hospital"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2024-11-25",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 6004.9,
+      "amount": 6004.9
+    },
+    {
+      "line_no": 2,
+      "service_date": "2024-11-25",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 6004.91,
+      "amount": 6004.91
+    }
+  ],
+  "adjuster_id": "ADJ004",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "itemized_invoice",
+    "medical_report",
+    "proof_of_travel"
+  ],
+  "travel": {
+    "trip_start": "2024-11-30",
+    "trip_end": "2024-12-10",
+    "destination_country": "MX",
+    "incident_type": "medical",
+    "incident_date": "2024-11-25",
+    "currency": "MXN",
+    "exchange_rate_to_cad": 0.0785,
+    "incident_sub_limit": 2000000.0
+  }
+}

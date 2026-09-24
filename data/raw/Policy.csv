@@ -1,0 +1,184 @@
+policy_id,customer_id,policy_type,plan_name,coverage_type,start_date,end_date,status,sales_channel,coverage_amount,deductible_amount
+P00001,C00151,health,Replacement Health,single,2025-03-20,2026-04-14,cancelled,online,2000.00,0.00
+P00002,C00152,health,OmniPlan,couple,2024-10-06,2026-05-12,cancelled,broker,5000.00,0.00
+P00003,C00107,health,ExtendaPlan,single,2023-05-12,2026-05-26,cancelled,online,3000.00,100.00
+P00004,C00128,travel,TravelStar,single,2025-01-10,2025-02-24,expired,broker,5000000.00,0.00
+P00005,C00041,Health ,ExtendaPlan,single,2025-11-20,2026-06-14,lapsed,online,3000.00,0.00
+P00006,C00069,health,ExtendaPlan,couple,2023-06-02,,active,online,3000.00,100.00
+P00007,C00140,dental,Dental Basic,family,2024-02-15,2026-04-28,cancelled,broker,1000.00,0.00
+P00008,C00145,dental,Dental Basic,single,2022-04-17,,active,broker,1000.00,50.00
+P00009,C00037,health,OmniPlan,single,2022-02-10,,active,broker,5000.00,250.00
+P00010,C00065,health,Replacement Health,single,2025-11-20,2026-06-18,lapsed,online,2000.00,0.00
+P00011,C90001,dental,Dental Plus,single,2023-01-04,,active,broker,2000.00,0.00
+P00012,C90002,travel,StudentPlan,single,2025-08-15,2026-08-14,active,broker,2000000.00,0.00
+P00013,C00034,health,ExtendaPlan,couple,2022-05-02,2022-05-01,cancelled,broker,3000.00,100.00
+P00014,C00040,health,BasicPlan,single,2022-06-26,2022-06-25,active,online,1500.00,0.00
+P00015,C00059,Health ,ExtendaPlan,single,2022-08-02,,active,,3000.00,100.00
+P00016,C00001,dental,Dental Basic,single,2024-03-13,,active,,1000.00,0.00
+P00017,C00068,health,,family,2025-06-04,,active,call_centre,5000.00,100.00
+P00018,C00149,health,,family,2023-04-30,2026-06-17,lapsed,broker,1500.00,0.00
+P00019,C00014,health,ExtendaPlan,single,2022-09-04,,active,online,3000.00,100.00
+P00020,C00131,health,OmniPlan,couple,2022-03-16,,active,online,5000.00,100.00
+P00021,C00025,travel,StudentPlan,single,2024-02-27,2025-02-25,expired,call_centre,2000000.00,0.00
+P00022,C00006,dental,Dental Plus,single,2025-04-05,2026-05-06,lapsed,online,2000.00,0.00
+P00023,C00058,dental,Dental Plus,single,2025-04-02,2026-05-19,lapsed,online,2000.00,50.00
+P00024,C00013,health,Replacement Health,family,2024-02-09,,active,call_centre,2000.00,0.00
+P00025,C00085,dental,Dental Plus,family,2024-08-18,2026-05-12,cancelled,online,2000.00,0.00
+P00026,C00058,health,Replacement Health,couple,2025-06-29,2026-05-31,cancelled,online,2000.00,0.00
+P00027,C00025,dental,Dental Basic,single,2023-09-03,2026-05-11,cancelled,broker,1000.00,50.00
+P00028,C00138,travel,StudentPlan,single,2025-08-23,2026-08-22,active,broker,2000000.00,0.00
+P00029,C00044,health,BasicPlan,single,2022-02-24,,active,online,1500.00,0.00
+P00030,C00139,dental,Dental Plus,single,2024-11-02,,active,online,2000.00,0.00
+P00031,C00144,travel,StudentPlan,single,2023-12-23,2024-12-21,expired,broker,2000000.00,0.00
+P00032,C00121,travel,TravelStar,single,2024-01-29,2024-03-22,expired,online,5000000.00,0.00
+P00033,C00009,health,ExtendaPlan,single,2025-08-13,,active,online,3000.00,100.00
+P00034,C00079,travel,TravelStar,single,2024-09-17,2024-10-07,expired,broker,5000000.00,0.00
+P00035,C00050,dental,Dental Basic,single,2024-07-18,,active,online,1000.00,0.00
+P00036,C00122,dental,Dental Basic,couple,2025-07-08,,active,call_centre,1000.00,50.00
+P00037,C00102,health,BasicPlan,single,2022-09-03,,active,online,1500.00,0.00
+P00038,C00022,dental,Dental Plus,single,2025-09-03,,active,broker,2000.00,50.00
+P00039,C00114,travel,TravelStar,family,2024-09-01,2024-10-27,expired,broker,5000000.00,500.00
+P00040,C00072,travel,TravelStar,family,2026-05-06,2026-07-11,active,broker,5000000.00,0.00
+P00041,C00130,health,BasicPlan,couple,2025-04-15,2026-06-08,lapsed,online,1500.00,0.00
+P00042,C00129,health,OmniPlan,couple,2023-03-22,,active,online,5000.00,100.00
+P00043,C00060,dental,Dental Basic,family,2024-03-26,,active,broker,1000.00,0.00
+P00044,C00128,health,Replacement Health,single,2024-09-25,,active,broker,2000.00,0.00
+P00045,C00103,dental,Dental Plus,couple,2024-01-19,,active,call_centre,2000.00,0.00
+P00046,C00149,health,OmniPlan,family,2022-12-31,2026-05-31,cancelled,online,5000.00,0.00
+P00047,C00088,Dental ,Dental Basic,couple,2025-11-11,,active,broker,1000.00,0.00
+P00048,C00041,dental,Dental Plus,single,2024-11-16,2026-05-12,cancelled,broker,2000.00,50.00
+P00049,C00038,health,Replacement Health,single,2025-08-10,,active,broker,2000.00,0.00
+P00050,C00034,dental,Dental Basic,couple,2022-08-30,2026-05-03,cancelled,online,1000.00,0.00
+P00051,C00033,health,Replacement Health,single,2024-09-04,,active,broker,2000.00,0.00
+P00052,C00082,health,OmniPlan,single,2024-01-09,,active,online,5000.00,100.00
+P00053,C00104,health,OmniPlan,single,2022-07-01,,active,call_centre,5000.00,250.00
+P00054,C00150,health,ExtendaPlan,couple,2023-12-30,,active,online,3000.00,100.00
+P00055,C00117,health,BasicPlan,family,2025-08-04,,active,broker,1500.00,0.00
+P00056,C00003,health,Replacement Health,single,2025-12-23,,active,broker,2000.00,0.00
+P00057,C00033,dental,Dental Basic,single,2023-06-10,,active,online,1000.00,0.00
+P00058,C00077,dental,Dental Plus,single,2023-01-14,,active,online,2000.00,50.00
+P00059,C00124,health,BasicPlan,couple,2025-09-15,,active,broker,1500.00,0.00
+P00060,C00047,health,BasicPlan,family,2025-08-17,,active,online,1500.00,0.00
+P00061,C00049,travel,TravelStar,single,2025-02-04,2025-03-02,expired,broker,5000000.00,250.00
+P00062,C00096,Health ,ExtendaPlan,single,04/08/2022,2026-05-07,cancelled,call_centre,3000.00,100.00
+P00063,C00046,travel,TravelStar,family,2025-10-06,2025-12-07,expired,online,5000000.00,0.00
+P00064,C00030,health,OmniPlan,single,2025-08-13,,active,broker,5000.00,100.00
+P00065,C00047,dental,Dental Plus,single,2022-12-07,,active,online,2000.00,0.00
+P00066,C00064,dental,Dental Plus,family,2023-09-13,,active,online,"$2,000.00",50.00
+P00067,C00064,health,ExtendaPlan,single,2025-07-09,,active,online,3000.00,100.00
+P00068,C00056,travel,StudentPlan,single,2023-12-28,2024-12-26,expired,broker,2000000.00,0.00
+P00069,C00005,health,Replacement Health,single,2022-09-27,2026-06-11,lapsed,broker,2000.00,0.00
+P00070,C00041,dental,Dental Basic,couple,2024-11-30,2026-04-30,cancelled,online,1000.00,0.00
+P00071,C00029,travel,StudentPlan,single,2025-01-03,2026-01-02,expired,broker,2000000.00,0.00
+P00072,C00070,dental,Dental Basic,family,2025-02-04,,active,online,1000.00,0.00
+P00073,C00111,health,BasicPlan,family,2023-10-26,2026-06-06,lapsed,online,1500.00,0.00
+P00074,C00020,health,OmniPlan,couple,2024-06-13,,active,broker,5000.00,250.00
+P00075,C00100,health,BasicPlan,single,2024-03-03,,active,call_centre,1500.00,0.00
+P00076,C00021,health,Replacement Health,couple,2023-07-21,,active,broker,2000.00,0.00
+P00077,C00147,dental,Dental Basic,family,2023-11-29,,active,broker,1000.00,50.00
+P00078,C00113,dental,Dental Plus,couple,2025-11-26,,active,call_centre,2000.00,50.00
+P00079,C00116,dental,Dental Basic,single,2024-06-12,,active,call_centre,1000.00,0.00
+P00080,C00042,dental,Dental Plus,couple,2023-12-13,,active,broker,2000.00,50.00
+P00081,C00066,dental,Dental Plus,family,2023-04-05,,active,broker,2000.00,0.00
+P00082,C00143,health,BasicPlan,single,08/06/2022,,active,online,1500.00,0.00
+P00083,C00115,dental,Dental Plus,single,2024-07-03,,active,broker,2000.00,50.00
+P00084,C00019,travel,StudentPlan,couple,2023-08-03,2024-08-01,expired,broker,2000000.00,0.00
+P00085,C00054,health,Replacement Health,single,2025-09-09,,active,broker,2000.00,0.00
+P00086,C00109,health,BasicPlan,family,2024-11-22,,active,broker,1500.00,0.00
+P00087,C00023,dental,Dental Basic,couple,2024-12-03,,active,call_centre,1000.00,50.00
+P00088,C00100,health,ExtendaPlan,couple,2025-03-04,,active,online,3000.00,100.00
+P00089,C00099,health,BasicPlan,single,2022-12-09,,active,broker,1500.00,0.00
+P00090,C00012,health,Replacement Health,single,02/22/2024,,active,online,2000.00,0.00
+P00091,C00090,health,OmniPlan,couple,2022-01-13,,active,online,5000.00,100.00
+P00092,C00126,health,BasicPlan,single,2025-01-27,,active,call_centre,1500.00,0.00
+P00093,C00023,health,BasicPlan,family,2025-07-05,,active,online,1500.00,0.00
+P00094,C00056,health,BasicPlan,single,2023-12-07,,active,broker,1500.00,0.00
+P00095,C00085,health,OmniPlan,couple,2025-06-30,2026-05-12,cancelled,call_centre,5000.00,0.00
+P00096,C00008,dental,Dental Basic,single,2022-09-27,,active,online,1000.00,50.00
+P00097,C00068,health,BasicPlan,couple,2024-11-26,,active,broker,1500.00,0.00
+P00098,C00089,dental,Dental Plus,single,2023-02-20,,active,call_centre,2000.00,50.00
+P00099,C00007,travel,StudentPlan,couple,2024-07-20,2025-07-19,expired,online,2000000.00,0.00
+P00100,C00036,Health ,OmniPlan,single,2024-11-15,,active,broker,"$5,000.00",250.00
+P00101,C00068,dental,Dental Basic,single,2022-12-28,,active,call_centre,1000.00,0.00
+P00102,C00148,dental,Dental Basic,family,2025-11-03,,active,online,1000.00,0.00
+P00103,C00141,health,ExtendaPlan,couple,2022-10-19,,active,call_centre,3000.00,0.00
+P00104,C00100,dental,Dental Basic,single,2024-06-08,,active,online,1000.00,50.00
+P00105,C00106,health,ExtendaPlan,single,2025-10-03,,active,broker,"$3,000.00",100.00
+P00106,C00045,health,ExtendaPlan,couple,2025-06-08,,active,online,3000.00,0.00
+P00107,C00099,health,BasicPlan,family,2022-06-15,,active,call_centre,1500.00,0.00
+P00108,C00060,health,ExtendaPlan,single,2024-10-17,,active,online,3000.00,100.00
+P00109,C00029,travel,StudentPlan,single,2023-10-22,2024-10-20,expired,online,2000000.00,0.00
+P00110,C00093,dental,Dental Basic,single,2023-10-29,,active,online,1000.00,50.00
+P00111,C00134,health,OmniPlan,single,2022-09-02,,active,broker,5000.00,250.00
+P00112,C00122,health,ExtendaPlan,single,2024-12-11,,active,call_centre,3000.00,100.00
+P00113,c00039 ,Travel ,TravelStar,family,10/03/2024,2024-10-28,expired,call_centre,"$5,000,000.00",250.00
+P00114,C00025,dental,Dental Basic,single,2025-03-23,2026-04-26,cancelled,broker,1000.00,0.00
+P00115,C00052,travel,TravelStar,family,2025-03-11,2025-05-02,expired,online,5000000.00,250.00
+P00116,C00037,dental,Dental Basic,single,2025-01-05,,active,online,1000.00,0.00
+P00117,C00014,dental,Dental Basic,single,2023-08-26,,active,broker,1000.00,50.00
+P00118,C00146,health,ExtendaPlan,family,2022-04-15,,active,broker,3000.00,0.00
+P00119,C00094,dental,Dental Plus,single,2025-01-25,2026-06-18,lapsed,broker,2000.00,0.00
+P00120,C00021,health,Replacement Health,couple,2025-07-19,,active,online,2000.00,0.00
+P00121,C00063,dental,Dental Basic,single,2024-06-30,,active,broker,1000.00,0.00
+P00122,C00118,dental,Dental Basic,single,2024-05-12,,active,online,1000.00,50.00
+P00123,C00042,dental,Dental Plus,single,2023-12-14,,active,broker,2000.00,50.00
+P00124,C00119,health,BasicPlan,family,2023-11-11,,active,broker,1500.00,0.00
+P00125,c00027 ,health,OmniPlan,single,04/25/2023,,active,online,"$5,000.00",0.00
+P00126,C00089,health,ExtendaPlan,single,2023-12-02,,active,online,3000.00,100.00
+P00127,C00041,health,BasicPlan,single,2025-07-04,2026-05-02,cancelled,online,1500.00,0.00
+P00128,C00006,health,BasicPlan,single,2025-12-20,2026-04-27,cancelled,online,1500.00,0.00
+P00129,C00021,travel,TravelStar,single,2024-08-31,2024-10-06,expired,online,5000000.00,250.00
+P00130,C00142,health,ExtendaPlan,family,2024-08-11,,active,online,3000.00,0.00
+P00131,C00067,health,BasicPlan,single,2024-06-09,,active,broker,1500.00,0.00
+P00132,C00108,dental,Dental Basic,single,2024-01-13,,active,online,1000.00,50.00
+P00133,C00097,health,ExtendaPlan,family,2022-06-07,,active,online,3000.00,0.00
+P00134,C00093,Dental ,Dental Basic,single,04/08/2025,,active,broker,"$1,000.00",50.00
+P00135,C00135,health,OmniPlan,single,2022-08-06,,active,call_centre,5000.00,250.00
+P00136,C00102,health,BasicPlan,single,2024-06-07,,active,online,1500.00,0.00
+P00137,C00064,health,ExtendaPlan,family,2023-05-15,,active,broker,3000.00,100.00
+P00138,C00105,health,OmniPlan,single,2023-02-13,2026-05-25,cancelled,online,5000.00,250.00
+P00139,C00035,health,BasicPlan,single,2024-01-09,,active,call_centre,1500.00,0.00
+P00140,C00123,dental,Dental Basic,single,2024-09-13,,active,online,"$1,000.00",0.00
+P00141,C00092,dental,Dental Basic,couple,2022-04-17,,active,broker,1000.00,0.00
+P00142,C00091,health,ExtendaPlan,couple,2022-05-17,,active,call_centre,3000.00,100.00
+P00143,C00064,travel,TravelStar,family,2025-12-10,2026-01-29,expired,online,5000000.00,250.00
+P00144,C00131,health,BasicPlan,couple,2025-09-03,,active,broker,1500.00,0.00
+P00145,C00150,dental,Dental Plus,single,2025-09-24,,active,online,2000.00,50.00
+P00146,C00110,health,BasicPlan,single,2024-04-09,,active,online,1500.00,0.00
+P00147,C00057,dental,Dental Basic,single,2023-06-09,2026-05-14,lapsed,broker,1000.00,50.00
+P00148,C00002,health,Replacement Health,single,2025-01-27,,active,call_centre,2000.00,0.00
+P00149,C00011,health,ExtendaPlan,couple,2024-02-19,,active,online,3000.00,100.00
+P00150,C00086,travel,TravelStar,family,2024-02-02,2024-04-16,expired,call_centre,5000000.00,250.00
+P00151,C00091,health,OmniPlan,family,2025-04-23,,active,online,5000.00,250.00
+P00152,C00093,health,Replacement Health,single,04/08/2025,,active,broker,2000.00,0.00
+P00153,C00095,travel,StudentPlan,family,2024-03-29,2025-03-28,expired,call_centre,2000000.00,0.00
+P00154,C00123,health,BasicPlan,family,2024-10-18,,active,online,1500.00,0.00
+P00155,C00130,travel,TravelStar,couple,2024-06-04,2024-07-17,expired,online,5000000.00,250.00
+P00156,C00127,health,OmniPlan,couple,2023-10-16,,active,broker,5000.00,0.00
+P00157,C00032,travel,TravelStar,couple,2024-01-11,2024-03-25,expired,broker,5000000.00,250.00
+P00158,C00008,health,ExtendaPlan,couple,2022-10-31,,active,call_centre,3000.00,100.00
+P00159,C00004,health,ExtendaPlan,family,2025-05-25,,active,broker,3000.00,100.00
+P00160,C00018,health,ExtendaPlan,single,2022-09-04,,active,broker,3000.00,100.00
+P00161,C00055,health,ExtendaPlan,family,2024-05-02,,active,call_centre,3000.00,100.00
+P00162,C00070,health,OmniPlan,couple,2024-01-23,,active,online,5000.00,100.00
+P00163,C00078,health,ExtendaPlan,single,2026-04-15,,active,call_centre,3000.00,100.00
+P00164,C00084,dental,Dental Plus,family,2022-08-05,,active,online,2000.00,0.00
+P00165,C00010,health,ExtendaPlan,single,2024-10-09,,active,call_centre,3000.00,0.00
+P00166,C00140,dental,Dental Plus,couple,2026-04-29,,active,broker,2000.00,50.00
+P00167,C00064,travel,TravelStar,couple,2024-02-01,2024-03-16,expired,online,5000000.00,250.00
+P00168,C00085,health,BasicPlan,couple,2026-05-13,,active,broker,1500.00,0.00
+P00169,C00103,travel,TravelStar,couple,2024-07-25,2024-09-23,expired,online,5000000.00,500.00
+P00170,C00098,travel,StudentPlan,couple,2025-12-07,2026-12-06,active,call_centre,2000000.00,0.00
+P00171,C00076,health,ExtendaPlan,single,2022-12-01,,active,call_centre,3000.00,0.00
+P00172,C00137,health,BasicPlan,family,2022-09-18,,active,call_centre,1500.00,0.00
+P00173,C00051,health,OmniPlan,single,2024-08-12,,active,online,5000.00,250.00
+P00174,C00031,health,BasicPlan,single,2024-11-17,,active,broker,1500.00,0.00
+P00175,C00024,dental,Dental Plus,single,2023-12-10,,active,call_centre,2000.00,50.00
+P00176,C00081,dental,Dental Basic,single,2024-05-15,,active,call_centre,1000.00,0.00
+P00177,C00095,dental,Dental Basic,couple,2024-07-28,,active,online,1000.00,0.00
+P00178,C00107,health,OmniPlan,family,2026-05-27,,active,broker,5000.00,250.00
+P00179,C00083,health,OmniPlan,single,2024-02-13,2026-06-07,lapsed,broker,5000.00,250.00
+P00180,C00028,health,OmniPlan,couple,2025-05-09,,active,broker,5000.00,250.00
+P00181,C00155,health,ExtendaPlan,couple,2025-01-01,,active,online,3000.00,100.00
+P00182,C00156,dental,Dental Basic,family,2025-02-01,,active,broker,1000.00,0.00
+P00183,C00157,dental,Dental Basic,single,2025-03-01,,active,broker,1000.00,50.00

@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00024",
+  "product_line": "health",
+  "submission_channel": "online_portal",
+  "submitted_at": "2024-04-05T11:58:00-06:00",
+  "provider": {
+    "provider_id": "PRV0010",
+    "name": "Synthetic hospital 10",
+    "type": "hospital"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2024-03-27",
+      "description": "Synthetic hospital_cash",
+      "quantity": 1,
+      "unit_amount": 150.12,
+      "amount": 150.12
+    },
+    {
+      "line_no": 2,
+      "service_date": "2024-03-27",
+      "description": "Synthetic hospital_cash",
+      "quantity": 1,
+      "unit_amount": 150.11,
+      "amount": 150.11
+    }
+  ],
+  "adjuster_id": "ADJ004",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "hospital_discharge_summary"
+  ],
+  "health": {
+    "practitioner_type": null,
+    "number_of_visits": null,
+    "prescription": null
+  }
+}

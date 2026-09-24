@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00060",
+  "product_line": "health",
+  "submission_channel": "mobile_app",
+  "submitted_at": "2025-02-03T21:56:00-06:00",
+  "provider": {
+    "provider_id": "PRV0033",
+    "name": "Synthetic hearing_clinic 33",
+    "type": "hearing_clinic"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-01-20",
+      "description": "Synthetic hearing_aids",
+      "quantity": 1,
+      "unit_amount": 347.26,
+      "amount": 347.26
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-01-20",
+      "description": "Synthetic hearing_aids",
+      "quantity": 1,
+      "unit_amount": 347.26,
+      "amount": 347.26
+    }
+  ],
+  "adjuster_id": "ADJ009",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt",
+    "referral"
+  ],
+  "health": {
+    "practitioner_type": null,
+    "number_of_visits": null,
+    "prescription": null
+  }
+}

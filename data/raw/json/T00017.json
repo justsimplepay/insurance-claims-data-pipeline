@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00017",
+  "product_line": "travel",
+  "submission_channel": "mobile_app",
+  "submitted_at": "2024-03-16T02:23:00-06:00",
+  "provider": {
+    "provider_id": "PRV0069",
+    "name": "Synthetic travel_supplier 69",
+    "type": "travel_supplier"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2024-03-05",
+      "description": "Synthetic trip_cancellation",
+      "quantity": 1,
+      "unit_amount": 966.84,
+      "amount": 966.84
+    },
+    {
+      "line_no": 2,
+      "service_date": "2024-03-05",
+      "description": "Synthetic trip_cancellation",
+      "quantity": 1,
+      "unit_amount": 966.85,
+      "amount": 966.85
+    }
+  ],
+  "adjuster_id": "ADJ010",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "cancellation_invoice",
+    "booking_confirmation",
+    "supporting_statement"
+  ],
+  "travel": {
+    "trip_start": "2024-03-03",
+    "trip_end": "2024-03-17",
+    "destination_country": "CA",
+    "incident_type": "cancellation",
+    "incident_date": "2024-03-05",
+    "currency": "CAD",
+    "exchange_rate_to_cad": 1.0,
+    "incident_sub_limit": 6268.21
+  }
+}

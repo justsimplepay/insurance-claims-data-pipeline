@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00135",
+  "product_line": "health",
+  "submission_channel": "online_portal",
+  "submitted_at": "2025-12-02T16:16:00-06:00",
+  "provider": {
+    "provider_id": "PRV0057",
+    "name": "Synthetic practitioner_office 57",
+    "type": "practitioner_office"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-11-30",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 94.06,
+      "amount": 94.06
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-11-30",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 94.06,
+      "amount": 94.06
+    }
+  ],
+  "adjuster_id": "ADJ010",
+  "adjuster_notes": null,
+  "documents_submitted": [],
+  "health": {
+    "practitioner_type": "chiropractor",
+    "number_of_visits": 1,
+    "prescription": null
+  }
+}

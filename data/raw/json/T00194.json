@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00194",
+  "product_line": "travel",
+  "submission_channel": "mobile_app",
+  "submitted_at": "2026-06-18T21:24:00-06:00",
+  "provider": {
+    "provider_id": "PRV0037",
+    "name": "Synthetic foreign_hospital 37",
+    "type": "foreign_hospital"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2026-06-08",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 463.48,
+      "amount": 463.48
+    },
+    {
+      "line_no": 2,
+      "service_date": "2026-06-08",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 463.48,
+      "amount": 463.48
+    }
+  ],
+  "adjuster_id": "ADJ009",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "itemized_invoice",
+    "medical_report",
+    "proof_of_travel"
+  ],
+  "travel": {
+    "trip_start": "2026-06-06",
+    "trip_end": "2026-06-20",
+    "destination_country": "CA",
+    "incident_type": "medical",
+    "incident_date": "2026-06-08",
+    "currency": "CAD",
+    "exchange_rate_to_cad": 1.0,
+    "incident_sub_limit": 2000000.0
+  }
+}

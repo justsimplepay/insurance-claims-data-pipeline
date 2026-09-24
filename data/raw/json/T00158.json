@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00158",
+  "product_line": "travel",
+  "submission_channel": "online_portal",
+  "submitted_at": "2026-01-19T17:48:00-06:00",
+  "provider": {
+    "provider_id": "PRV0050",
+    "name": "Synthetic foreign_hospital 50",
+    "type": "foreign_hospital"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2026-01-15",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 24969.16,
+      "amount": 24969.16
+    },
+    {
+      "line_no": 2,
+      "service_date": "2026-01-15",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 24969.15,
+      "amount": 24969.15
+    }
+  ],
+  "adjuster_id": "ADJ003",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "itemized_invoice",
+    "medical_report",
+    "proof_of_travel"
+  ],
+  "travel": {
+    "trip_start": "2026-01-13",
+    "trip_end": "2026-01-27",
+    "destination_country": "GB",
+    "incident_type": "medical",
+    "incident_date": "2026-01-15",
+    "currency": "GBP",
+    "exchange_rate_to_cad": 1.7021,
+    "incident_sub_limit": 2000000.0
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00137",
+  "product_line": "health",
+  "submission_channel": "online_portal",
+  "submitted_at": "2025-12-03T09:05:00-06:00",
+  "provider": {
+    "provider_id": "PRV0068",
+    "name": "Synthetic clinic 68",
+    "type": "clinic"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-11-22",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 66.86,
+      "amount": 66.86
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-11-22",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 66.87,
+      "amount": 66.87
+    }
+  ],
+  "adjuster_id": "ADJ010",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt"
+  ],
+  "health": {
+    "practitioner_type": "psychologist",
+    "number_of_visits": 1,
+    "prescription": null
+  }
+}

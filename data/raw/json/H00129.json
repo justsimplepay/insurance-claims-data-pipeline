@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00129",
+  "product_line": "health",
+  "submission_channel": "mail",
+  "submitted_at": "2025-11-08T17:58:00-06:00",
+  "provider": {
+    "provider_id": "PRV0045",
+    "name": "Synthetic optical_store 45",
+    "type": "optical_store"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-11-06",
+      "description": "Synthetic vision",
+      "quantity": 1,
+      "unit_amount": 88.5,
+      "amount": 88.5
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-11-06",
+      "description": "Synthetic vision",
+      "quantity": 1,
+      "unit_amount": 88.51,
+      "amount": 88.51
+    }
+  ],
+  "adjuster_id": "ADJ004",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt",
+    "prescription"
+  ],
+  "health": {
+    "practitioner_type": "naturopath",
+    "number_of_visits": null,
+    "prescription": null
+  }
+}

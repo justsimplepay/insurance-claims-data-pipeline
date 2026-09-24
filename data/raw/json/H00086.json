@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00086",
+  "product_line": "health",
+  "submission_channel": "mail",
+  "submitted_at": "2025-06-22T11:24:00-06:00",
+  "provider": {
+    "provider_id": "PRV0031",
+    "name": "Synthetic practitioner_office 31",
+    "type": "practitioner_office"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-06-09",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 50.14,
+      "amount": 50.14
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-06-09",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 50.14,
+      "amount": 50.14
+    }
+  ],
+  "adjuster_id": "ADJ006",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt"
+  ],
+  "health": {
+    "practitioner_type": "psychologist",
+    "number_of_visits": 1,
+    "prescription": null
+  }
+}

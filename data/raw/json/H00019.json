@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00019",
+  "product_line": "health",
+  "submission_channel": "provider_direct_billing",
+  "submitted_at": "2024-03-20T13:08:00-06:00",
+  "provider": {
+    "provider_id": "PRV0014",
+    "name": "Synthetic pharmacy 14",
+    "type": "pharmacy"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2024-03-07",
+      "description": "Synthetic prescription_drugs",
+      "quantity": 1,
+      "unit_amount": 69.62,
+      "amount": 69.62
+    },
+    {
+      "line_no": 2,
+      "service_date": "2024-03-07",
+      "description": "Synthetic prescription_drugs",
+      "quantity": 1,
+      "unit_amount": 69.63,
+      "amount": 69.63
+    }
+  ],
+  "adjuster_id": "ADJ001",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt",
+    "prescription"
+  ],
+  "health": {
+    "practitioner_type": null,
+    "number_of_visits": null,
+    "prescription": null
+  }
+}

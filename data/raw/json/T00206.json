@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00206",
+  "product_line": "travel",
+  "submission_channel": "online_portal",
+  "submitted_at": "2026-06-30T21:50:00-06:00",
+  "provider": {
+    "provider_id": "PRV0036",
+    "name": "Synthetic hospital 36",
+    "type": "hospital"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2026-06-30",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 929.78,
+      "amount": 929.78
+    },
+    {
+      "line_no": 2,
+      "service_date": "2026-06-30",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 929.77,
+      "amount": 929.77
+    }
+  ],
+  "adjuster_id": "ADJ004",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "itemized_invoice",
+    "medical_report",
+    "proof_of_travel"
+  ],
+  "travel": {
+    "trip_start": "2026-06-28",
+    "trip_end": "2026-07-12",
+    "destination_country": "US",
+    "incident_type": "medical",
+    "incident_date": "2026-06-30",
+    "currency": "USD",
+    "exchange_rate_to_cad": 1.3411,
+    "incident_sub_limit": 2000000.0
+  }
+}

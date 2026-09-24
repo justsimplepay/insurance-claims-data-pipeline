@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00151",
+  "product_line": "travel",
+  "submission_channel": "online_portal",
+  "submitted_at": "2026-01-01T14:29:00-06:00",
+  "provider": {
+    "provider_id": "PRV0004",
+    "name": "Synthetic travel_supplier 4",
+    "type": "travel_supplier"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-12-27",
+      "description": "Synthetic trip_cancellation",
+      "quantity": 1,
+      "unit_amount": 454.96,
+      "amount": 454.96
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-12-27",
+      "description": "Synthetic trip_cancellation",
+      "quantity": 1,
+      "unit_amount": 454.97,
+      "amount": 454.97
+    }
+  ],
+  "adjuster_id": "ADJ005",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "cancellation_invoice",
+    "booking_confirmation",
+    "supporting_statement"
+  ],
+  "travel": {
+    "trip_start": "2025-12-25",
+    "trip_end": "2026-01-08",
+    "destination_country": "US",
+    "incident_type": "cancellation",
+    "incident_date": "2025-12-27",
+    "currency": "USD",
+    "exchange_rate_to_cad": 1.3584,
+    "incident_sub_limit": 7710.42
+  }
+}

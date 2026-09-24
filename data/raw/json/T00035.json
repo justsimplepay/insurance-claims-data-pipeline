@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00035",
+  "product_line": "travel",
+  "submission_channel": "online_portal",
+  "submitted_at": "2024-09-20T14:58:00-06:00",
+  "provider": {
+    "provider_id": "PRV0039",
+    "name": "Synthetic airline 39",
+    "type": "airline"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2024-09-09",
+      "description": "Synthetic baggage",
+      "quantity": 1,
+      "unit_amount": 215.08,
+      "amount": 215.08
+    },
+    {
+      "line_no": 2,
+      "service_date": "2024-09-09",
+      "description": "Synthetic baggage",
+      "quantity": 1,
+      "unit_amount": 215.08,
+      "amount": 215.08
+    }
+  ],
+  "adjuster_id": "ADJ005",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "baggage_irregularity_report",
+    "receipt",
+    "proof_of_travel"
+  ],
+  "travel": {
+    "trip_start": "2024-09-07",
+    "trip_end": "2024-09-21",
+    "destination_country": "US",
+    "incident_type": "baggage",
+    "incident_date": "2024-09-09",
+    "currency": "USD",
+    "exchange_rate_to_cad": 1.3764,
+    "incident_sub_limit": 1000.0
+  }
+}

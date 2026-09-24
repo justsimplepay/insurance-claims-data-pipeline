@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00192",
+  "product_line": "travel",
+  "submission_channel": "online_portal",
+  "submitted_at": "2026-06-09T20:41:00-06:00",
+  "provider": {
+    "provider_id": "PRV0026",
+    "name": "Synthetic airline 26",
+    "type": "airline"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2026-06-09",
+      "description": "Synthetic baggage",
+      "quantity": 1,
+      "unit_amount": 215.17,
+      "amount": 215.17
+    },
+    {
+      "line_no": 2,
+      "service_date": "2026-06-09",
+      "description": "Synthetic baggage",
+      "quantity": 1,
+      "unit_amount": 215.17,
+      "amount": 215.17
+    }
+  ],
+  "adjuster_id": "ADJ012",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "baggage_irregularity_report",
+    "receipt",
+    "proof_of_travel"
+  ],
+  "travel": {
+    "trip_start": "2026-06-07",
+    "trip_end": "2026-06-21",
+    "destination_country": "US",
+    "incident_type": "baggage",
+    "incident_date": "2026-06-09",
+    "currency": "USD",
+    "exchange_rate_to_cad": 1.3726,
+    "incident_sub_limit": 1000.0
+  }
+}

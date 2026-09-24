@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "D00113",
+  "product_line": "dental",
+  "submission_channel": "online_portal",
+  "submitted_at": "2025-09-28T08:15:00-06:00",
+  "provider": {
+    "provider_id": "PRV0002",
+    "name": "Synthetic dental_clinic 2",
+    "type": "dental_clinic"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-09-27",
+      "description": "Synthetic basic",
+      "quantity": 1,
+      "unit_amount": 99.71,
+      "amount": 99.71,
+      "procedure_code": "10000",
+      "procedure_category": "basic",
+      "tooth_number": null
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-09-27",
+      "description": "Synthetic basic",
+      "quantity": 1,
+      "unit_amount": 99.71,
+      "amount": 99.71,
+      "procedure_code": "10001",
+      "procedure_category": "basic",
+      "tooth_number": null
+    }
+  ],
+  "adjuster_id": "ADJ003",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt"
+  ],
+  "dental": {
+    "claim_category": "basic"
+  }
+}

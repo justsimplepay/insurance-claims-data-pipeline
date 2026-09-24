@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00112",
+  "product_line": "health",
+  "submission_channel": "mail",
+  "submitted_at": "2025-09-20T20:37:00-06:00",
+  "provider": {
+    "provider_id": "PRV0018",
+    "name": "Synthetic practitioner_office 18",
+    "type": "practitioner_office"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-09-16",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 86.04,
+      "amount": 86.04
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-09-16",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 86.05,
+      "amount": 86.05
+    }
+  ],
+  "adjuster_id": "ADJ008",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt"
+  ],
+  "health": {
+    "practitioner_type": "naturopath",
+    "number_of_visits": 1,
+    "prescription": null
+  }
+}

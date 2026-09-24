@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00171",
+  "product_line": "health",
+  "submission_channel": "mobile_app",
+  "submitted_at": "2026-02-17T18:02:00-06:00",
+  "provider": {
+    "provider_id": "PRV0048",
+    "name": "Synthetic ambulance_service 48",
+    "type": "ambulance_service"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2026-02-15",
+      "description": "Synthetic ambulance",
+      "quantity": 1,
+      "unit_amount": 109.52,
+      "amount": 109.52
+    },
+    {
+      "line_no": 2,
+      "service_date": "2026-02-15",
+      "description": "Synthetic ambulance",
+      "quantity": 1,
+      "unit_amount": 109.53,
+      "amount": 109.53
+    }
+  ],
+  "adjuster_id": "ADJ008",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "invoice"
+  ],
+  "health": {
+    "practitioner_type": null,
+    "number_of_visits": null,
+    "prescription": null
+  }
+}

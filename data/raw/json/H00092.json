@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00092",
+  "product_line": "health",
+  "submission_channel": "mobile_app",
+  "submitted_at": "2025-07-10T16:04:00-06:00",
+  "provider": {
+    "provider_id": "PRV0034",
+    "name": "Synthetic medical_supplier 34",
+    "type": "medical_supplier"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-07-09",
+      "description": "Synthetic medical_equipment",
+      "quantity": 1,
+      "unit_amount": 80.46,
+      "amount": 80.46
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-07-09",
+      "description": "Synthetic medical_equipment",
+      "quantity": 1,
+      "unit_amount": 80.47,
+      "amount": 80.47
+    }
+  ],
+  "adjuster_id": "ADJ004",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt",
+    "referral"
+  ],
+  "health": {
+    "practitioner_type": null,
+    "number_of_visits": null,
+    "prescription": null
+  }
+}

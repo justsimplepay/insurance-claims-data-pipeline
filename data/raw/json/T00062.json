@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00062",
+  "product_line": "travel",
+  "submission_channel": "online_portal",
+  "submitted_at": "2025-02-23T13:03:00-06:00",
+  "provider": {
+    "provider_id": "PRV0051",
+    "name": "Synthetic foreign_clinic 51",
+    "type": "foreign_clinic"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-02-16",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 18805.99,
+      "amount": 18805.99
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-02-16",
+      "description": "Synthetic emergency_medical",
+      "quantity": 1,
+      "unit_amount": 18805.99,
+      "amount": 18805.99
+    }
+  ],
+  "adjuster_id": "ADJ006",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "itemized_invoice",
+    "medical_report",
+    "proof_of_travel"
+  ],
+  "travel": {
+    "trip_start": "2025-02-14",
+    "trip_end": "2025-02-24",
+    "destination_country": "IT",
+    "incident_type": "medical",
+    "incident_date": "2025-02-16",
+    "currency": "EUR",
+    "exchange_rate_to_cad": 1.4623,
+    "incident_sub_limit": 5000000.0
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "D00138",
+  "product_line": "dental",
+  "submission_channel": "mobile_app",
+  "submitted_at": "2025-12-05T16:26:00-06:00",
+  "provider": {
+    "provider_id": "PRV0002",
+    "name": "Synthetic dental_clinic 2",
+    "type": "dental_clinic"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-12-02",
+      "description": "Synthetic major",
+      "quantity": 1,
+      "unit_amount": 343.74,
+      "amount": 343.74,
+      "procedure_code": "10000",
+      "procedure_category": "major",
+      "tooth_number": null
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-12-02",
+      "description": "Synthetic major",
+      "quantity": 1,
+      "unit_amount": 343.75,
+      "amount": 343.75,
+      "procedure_code": "10001",
+      "procedure_category": "major",
+      "tooth_number": null
+    }
+  ],
+  "adjuster_id": "ADJ008",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt",
+    "treatment_plan",
+    "xray"
+  ],
+  "dental": {
+    "claim_category": "major"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00123",
+  "product_line": "health",
+  "submission_channel": "online_portal",
+  "submitted_at": "2025-10-12T19:32:00-06:00",
+  "provider": {
+    "provider_id": "PRV0071",
+    "name": "Synthetic optical_store 71",
+    "type": "optical_store"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-10-01",
+      "description": "Synthetic vision",
+      "quantity": 1,
+      "unit_amount": 90.27,
+      "amount": 90.27
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-10-01",
+      "description": "Synthetic vision",
+      "quantity": 1,
+      "unit_amount": 90.27,
+      "amount": 90.27
+    }
+  ],
+  "adjuster_id": "ADJ007",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt",
+    "prescription"
+  ],
+  "health": {
+    "practitioner_type": "optometrist",
+    "number_of_visits": null,
+    "prescription": null
+  }
+}

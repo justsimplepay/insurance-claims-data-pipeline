@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "H00053",
+  "product_line": "health",
+  "submission_channel": "mobile_app",
+  "submitted_at": "2024-12-21T11:32:00-06:00",
+  "provider": {
+    "provider_id": "PRV0005",
+    "name": "Synthetic practitioner_office 5",
+    "type": "practitioner_office"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2024-12-13",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 71.72,
+      "amount": 71.72
+    },
+    {
+      "line_no": 2,
+      "service_date": "2024-12-13",
+      "description": "Synthetic health_practitioner",
+      "quantity": 1,
+      "unit_amount": 71.71,
+      "amount": 71.71
+    }
+  ],
+  "adjuster_id": "ADJ001",
+  "adjuster_notes": null,
+  "health": {
+    "practitioner_type": "physiotherapist",
+    "number_of_visits": 1,
+    "prescription": null
+  }
+}

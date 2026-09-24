@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "claim_id": "T00126",
+  "product_line": "travel",
+  "submission_channel": "online_portal",
+  "submitted_at": "2025-10-25T20:59:00-06:00",
+  "provider": {
+    "provider_id": "PRV0078",
+    "name": "Synthetic airline 78",
+    "type": "airline"
+  },
+  "line_items": [
+    {
+      "line_no": 1,
+      "service_date": "2025-10-23",
+      "description": "Synthetic baggage",
+      "quantity": 1,
+      "unit_amount": 216.66,
+      "amount": 216.66
+    },
+    {
+      "line_no": 2,
+      "service_date": "2025-10-23",
+      "description": "Synthetic baggage",
+      "quantity": 1,
+      "unit_amount": 216.66,
+      "amount": 216.66
+    }
+  ],
+  "adjuster_id": "ADJ004",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "baggage_irregularity_report",
+    "receipt",
+    "proof_of_travel"
+  ],
+  "travel": {
+    "trip_start": "2025-10-28",
+    "trip_end": "2025-11-07",
+    "destination_country": "US",
+    "incident_type": "baggage",
+    "incident_date": "2025-10-23",
+    "currency": "USD",
+    "exchange_rate_to_cad": 1.3513,
+    "incident_sub_limit": 1000.0
+  }
+}
