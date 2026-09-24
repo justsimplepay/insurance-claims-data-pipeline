@@ -19,7 +19,7 @@ raw
 staging
     |
     v
-3. core load/reconciliation      (next implementation step)
+3. load_core.py
     |
     v
 core
@@ -107,3 +107,28 @@ Source-of-truth reconciliation across systems is intentionally deferred to the
 core step. For example, staging normalizes `Claim.region`, but the core step
 will compare it with the authoritative `Customer.province` and use the
 customer value when they conflict.
+
+
+## Step 3: core reconciliation and load
+
+`load_core.py` executes `sql/20_core_load.sql` for one staged `load_id`.
+
+```bash
+python pipeline/load_core.py --load-id 3
+```
+
+The core step applies the documented source-of-truth rules and loads the
+canonical PK/FK-constrained relational model. In particular:
+
+- duplicate customer aliases are re-keyed to the canonical survivor;
+- Policy.csv owns policy/customer relationships;
+- Customer.csv owns province/region;
+- Claim.csv owns claim existence and valid claim-header amount;
+- JSON can repair demonstrably corrupt/missing claim amount or service date but
+  otherwise remains reconciliation evidence;
+- Claim_Payment.csv owns decision outcome/payment lifecycle;
+- premium customer copies are discarded after policy-owner reconciliation;
+- age band is re-derived from canonical DOB when possible.
+
+Cross-source conflicts and deterministic repairs are appended to
+`staging.data_quality_log` with `CORE_*` rule IDs.
