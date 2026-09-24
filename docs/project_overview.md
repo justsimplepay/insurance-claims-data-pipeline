@@ -20,7 +20,7 @@
 | Item | Detail |
 |---|---|
 | Role | Junior Data Engineer, GMS (Group Medical Services), Regina, SK |
-| Contact | Augustine Ayo, Manager, Technical Delivery (aayo@gms.ca) |
+| Contact | XXX Manager, Technical Delivery (XXXX@gms.ca) |
 | Deadline | **9:00 AM Regina time (CST), Monday, September 28, 2026** = **15:00 UTC** (Saskatchewan does not observe daylight saving time, so CST is exact). Target: finish Sunday, Sept 27. |
 | Submission | Reply to the same email thread with the work attached (PDF, Word, or other common formats) |
 | Evaluation | Screening step for the technical interview (scheduled about 2–3 working days after review). Assesses analytical thinking, technical approach, problem-solving, and communication. |
