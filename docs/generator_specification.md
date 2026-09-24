@@ -1,6 +1,6 @@
 # Synthetic Data Generator Specification
 
-*GMS Data Engineer Case Study. Version 0.2, September 24, 2026. Based on project overview v1.5 and source data dictionary v1.2.*
+*GMS Data Engineer Case Study. Version 0.3, September 24, 2026. Based on project overview v1.5 and source data dictionary v1.2.*
 
 ---
 
@@ -890,7 +890,7 @@ Apply synthetic slow-segment multipliers:
 |---|---|---:|
 | Province outside SK | queue | 1.15 |
 | Mail submission | queue | 1.75 |
-| Travel claim | handling | 1.50 |
+| Travel claim | handling | 1.80 |
 | Missing required documents | handling | 1.60 |
 | Designated slow adjuster | handling | 1.80 |
 
@@ -902,7 +902,7 @@ Payment lag after decision:
 - direct deposit: 1–3 days;
 - cheque: 3–7 days.
 
-To make extract-end censoring visible, reserve 16 Phase-B submissions in `2026-06-22..2026-06-30`. Normal queue/handling draws then determine which become pending. QA target: 10–16 pending claims at extract end.
+To make extract-end censoring visible, reserve 15 Phase-B submissions on `2026-06-30` on policies that remain in force through extract end. These are expected to be pending at the reference-run extract boundary. QA target remains 10–16 pending claims so small future implementation changes can still be detected without hard-coding downstream logic to one count.
 
 ### 8.8 Retention/churn calibration
 
@@ -914,7 +914,7 @@ For each eligible customer compute the Phase-A risk score:
 z =
   -2.40
   + 1.40 * had_missed_premium_last_90d
-  + 0.60 * had_2plus_late_premiums_12m
+  + 1.50 * had_2plus_late_premiums_12m
   + 0.80 * had_denied_claim_12m
   + 0.50 * tenure_under_365d
   + 0.35 * age_band_increase_12m
@@ -1025,5 +1025,7 @@ After S11/S12:
 - count-based defect targets equal the source dictionary;
 - raw affected-record/file share remains 5–15%;
 - rerunning with the same code/config/seed produces identical file hashes in `_generation_manifest.json`.
+
+**Implementation calibration note (v0.3):** after executing the fixed-seed clean-data QA gate, two synthetic calibration values were adjusted without changing source semantics: the `had_2plus_late_premiums_12m` churn coefficient increased from 0.60 to 1.50 so pre-snapshot payment behavior is recoverable in the retention cohort, and the travel handling-time multiplier increased from 1.50 to 1.80 so the intended operational slow-segment signal clears the QA threshold. The reference run also reserves 15 extract-date submissions to make the pending-claim boundary deterministic.
 
 With this section frozen, generator implementation should translate the stage contracts and parameters into code rather than inventing additional business rules during coding.
