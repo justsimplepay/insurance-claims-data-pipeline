@@ -1,6 +1,6 @@
 # Synthetic Data Generator Specification
 
-*GMS Data Engineer Case Study. Version 0.1, September 24, 2026. Based on project overview v1.5 and source data dictionary v1.2.*
+*GMS Data Engineer Case Study. Version 0.2, September 24, 2026. Based on project overview v1.5 and source data dictionary v1.2.*
 
 ---
 
@@ -90,11 +90,17 @@ Example:
 
 The clean invariant gate therefore treats documented signal exceptions separately from accidental/injected corruption.
 
-### 2.5 Freeze clean entity populations before downstream calculations
+### 2.5 Freeze each time phase before downstream calculations
 
-The exact clean claim population must be finalized **before** claim-detail generation, deductible accumulation, adjudication, or payment generation.
+The generator is time-split for retention. Claim populations are therefore frozen **per phase** before claim-detail generation, deductible accumulation, adjudication, or payment generation.
 
-The generator may not trim or top up claims after those calculations, because doing so could alter later policy-year deductible and approval calculations.
+For the reference dataset:
+
+- 175 clean claims are frozen for history through the snapshot;
+- after churn/policy outcome state is known, 35 clean outcome-window claims are frozen only among policies that are actually in force;
+- together they produce exactly 210 canonical claims.
+
+The generator may not trim or top up a phase after its downstream calculations have begun, because doing so could alter policy-year deductible and approval calculations.
 
 ---
 
@@ -118,10 +124,10 @@ The raw CSV row counts can be larger because defect-only records, duplicate-pers
 
 These arise from the business simulation and are checked against expected ranges rather than forced after the fact:
 
-- premium instalments: approximately 3,500;
-- pending claims: approximately 15;
-- retention-eligible customers: expected to be roughly 100–120;
-- churned customers: expected to be roughly 12–18 at the default scale;
+- premium instalments: expected range 3,000–4,000, target about 3,500;
+- pending claims at extract end: expected range 10–16;
+- retention-eligible customers: expected range 100–120;
+- churned customers: expected range 12–18 at the default scale;
 - policy/payment status mixes;
 - counts of scheduled versus paid claims.
 
@@ -241,24 +247,24 @@ The manifest allows a reviewer to verify that a rerun produced identical artifac
 ```mermaid
 flowchart TD
   S0[S0 Config, reference data, stable RNG streams] --> S1
-  S0 --> S2
-  S0 --> S5
+  S1[S1 Customers + latent traits] --> S2[S2 Policy portfolio + reserved replacements]
 
-  S1[S1 Customers + internal latent traits] --> S2[S2 Policy portfolio]
-  S1 --> S3
-  S2 --> S3[S3 Premiums Phase A: due <= snapshot]
+  S2 --> S3A[S3A Premiums through snapshot]
+  S2 --> S4A[S4A Freeze 175 pre-snapshot claim slots]
+  S4A --> S5A[S5A ClaimEvent details Phase A]
+  S5A --> S6A[S6A Adjudication/payment as of snapshot]
 
-  S1 --> S4
-  S2 --> S4[S4 Claim scheduling + signal reservations]
-  S4 --> C{Freeze exactly 210 clean claims}
-  C --> S5[S5 ClaimEvent detail generation]
+  S3A --> S7[S7 Snapshot drivers + churn sampling + policy outcome state]
+  S6A --> S7
 
-  S5 --> S6[S6 Adjudication + payment lifecycle]
+  S7 --> S3B[S3B Outcome-window premiums]
+  S7 --> S4B[S4B Freeze 35 Phase-B claims on in-force policies]
+  S4B --> S5B[S5B ClaimEvent details Phase B]
+  S5B --> S6B[S6B Adjudication/payment through extract end]
 
-  S3 --> S7[S7 Snapshot driver computation + churn sampling + Phase B simulation]
-  S6 --> S7
-
-  S7 --> S8[S8 Final canonical facts, IDs, denormalized copies]
+  S6A --> S8[S8 Final canonical facts, IDs, denormalized copies]
+  S3B --> S8
+  S6B --> S8
   S8 --> S9{S9 Clean invariant + signal-recovery gate}
 
   S9 --> S10[S10 Raw-shape planning: JSON coverage + defect-only entities]
@@ -313,7 +319,7 @@ Duplicate-person raw records are not created here; they belong to S10/S11.
 
 ### S2 — Policy portfolio
 
-Generate exactly 180 clean policies linked to canonical customers.
+Generate exactly 180 clean policy records linked to canonical customers.
 
 Owns:
 
@@ -326,6 +332,8 @@ Owns:
 - pre-snapshot legitimate terminations;
 - travel-policy term structure.
 
+Four of the 180 health/dental policies are future-dated replacement policies starting in the outcome window. Their customers are deliberate policy-termination-but-not-customer-churn cases. These future records are never used as predictive retention features.
+
 Reserve enough policy starts near the observation period to support:
 
 - early-claim signal F1;
@@ -335,22 +343,20 @@ Reserve enough policy starts near the observation period to support:
 
 ---
 
-### S3 — Premiums, Phase A
+### S3A — Premiums through the snapshot
 
-Generate premium instalments due on or before the snapshot.
+Generate premium instalments due on or before `2026-03-31`.
 
 Owns:
 
 - premium amount;
 - age band at `due_date`;
 - paid/late/missed behavior;
-- Phase-A payment history.
+- observation-period payment history.
 
 Key rule:
 
 > Early outcome-window lapses must be able to have a causal missed premium already observable before the snapshot.
-
-Therefore S7 must not manufacture all lapse-driving missed premiums after churn is sampled.
 
 INV16 is checked from the clean data:
 
@@ -362,9 +368,11 @@ age_band(Customer.date_of_birth, Policy_Premium.due_date)
 
 ---
 
-### S4 — Claim scheduling and signal reservation
+### S4A — Pre-snapshot claim scheduling and signal reservation
 
-Generate candidate claim slots from policy exposure, then reserve required signal patterns before ordinary claims are finalized.
+Generate claim slots from policy exposure through the snapshot.
+
+Reserve mandatory Phase-A signal carriers first, then fill ordinary claims using exposure/propensity weights. Freeze exactly **175** claims before detail generation.
 
 Owns:
 
@@ -374,28 +382,64 @@ Owns:
 - repeat-claim clusters;
 - early-claim slots;
 - waiting-period attempts;
-- travel-date anomaly eligibility;
+- eligible travel-date anomaly slots;
 - genuine large-outlier slots.
-
-Then:
-
-1. preserve all mandatory signal slots;
-2. trim/top up only ordinary non-signal candidates;
-3. freeze exactly **210 clean claims**.
-
-No clean claim may be added or removed after this stage.
-
-F9 restriction:
-
-> A travel incident outside an individual trip window may be used only where the policy term legitimately extends beyond that trip window, such as a suitable multi-trip policy. Do not create F9 by placing service outside the policy term.
 
 ---
 
-### S5 — ClaimEvent detail generation
+### S5A / S6A — Phase-A details, adjudication, and payment state
 
-Generate the common internal business facts used by Claim and JSON.
+Generate ClaimEvent details for the 175 frozen Phase-A claims, then process them chronologically per policy up to the snapshot.
 
-Owns:
+These stages own the same detail/adjudication fields described below for Phase B. They provide the actual claim and denial history used by the retention risk calculation.
+
+---
+
+### S7 — Snapshot drivers, churn, and policy outcome state
+
+At `2026-03-31`:
+
+1. construct the eligible retention cohort;
+2. compute drivers from Phase-A premiums/claims only;
+3. sample churn from the calibrated risk function;
+4. assign outcome-window lapse/cancel dates;
+5. activate the four pre-reserved replacement-policy cases;
+6. determine which policies remain in force for Phase-B premium and claim generation.
+
+Eligible customer:
+
+- at least one active health/dental policy on snapshot;
+- travel-only customers excluded.
+
+Churn outcome:
+
+`churned = 1` only if every health/dental policy active at the snapshot lapses/cancels in the outcome window and no replacement health/dental policy begins by extract end.
+
+Early-April lapse cases must normally have a missed premium already visible before the snapshot. A later lapse may be caused by a new Phase-B missed instalment. Cancelled policies do not require a missed premium.
+
+---
+
+### S3B — Outcome-window premiums
+
+Generate premiums due from `2026-04-01` through `2026-06-30` only while the policy is in force.
+
+For selected later lapse cases, generate the missed instalment first and place the lapse 30–60 days later, while still satisfying the extract-end boundary.
+
+---
+
+### S4B — Outcome-window claim scheduling
+
+Generate claims only on policies that are actually in force after S7.
+
+Freeze exactly **35** Phase-B claims. Together with the 175 Phase-A claims this gives exactly 210 canonical claims.
+
+A travel incident outside an individual trip window may be used for F9 only where the broader policy term still covers the service/incident date. Do not create F9 by placing service outside the policy term.
+
+---
+
+### S5B — ClaimEvent detail generation
+
+Generate the common internal business facts used by Claim and JSON:
 
 - provider;
 - health/dental/travel-specific details;
@@ -407,19 +451,11 @@ Owns:
 - adjuster assignment;
 - claim amount.
 
-Signal carriers generated here include:
-
-- F3 near maximum;
-- F5 provider concentration;
-- F6 line-item/header mismatch;
-- F7 missing documents;
-- F8 weekend/unusual-hour submission.
+Signal carriers generated here (and, where scheduled, in Phase A) include F3, F5, F6, F7 and F8.
 
 #### F6 rule
 
-F6 is an intentional business anomaly, not an injected DQ defect.
-
-The clean validation gate therefore accepts either:
+F6 is an intentional business anomaly, not an injected DQ defect. Clean validation accepts either:
 
 1. header/detail reconciliation within tolerance; or
 2. a documented F6 carrier.
@@ -428,13 +464,13 @@ Later raw amount corruptions must not be injected onto F6 claims or the designat
 
 ---
 
-### S6 — Adjudication and payment
+### S6B — Adjudication and payment through extract end
 
-Process claims chronologically per policy.
+Process Phase-B claims chronologically per policy.
 
 Owns:
 
-- deductible/benefit accumulators;
+- deductible/benefit accumulators continued from Phase A;
 - approved amount;
 - decision outcome;
 - processing start;
@@ -442,13 +478,7 @@ Owns:
 - payment date/state/method;
 - denial reason.
 
-Processing-time generation depends on upstream characteristics such as:
-
-- claim type;
-- province;
-- submission channel;
-- document completeness;
-- slow-adjuster designation.
+Processing-time generation depends on claim type, province, submission channel, document completeness and slow-adjuster designation.
 
 Censor against `2026-06-30`:
 
@@ -456,37 +486,7 @@ Censor against `2026-06-30`:
 - approved/partial claims decided but not yet disbursed may be scheduled;
 - denied claims retain adjudication dates but have no payment transaction.
 
-F2 waiting-period attempts are generally denied with `waiting_period`, while still remaining visible as suspicious attempts.
-
----
-
-### S7 — Snapshot drivers, churn, and Phase B
-
-At `2026-03-31`:
-
-1. construct the eligible retention cohort;
-2. compute drivers using Phase-A data only;
-3. sample churn outcome from those drivers;
-4. simulate `2026-04-01` through `2026-06-30`.
-
-Eligible customer:
-
-- at least one active health/dental policy on snapshot;
-- travel-only customers excluded.
-
-Churn outcome:
-
-`churned = 1` only if every health/dental policy active at the snapshot lapses/cancels in the outcome window and no replacement health/dental policy begins by extract end.
-
-Phase B owns:
-
-- outcome-window lapse/cancel dates;
-- replacement-policy negative cases;
-- post-snapshot premium activity;
-- any new missed premium needed for a later lapse;
-- suppression of business events that would occur after a policy's newly assigned `end_date`.
-
-Early-April lapse cases must generally be supported by a pre-snapshot missed premium from S3 rather than by retroactively creating a cause after the snapshot.
+F2 waiting-period attempts are usually denied with `waiting_period`, while still remaining visible as suspicious attempts.
 
 ---
 
@@ -500,9 +500,9 @@ Owns:
 - final status as of extract end;
 - denormalized source-copy fields;
 - canonical ordering;
-- count assertions.
+- exact count assertions.
 
-S8 must **not** trim or top up claims.
+S8 must **not** trim or top up claims or policies.
 
 ---
 
@@ -616,7 +616,7 @@ The physical raw files are the only inputs intended for the later data pipeline.
 | F6 versus JSON reconciliation | F6 is a documented business anomaly. Clean reconciliation requires equality **or** an explicit F6 carrier. Later DQ amount corruption is separate. |
 | F9 versus policy date invariant | F9 may violate an individual trip window only where the broader policy term still covers the service/incident date. |
 | Early outcome-window lapse causality | Early lapses should normally be supported by a Phase-A missed premium already visible at snapshot. Later lapses may acquire new Phase-B missed instalments. |
-| Exact claim count | Candidate claims are reconciled to exactly 210 in S4, before details/adjudication. Never trim claims in S8. |
+| Exact claim count | Freeze 175 Phase-A claims before Phase-A details and 35 Phase-B claims after churn/policy outcome state is known. Never trim claims in S8. |
 | JSON-before-Claim dependency | Generate one internal ClaimEvent. Claim CSV, payment CSV and JSON are projections emitted later. |
 | Duplicate-person usefulness | At least two duplicate identities participate in policy relationships so canonical merge/re-keying is meaningful. |
 | Exact vs approximate volumes | Customer/policy/claim base counts and 200 JSON files are exact; premiums, pending count and churn count are emergent with QA tolerances. |
@@ -626,19 +626,404 @@ The physical raw files are the only inputs intended for the later data pipeline.
 
 ---
 
-## 8. What remains to specify before coding
+## 8. Frozen calibration profile for the reference dataset
 
-The architecture and causal order above are frozen for the generator.
+These values define the first implementation target. They are **synthetic modelling assumptions**, not GMS internal parameters. If QA exposes an issue, tune only the smallest relevant parameter and rerun from the same master seed; do not hand-edit generated records.
 
-The next revision should define the remaining numeric/calibration details:
+### 8.1 Portfolio composition
 
-- probability distributions and parameter ranges;
-- exact signal prevalence targets/tolerances;
-- churn sampling function and target range;
-- processing-time multipliers;
-- claim severity parameters;
-- policy-start/term distributions;
-- exact raw defect counts/rates and overlap restrictions;
-- QA threshold table.
+#### Customers
 
-Those values may be calibrated during clean-data QA, but they must not alter the frozen source semantics or the causal stage structure above.
+Use the frozen province weights from the source dictionary.
+
+Assign two independent internal latent classes:
+
+| Latent class | Reference mix |
+|---|---:|
+| Payment reliability: good / mixed / poor | 70% / 25% / 5% |
+| Claim propensity: low / normal / high | 35% / 50% / 15% |
+
+For 150 customers, deterministic quota allocation should produce approximately 105/38/7 payment-reliability classes and 53/75/22 claim-propensity classes before seeded shuffling.
+
+#### Policies
+
+Exact product counts:
+
+| Product | Policies |
+|---|---:|
+| Health | 99 |
+| Dental | 54 |
+| Travel | 27 |
+| **Total** | **180** |
+
+Plan targets:
+
+| Plan | Count |
+|---|---:|
+| BasicPlan | 30 |
+| ExtendaPlan | 30 |
+| OmniPlan | 24 |
+| Replacement Health | 15 |
+| Dental Basic | 32 |
+| Dental Plus | 22 |
+| TravelStar | 16 |
+| StudentPlan | 11 |
+
+Health/dental premium frequency, subject to each plan's allowed values:
+
+- monthly: 70%;
+- quarterly: 20%;
+- yearly: 10%.
+
+TravelStar is `single`. StudentPlan uses monthly/yearly at 70%/30%.
+
+Health/dental start-date calibration:
+
+- 65% before the retention observation window;
+- 30% during `2025-04-01..2026-03-31`;
+- 5% in the outcome window.
+
+Exactly four outcome-window health/dental policies are designated replacement cases for customers whose old policy terminates but whose customer-level churn label must remain 0.
+
+Travel calibration:
+
+- TravelStar term: 7–45 days;
+- StudentPlan term: 365 days;
+- F9 carriers are restricted to eligible StudentPlan/annual-term situations where the incident can be outside an individual trip but still inside the policy term.
+
+### 8.2 Premium-payment behavior
+
+Per-instalment status probabilities by the customer's internal payment-reliability class:
+
+| Reliability | Paid on time | Late | Missed |
+|---|---:|---:|---:|
+| Good | 0.96 | 0.04 | 0.00 |
+| Mixed | 0.82 | 0.14 | 0.04 |
+| Poor | 0.55 | 0.25 | 0.20 |
+
+A `missed` status is allowed only when the due date is at least 30 days before the relevant as-of/extract date.
+
+Late-payment delay:
+
+- mixed: 3–20 days;
+- poor: 5–35 days.
+
+The existing premium formula, age-band factors, and coverage-type factors remain authoritative from the source dictionary.
+
+### 8.3 Claim-count and product calibration
+
+Exact phase totals:
+
+| Phase | Claims |
+|---|---:|
+| Through snapshot | 175 |
+| Outcome window | 35 |
+| **Total** | **210** |
+
+Exact overall product targets:
+
+| Product | Claims |
+|---|---:|
+| Health | 116 |
+| Dental | 63 |
+| Travel | 31 |
+
+Use phase quotas of approximately:
+
+- Phase A: 96 health, 52 dental, 27 travel;
+- Phase B: 20 health, 11 dental, 4 travel.
+
+Exact claim-type targets for the reference run:
+
+**Health (116)**
+
+- prescription drugs: 41;
+- health practitioner: 41;
+- vision: 14;
+- hearing aids: 3;
+- medical equipment: 8;
+- ambulance: 5;
+- hospital cash: 4.
+
+**Dental (63)**
+
+- preventive: 35;
+- basic: 22;
+- major: 6.
+
+**Travel (31)**
+
+- emergency medical: 14;
+- trip cancellation: 8;
+- trip interruption: 3;
+- baggage: 6.
+
+Within those quotas, choose policies using exposure-weighted claim propensity.
+
+Synthetic frequency multipliers:
+
+**Age**
+
+| Age band | Multiplier |
+|---|---:|
+| Under 35 | 0.80 |
+| 35–44 | 0.90 |
+| 45–54 | 1.00 |
+| 55–64 | 1.15 |
+| 65–74 | 1.30 |
+| 75+ | 1.40 |
+
+**Province**
+
+| Province group | Multiplier |
+|---|---:|
+| SK | 1.00 |
+| AB | 1.05 |
+| MB | 0.95 |
+| ON | 1.10 |
+| BC | 1.15 |
+| NS/PE/NL/YT/NT | 1.00 |
+
+**Plan**
+
+| Plan | Multiplier |
+|---|---:|
+| BasicPlan | 0.90 |
+| ExtendaPlan | 1.00 |
+| OmniPlan | 1.15 |
+| Replacement Health | 1.20 |
+| Dental Basic | 0.90 |
+| Dental Plus | 1.10 |
+
+Travel frequency is primarily term/exposure driven rather than using the health/dental plan multipliers.
+
+### 8.4 Claim severity and money rules
+
+Use the claim-type lognormal parameters already frozen in the source dictionary.
+
+For ordinary non-signal claims:
+
+- minimum generated header amount: CAD 20;
+- avoid intentionally placing an ordinary claim above 80% of the applicable benefit/sub-limit;
+- travel emergency-medical claims are not eligible for F3 against the multi-million-dollar emergency coverage limit.
+
+F3 near-maximum carriers:
+
+- target 90–98% of the applicable maximum;
+- apply to health/dental annual benefit context or realistic travel cancellation/interruption/baggage sub-limits.
+
+F6 line-item mismatch:
+
+- exactly 5 reserved carriers;
+- header `claim_amount` is 10–35% above the reconciled line-item amount;
+- this is a business anomaly, not a defect-log item.
+
+Genuine large legitimate outliers:
+
+- exactly 3 travel emergency-medical claims;
+- target CAD values around 25,000, 55,000 and 85,000;
+- JSON and Claim agree for these claims.
+
+Money uses the reproducibility rules in §4: decimal arithmetic, fixed rounding, travel total converted once.
+
+### 8.5 Suspicious-pattern carrier targets
+
+These are **reserved carrier counts**, not fraud labels. Ordinary generation may naturally create additional claims that satisfy the same derived rule.
+
+| Trait | Reserved target |
+|---|---:|
+| F1 early claim | 12 claims |
+| F2 dental waiting-period attempt | 6 claims |
+| F3 near applicable maximum | 8 claims |
+| F4 repeat claims | 4 customer clusters × 3 claims |
+| F5 provider concentration | 4 hot providers; 24 routed claims |
+| F6 line-item mismatch | 5 claims |
+| F7 missing required documents | 10 claims |
+| F8 weekend / 00:00–05:00 submission | 12 claims |
+| F9 trip-window anomaly within valid broader policy term | 4 claims |
+| Genuine large legitimate outlier | 3 claims |
+
+F5 calibration:
+
+- at least 12 of the 24 hot-provider claims must also carry another suspicious trait;
+- provider type must remain compatible with claim type;
+- hot-provider designation is internal generator metadata only.
+
+Allow controlled overlap so approximately 10–18 claims carry two or more suspicious traits. Do not deliberately make every carrier overlap.
+
+F2 calibration:
+
+- 5 of the 6 reserved waiting-period attempts are denied with `waiting_period`;
+- 1 may be partially approved to avoid making the rule perfectly deterministic.
+
+### 8.6 Adjudication calibration
+
+For non-F2 claims that reach a decision, use these initial target shares before business constraints:
+
+- approved: 72%;
+- partially approved: 18%;
+- denied: 10%.
+
+Business rules override these shares when required.
+
+Payment/approval amount logic:
+
+- denied: `approved_amount = 0`;
+- otherwise apply remaining deductible first;
+- cap against remaining applicable benefit;
+- reference generator co-insurance factor = 1.00 unless later explicitly configured;
+- if a benefit/deductible constraint reduces the payable amount materially, classify as partially approved;
+- otherwise classify as approved.
+
+Claims are processed chronologically per policy so deductible and benefit-year accumulators are reproducible.
+
+### 8.7 Operational timing calibration
+
+Base durations in calendar days:
+
+- queue time: Gamma(shape=2.0, scale=0.75), mean 1.5;
+- handling time: Gamma(shape=2.5, scale=1.20), mean 3.0.
+
+Apply synthetic slow-segment multipliers:
+
+| Condition | Component | Multiplier |
+|---|---|---:|
+| Province outside SK | queue | 1.15 |
+| Mail submission | queue | 1.75 |
+| Travel claim | handling | 1.50 |
+| Missing required documents | handling | 1.60 |
+| Designated slow adjuster | handling | 1.80 |
+
+Cap the total multiplier for either component at 3.0.
+
+Payment lag after decision:
+
+- provider direct: 0–2 days;
+- direct deposit: 1–3 days;
+- cheque: 3–7 days.
+
+To make extract-end censoring visible, reserve 16 Phase-B submissions in `2026-06-22..2026-06-30`. Normal queue/handling draws then determine which become pending. QA target: 10–16 pending claims at extract end.
+
+### 8.8 Retention/churn calibration
+
+Eligible population remains exactly as defined in the source dictionary.
+
+For each eligible customer compute the Phase-A risk score:
+
+```text
+z =
+  -2.40
+  + 1.40 * had_missed_premium_last_90d
+  + 0.60 * had_2plus_late_premiums_12m
+  + 0.80 * had_denied_claim_12m
+  + 0.50 * tenure_under_365d
+  + 0.35 * age_band_increase_12m
+
+p_churn = sigmoid(z)
+p_churn = clamp(p_churn, 0.03, 0.70)
+```
+
+Draw churn with the retention RNG stream.
+
+Reference-run QA target:
+
+- eligible customers: 100–120;
+- churned customers: 12–18.
+
+If churn count is outside the target, tune **only the intercept** and rerun from the same master seed. Do not hand-select churners.
+
+Outcome realization:
+
+- target about 70% of churn outcomes as `lapsed`, 30% as `cancelled`;
+- a lapsed policy must satisfy INV12;
+- if a churner already has a missed premium in the pre-snapshot 90-day lookback, an early-April/May lapse may use it;
+- otherwise generate a Phase-B missed premium and place lapse 30–60 days later;
+- the four reserved replacement-policy cases are forced customer-level non-churn outcomes despite old-policy termination.
+
+### 8.9 Defect calibration and overlap restrictions
+
+The exact defect counts/rates in `source_data_dictionary.yaml` remain authoritative.
+
+Dirty-row pools:
+
+| Source | Pool |
+|---|---:|
+| Customer | 10% |
+| Policy | 10% |
+| Claim | 8% |
+| Claim Payment | 8% |
+| Policy Premium | 5% |
+| Parseable matched JSON | 10% |
+
+Additional overlap rules:
+
+1. `JSON_MALFORMED`, `JSON_MISSING_FILE`, and `JSON_ORPHAN` are mutually exclusive physical-file cases.
+2. A missing value and a formatting/type defect may not target the same field.
+3. `ORPHAN_FK` and an owner/status cross-file conflict may not target the same relationship.
+4. `XF_PAYMENT_AMOUNT` is applied only to approved/partially-approved decided claims.
+5. F6 carriers and the three genuine outliers cannot receive `OUT_ERROR`, negative-amount corruption, or missing header/detail amount corruption.
+6. Exact duplicates are created last and are not subsequently mutated.
+7. Duplicate-person test cases are distinct from `XF_OWNER_CONFLICT` cases.
+8. Signal traits are never written to the defect log unless an independent raw-data defect is also injected.
+9. Overall affected raw records/files should remain within the overview target of 5–15%.
+
+### 8.10 Clean-data QA thresholds
+
+The generator does not proceed to S10/S11 until all hard gates pass.
+
+#### Hard gates
+
+- 150 canonical customers;
+- 180 canonical policies;
+- 175 Phase-A + 35 Phase-B = 210 canonical claims;
+- all canonical primary keys unique;
+- INV01–INV16 pass, except explicitly documented F6 signal exceptions;
+- every lapsed policy satisfies INV12;
+- exactly 4 reserved replacement-policy negative cases;
+- no source fraud target exists;
+- all monetary/date ordering rules pass.
+
+#### Signal gates
+
+- each reserved F1–F9 carrier target is present;
+- exactly 3 genuine large legitimate outliers are present;
+- 10–18 claims carry two or more suspicious traits;
+- hot-provider claims carrying another suspicious trait are at least 2× as common proportionally as for non-hot providers.
+
+#### Retention recovery gates
+
+Among eligible customers:
+
+- churners' pre-snapshot late-or-missed-premium rate >= 1.5 × non-churners' rate;
+- churners' denied-claim prevalence >= 1.25 × non-churners' prevalence;
+- eligible count 100–120;
+- churn count 12–18.
+
+#### Operations recovery gates
+
+- median queue time for mail >= 1.25 × online/mobile median;
+- median handling time for travel >= 1.20 × non-travel median;
+- median handling time for designated slow adjusters >= 1.25 × other-adjuster median;
+- pending claims at extract end: 10–16.
+
+#### Policy/region recovery gates
+
+For groups with adequate exposure:
+
+- at least three plan groups have non-zero claims and premiums;
+- among plan groups with >= 12 policy-months, max/min approved-claims-to-premium-due ratio >= 1.20;
+- at least five served provinces have at least one claim.
+
+### 8.11 Raw-output QA thresholds
+
+After S11/S12:
+
+- exactly 200 physical JSON files;
+- composition target: 194 parseable matched files + 2 malformed real-claim files + 4 orphan files;
+- 14 canonical claims have no JSON file;
+- every injected defect has exactly one defect-log entry per affected field/record as defined by the log contract;
+- count-based defect targets equal the source dictionary;
+- raw affected-record/file share remains 5–15%;
+- rerunning with the same code/config/seed produces identical file hashes in `_generation_manifest.json`.
+
+With this section frozen, generator implementation should translate the stage contracts and parameters into code rather than inventing additional business rules during coding.
