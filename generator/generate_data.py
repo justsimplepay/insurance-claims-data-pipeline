@@ -14,6 +14,7 @@ from faker import Faker
 from . import config as C
 from .defects import build_messy_raw
 from .lifecycle import apply_retention, build_policies, finalize_premiums, generate_premiums, schedule_claims
+from .signals import plan_phase_a_signals
 
 TZ = timezone(timedelta(hours=-6))
 Q = Decimal("0.01")
@@ -78,6 +79,7 @@ class Generator:
         self.rng={s:rng(s,seed) for s in C.STAGE_IDS}
         self.fake=Faker("en_CA"); self.fake.seed_instance(seed+99)
         self.signal=defaultdict(set)
+        self.forced_provider={}
         self.providers=self._providers(); self.hot={"PRV0001","PRV0002","PRV0003","PRV0004"}; self.slow={"ADJ010","ADJ011","ADJ012"}
 
     def _providers(self):
@@ -149,50 +151,13 @@ class Generator:
         for idx in em[:3]: self.signal[df.at[idx,"_tmp"]].add("OUTLIER")
         return df
 
-    def reserve_phase_a_signals(self, claims):
-        """Reserve current signal carriers before Phase-A adjudication.
-
-        F2 must be present before the snapshot because denied-claim history is a
-        retention driver. The remaining reservations keep the current signal
-        counts stable until the dedicated F1-F9 implementation pass.
-        """
-        order = claims.index.tolist()
-        used = set()
-
-        def take(label, n, predicate=lambda row: True):
-            count = 0
-            for idx in order:
-                if idx in used:
-                    continue
-                row = claims.loc[idx]
-                if predicate(row):
-                    self.signal[row["_tmp"]].add(label)
-                    used.add(idx)
-                    count += 1
-                    if count == n:
-                        return
-            raise AssertionError(f"not enough Phase-A carriers for {label}: {count}/{n}")
-
-        take("F2", 6, lambda x: x["product_line"] == "dental" and x["claim_type"] in {"basic", "major"})
-        take("F1", 12)
-        take("F3", 8, lambda x: not (x["product_line"] == "travel" and x["claim_type"] == "emergency_medical"))
-        take("F6", 5)
-        take("F7", 10)
-        take("F8", 12)
-        take("F5", 24)
-        # F4 reserved claims remain distinct here; the exact same-customer/date
-        # construction is completed in the dedicated signal pass.
-        take("F4", 12)
-        travel = [i for i in order if claims.at[i, "product_line"] == "travel"]
-        if len(travel) < 4:
-            raise AssertionError("not enough Phase-A travel claims for F9")
-        for idx in travel[:4]:
-            self.signal[claims.at[idx, "_tmp"]].add("F9")
-        em = [i for i in order if claims.at[i, "product_line"] == "travel" and claims.at[i, "claim_type"] == "emergency_medical"]
-        if len(em) < 3:
-            raise AssertionError("not enough Phase-A emergency claims for outliers")
-        for idx in em[:3]:
-            self.signal[claims.at[idx, "_tmp"]].add("OUTLIER")
+    def reserve_phase_a_signals(self, claims, policies):
+        planned, signal, forced_provider = plan_phase_a_signals(
+            claims, policies, self.rng["claims_a"]
+        )
+        self.signal = defaultdict(set, signal)
+        self.forced_provider = forced_provider
+        return planned
 
     def detail_phase(self, claims, policies, customers, stage_name, as_of):
         r=self.rng[stage_name]
@@ -213,8 +178,13 @@ class Generator:
             p=pmap[x["policy_id"]]
             ct=x["claim_type"]
             allowed=C.PROVIDER_TYPES[ct]
-            hot=[z for z in self.providers if z["provider_id"] in self.hot and z["type"] in allowed]
-            provider=choose(r,hot) if "F5" in sig and hot else choose(r,providers[choose(r,allowed)])
+            forced_id=self.forced_provider.get(x["_tmp"])
+            if forced_id:
+                provider=next(z for z in self.providers if z["provider_id"]==forced_id)
+                if provider["type"] not in allowed:
+                    raise AssertionError(f"forced provider type mismatch for {x['_tmp']}")
+            else:
+                provider=choose(r,providers[choose(r,allowed)])
 
             channel=choose(r,["online_portal","mobile_app","mail"],[.58,.32,.10])
             if provider["type"] in {"pharmacy","dental_clinic"} and r.random()<.22:
@@ -244,8 +214,16 @@ class Generator:
                     amount=outlier_values[outlier_rank[x["_tmp"]]]
                 elif "F3" in sig and ct!="emergency_medical":
                     amount=(sub*Decimal("0.94")).quantize(Q)
-                trip_start=max(p["start_date"],x["service_date"]-timedelta(days=2))
-                trip_end=min(p["end_date"] or C.EXTRACT_END,trip_start+timedelta(days=14))
+                if "F9" in sig:
+                    # Deliberate anomaly: incident is outside the individual trip
+                    # window, while still inside the annual policy term.
+                    trip_start=x["service_date"]+timedelta(days=5)
+                    trip_end=min(p["end_date"] or C.SNAPSHOT_DATE,trip_start+timedelta(days=10))
+                    if trip_end < trip_start:
+                        raise AssertionError(f"invalid F9 trip window for {x['_tmp']}")
+                else:
+                    trip_start=max(p["start_date"],x["service_date"]-timedelta(days=2))
+                    trip_end=min(p["end_date"] or C.EXTRACT_END,trip_start+timedelta(days=14))
                 travel={"trip_start":trip_start,"trip_end":trip_end,"destination_country":country,"incident_type":incident,"incident_date":x["service_date"],"currency":currency,"exchange_rate_to_cad":fx,"incident_sub_limit":sub}
                 detail=(amount/fx).quantize(Q)
             else:
@@ -283,7 +261,11 @@ class Generator:
                 out.at[idx,"claim_status"]="pending"
                 continue
 
-            outcome="denied" if "F2" in sig or r.random()<.10 else ("partially_approved" if r.random()<.20 else "approved")
+            if "F2" in sig:
+                f2_carriers=sorted(tmp for tmp,traits in self.signal.items() if "F2" in traits)
+                outcome="partially_approved" if x["_tmp"]==f2_carriers[-1] else "denied"
+            else:
+                outcome="denied" if r.random()<.10 else ("partially_approved" if r.random()<.20 else "approved")
             approved=Decimal("0") if outcome=="denied" else (header*Decimal("0.80") if outcome=="partially_approved" else header).quantize(Q)
 
             qm=(1.75 if channel=="mail" else 1)*(1.15 if cmap[x["customer_id"]]["province"]!="SK" else 1)
@@ -503,7 +485,7 @@ class Generator:
         # S3A-S6A: only facts observable by the retention snapshot.
         premiums_a=generate_premiums(customers,policies,self.rng["premiums_a"],phase="A")
         claims_a=schedule_claims(customers,policies,self.rng["claims_a"],phase="A")
-        self.reserve_phase_a_signals(claims_a)
+        claims_a=self.reserve_phase_a_signals(claims_a,policies)
         claims_a,pay_a,docs_a=self.detail_phase(claims_a,policies,customers,"details_a",C.SNAPSHOT_DATE)
 
         # S7: derive snapshot drivers from Phase A, sample churn, then realize
