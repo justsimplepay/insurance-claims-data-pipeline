@@ -1,6 +1,6 @@
 # GMS Data Engineer Case Study: Project Overview, Decisions & Plan
 
-*Reference document for all chats in this project. Version 1.3, last updated Wednesday, September 23, 2026.*
+*Reference document for all chats in this project. Version 1.4, last updated Wednesday, September 23, 2026.*
 
 ---
 
@@ -11,7 +11,8 @@
 | 1.0 | Sept 23, 2026 | Initial planning and architecture decisions. |
 | 1.1 | Sept 23, 2026 | Incorporated the final requirements review. Added: snapshot date and time windows (§3.5), `decision_date` / `decision_outcome` replacing `approval_date` (§4.3), source-of-truth rules for claim status (§4.5), probabilistic fraud label (§3.3), exposure-matched loss ratio (§4.4), small-sample handling for the region mart (§3.2, §7), data minimization in marts (Decision 5), thin-slice build order (Decision 6), exact 200 JSON files, deadline in UTC, and submission logistics (§9.3). |
 | 1.2 | Sept 23, 2026 | Split the data model work into two chats: a Source Data Dictionary (raw files, feeds the generator) and a Database Model (staging, core, marts; designed against generated data). Added the completed Git setup. Updated §9.1 chat structure, §9.2 timeline, §9.3 repo docs, and §9.4 next step. |
-| 1.3 | Sept 23, 2026 | The three master files are now split **by entity** (`Customer.csv`, `Policy.csv`, `Claim.csv`) instead of by product line, the most literal reading of the brief. Final file names set for all five CSVs. Fields added: `customer_since`, `address`, `coverage_amount`, `deductible_amount`, `premium_frequency`, `processing_start_date`, `transaction_reference`, claim ID prefixes by type. Defects rewritten as within-file and cross-file issues (§3.4). Updated §2, §3.4, §4.3, §4.4, §4.5, §6, §7 (Decision 1, core tables), §8 (assumption 3), and §9.1. |
+| 1.3 | Sept 23, 2026 | The three master files are now split **by entity** (`Customer.csv`, `Policy.csv`, `Claim.csv`) instead of by product line. Final file names set for all five CSVs. Fields added: `customer_since`, `address`, `coverage_amount`, `deductible_amount`, `premium_frequency`, `processing_start_date`, `transaction_reference`, claim ID prefixes by type. Defects rewritten as within-file and cross-file issues (§3.4). Updated §2, §3.4, §4.3, §4.4, §4.5, §6, §7 (Decision 1, core tables), §8 (assumption 3), and §9.1. |
+| 1.4 | Sept 23, 2026 | Locked the three Claims Master files as entity extracts (`Customer.csv`, `Policy.csv`, `Claim.csv`) as an explicit, conservative modelling assumption rather than claiming it is the only or "most literal" interpretation. Added a design principle to keep complexity where it demonstrates data-engineering value: every field or rule must support an analytics objective, an important relationship, or a meaningful data-quality/reconciliation problem. The report will state the source-model assumption briefly and will not discuss rejected alternatives. |
 
 ---
 
@@ -61,7 +62,7 @@ The email also asks for assumptions, methodologies, and supporting explanations.
 **Scope note:** the job is to make data *ready* for the data scientists, not to build fraud or churn models. Engineered features and rule-based flags are presented as **inputs** for modelling, not as final predictions.
 
 **Interpretations of ambiguous points in the brief** (stated as assumptions in §8):
-- **Three master files:** the brief lists three kinds of content (policy details, claim amounts, customer demographics) for three files. They are interpreted as **one file per entity**: `Customer.csv`, `Policy.csv`, and `Claim.csv`. This is the most literal reading and the conventional shape of an operational system export. A split by product line (health, dental, travel) was considered and rejected; the report mentions it as an alternative considered.
+- **Three master files:** the three Claims Master Data files are modelled as **separate entity extracts**: `Customer.csv`, `Policy.csv`, and `Claim.csv`. This is an explicit modelling assumption that maps directly to the three content categories named in the brief (customer demographics, policy details, and claim information) and provides a conventional relational source structure. It is not presented as the only possible interpretation. The final report states the assumption briefly without discussing rejected alternatives.
 - **JSON-to-claim ratio:** "each JSON file represents details of individual claims" is interpreted as one claim per file. The file count is held at exactly 200 to match the brief literally.
 
 ---
@@ -407,12 +408,18 @@ This covers the "SQL queries or Python scripts" deliverable with both.
 
   The five marts and the cleaning log are never cut, because they are what the brief grades.
 
+### Decision 7: Conservative source model; complexity must earn its place
+- Keep the required input structure easy to justify from the case study: three entity-based Claims Master extracts (`Customer`, `Policy`, `Claim`), one payment extract, one premium extract, and 200 claim-detail JSON files.
+- Put the sophistication in the **data engineering**, not in inventing a more complicated source system: normalization, type handling, duplicate detection, referential integrity, JSON parsing, source-of-truth reconciliation, temporal validation, feature engineering, and data-quality logging.
+- **Field/rule test:** every field and business rule must do at least one of the following: support one of the five analytics objectives; establish an important relationship or grain; or create/resolve a meaningful data-quality or reconciliation case. Otherwise it should be removed.
+- **Reason:** the assessment rewards a complete, explainable, reproducible pipeline. Extra source complexity that does not improve those outcomes increases implementation and explanation risk.
+
 ---
 
 ## 8. Assumptions (to state in the report)
 1. The data is synthetic, modelled on industry practice and public GMS product information, not on GMS's internal schema.
 2. Each JSON file represents exactly one claim, and exactly 200 JSON files are produced, as in the brief.
-3. The three master files are split by entity: `Customer.csv`, `Policy.csv`, and `Claim.csv`. A split by product line was considered as an alternative.
+3. The three Claims Master Data files are modelled as separate entity extracts: `Customer.csv`, `Policy.csv`, and `Claim.csv`, corresponding to the customer demographics, policy details, and claim information described in the case study.
 4. The sample size is small by design (the brief fixes 200 JSON files), and the generator is parameterized to scale. Regional and policy aggregates carry counts and exposure so that small cells are visible.
 5. Processing is a batch run. Event-driven or streaming ingestion is noted as a possible extension.
 6. Model-ready features and flags are provided; model building is out of scope.
