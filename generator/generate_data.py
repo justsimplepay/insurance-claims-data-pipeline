@@ -442,6 +442,95 @@ class Generator:
         for k,n in expected.items():
             if sig[k]!=n:
                 errors.append(f"{k} {sig[k]}")
+
+        # Verify that reserved labels are recoverable from the actual clean facts,
+        # not merely present in generator metadata.
+        pmap=policies.set_index("policy_id").to_dict("index")
+        cbyid=claims.set_index("claim_id").to_dict("index")
+        f2_denied=0
+        f2_partial=0
+        hot_other=0
+        for cid,traits in self.signal.items():
+            row=cbyid[cid]
+            policy=pmap[row["policy_id"]]
+            doc=docs[cid]
+
+            if "F1" in traits:
+                delta=(row["service_date"]-policy["start_date"]).days
+                if not 0<=delta<=30:
+                    errors.append(f"F1 not recoverable {cid}")
+
+            if "F2" in traits:
+                delta=(row["service_date"]-policy["start_date"]).days
+                if row["product_line"]!="dental" or row["claim_type"] not in {"basic","major"} or not 0<=delta<90:
+                    errors.append(f"F2 not recoverable {cid}")
+                if row["claim_status"]=="denied":
+                    f2_denied+=1
+                elif row["claim_status"]=="partially_approved":
+                    f2_partial+=1
+
+            if "F3" in traits:
+                applicable=Decimal(str(policy["coverage_amount"]))
+                if row["product_line"]=="travel":
+                    applicable=Decimal(str(doc["travel"]["incident_sub_limit"]))
+                ratio=Decimal(str(row["claim_amount"]))/applicable
+                if not Decimal("0.90")<=ratio<=Decimal("0.98"):
+                    errors.append(f"F3 not recoverable {cid}")
+
+            if "F5" in traits:
+                if doc["provider"]["provider_id"] not in self.hot:
+                    errors.append(f"F5 non-hot provider {cid}")
+                if len(traits-{"F5"})>0:
+                    hot_other+=1
+
+            if "F6" in traits:
+                line_total=sum(Decimal(str(x["amount"])) for x in doc["line_items"])
+                expected_header=line_total
+                if row["product_line"]=="travel":
+                    expected_header=(line_total*Decimal(str(doc["travel"]["exchange_rate_to_cad"]))).quantize(Q)
+                ratio=Decimal(str(row["claim_amount"]))/expected_header
+                if not Decimal("1.10")<=ratio<=Decimal("1.35"):
+                    errors.append(f"F6 not recoverable {cid}")
+
+            if "F7" in traits:
+                required=set(C.REQUIRED_DOCS[row["claim_type"]])
+                submitted=set(doc["documents_submitted"])
+                if required.issubset(submitted):
+                    errors.append(f"F7 not recoverable {cid}")
+
+            if "F8" in traits:
+                dt=doc["submitted_at"]
+                if not (dt.weekday()>=5 or 0<=dt.hour<=5):
+                    errors.append(f"F8 not recoverable {cid}")
+
+            if "F9" in traits:
+                t=doc["travel"]
+                outside=not (t["trip_start"]<=t["incident_date"]<=t["trip_end"])
+                inside_policy=policy["start_date"]<=t["incident_date"]<=(policy["end_date"] or C.EXTRACT_END)
+                if not outside or not inside_policy:
+                    errors.append(f"F9 not recoverable {cid}")
+
+            if "OUTLIER" in traits:
+                if Decimal(str(row["claim_amount"])) not in {Decimal("25000.00"),Decimal("55000.00"),Decimal("85000.00")}:
+                    errors.append(f"outlier value {cid}")
+
+        if f2_denied!=5 or f2_partial!=1:
+            errors.append(f"F2 outcomes denied={f2_denied} partial={f2_partial}")
+        if hot_other!=12:
+            errors.append(f"F5 overlap {hot_other}")
+
+        f4=claims[claims["claim_id"].isin([cid for cid,t in self.signal.items() if "F4" in t])].copy()
+        clusters=0
+        for customer_id,g in f4.groupby("customer_id"):
+            ds=sorted(g["claim_date"].tolist())
+            if len(ds)>=3 and (ds[-1]-ds[0]).days<=30:
+                clusters+=1
+        if clusters!=4:
+            errors.append(f"F4 clusters {clusters}")
+
+        multi=sum(1 for traits in self.signal.values() if len(traits & {"F1","F2","F3","F4","F5","F6","F7","F8","F9"})>=2)
+        if not 10<=multi<=18:
+            errors.append(f"multi-signal carriers {multi}")
         if not 3000<=len(premiums)<=4000:
             errors.append(f"premiums {len(premiums)}")
 
