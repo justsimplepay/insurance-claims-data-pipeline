@@ -1,0 +1,972 @@
+# =============================================================================
+# GMS Data Engineer Case Study - Source Data Dictionary (machine-readable)
+# Scope: RAW source files only (5 CSVs + 200 JSON claim-detail files).
+# Consumer: generator/ (chat 4). The clean database model is defined separately
+# (docs/database_model.md, chat 5). Companion: docs/source_data_dictionary.md
+# All values below describe the GROUND TRUTH unless stated otherwise; the
+# `defects` blocks describe what the generator corrupts afterwards.
+# =============================================================================
+
+meta:
+  document: source_data_dictionary
+  version: "1.0"
+  based_on_overview_version: "1.3"
+  last_updated: 2026-09-23
+  companion_markdown: docs/source_data_dictionary.md
+
+conventions:
+  encoding: UTF-8
+  csv: {delimiter: ",", quotechar: '"', header_row: true, line_terminator: "\n"}
+  null_in_csv: ""            # empty field; no sentinel strings in ground truth
+  null_in_json: null         # JSON null; an ABSENT key is different from null
+  date_format: "YYYY-MM-DD"  # ISO 8601
+  datetime_format: "YYYY-MM-DDTHH:MM:SS-06:00"
+  timezone: America/Regina   # UTC-06:00 all year (no DST)
+  currency: CAD
+  amount_decimals: 2
+  id_rule: "Upper-case prefix + zero-padded digits, no whitespace. Keys are stored as strings (leading zeros matter)."
+  logical_types:
+    string: free or patterned text
+    enum: text restricted to the listed values (lower_snake_case unless a proper name)
+    date: calendar date
+    datetime: timestamp with UTC offset
+    "decimal(12,2)": money, CAD unless stated
+    "decimal(10,4)": exchange rate
+    integer: whole number
+    boolean: "true / false (CSV: lower-case text)"
+    array: JSON array
+    object: JSON object
+  key_roles:
+    primary_key: unique, non-null identifier of the row / file
+    foreign_key: references the parent's primary key; the parent is authoritative
+    denormalized_copy: copy of an attribute owned by another file; NOT authoritative (see overview 4.5)
+    natural_key: business identifier from an external system; unique when present
+    none: ordinary attribute
+  pii_classes:
+    direct: identifies a person on its own; stays in core, never in marts (Decision 5)
+    quasi: identifying in combination; only a generalized form reaches marts
+    none: not personal
+
+parameters:
+  random_seed: 20260923
+  history_start: 2023-07-01
+  snapshot_date: 2026-03-31
+  outcome_window_start: 2026-04-01
+  outcome_window_end: 2026-06-30
+  extract_end_date: 2026-06-30
+  customer_since_min: 2005-01-01
+  volumes:                       # base = clean ground truth, before defect rows
+    base_customers: 150
+    base_policies: 180
+    base_claims: 210             # within the 200-220 target
+    json_files_total: 200        # FIXED by the brief
+    json_orphan_files: 4         # claim_id not in Claim.csv
+    json_malformed_files: 2      # belong to real claims but cannot be parsed
+    claims_without_json: 14      # 210 - (200 - 4 orphans)
+    pending_claims_approx: 15    # submitted close to extract end; no payment row
+    adjusters: 12
+    providers: 80
+    premium_instalments_approx: 3500
+  mix:
+    policy_type_share: {health: 0.55, dental: 0.30, travel: 0.15}
+    claim_product_share: {health: 0.55, dental: 0.30, travel: 0.15}
+    coverage_type_share: {single: 0.55, couple: 0.25, family: 0.20}
+    sales_channel_share: {online: 0.45, broker: 0.35, call_centre: 0.20}
+    claim_amount_distribution: lognormal (parameters per claim_type in reference_data.claim_types)
+    claims_per_policy_distribution: poisson
+    processing_duration_distribution: gamma (queue and handling times, days)
+
+objectives:
+  fraud:      {number: 1, name: Fraud Detection}
+  retention:  {number: 2, name: Customer Retention}
+  operations: {number: 3, name: Operational Efficiency}
+  region:     {number: 4, name: Region-Wise Insights}
+  policy:     {number: 5, name: Policy Optimization}
+
+# -----------------------------------------------------------------------------
+# REFERENCE DATA (ground-truth domains used by the generator and by validation)
+# All monetary figures are synthetic; plan names follow GMS public product names.
+# -----------------------------------------------------------------------------
+reference_data:
+  provinces_served:
+    - {code: "SK", name: Saskatchewan,              share: 0.35, postal_prefixes: ["S"],                 area_codes: ["306", "639", "474"], cities: [Regina, Saskatoon, Moose Jaw, Prince Albert, Swift Current, Yorkton]}
+    - {code: "AB", name: Alberta,                   share: 0.20, postal_prefixes: ["T"],                 area_codes: ["403", "780", "587", "825"], cities: [Calgary, Edmonton, Red Deer, Lethbridge]}
+    - {code: "MB", name: Manitoba,                  share: 0.15, postal_prefixes: ["R"],                 area_codes: ["204", "431"], cities: [Winnipeg, Brandon, Steinbach]}
+    - {code: "ON", name: Ontario,                   share: 0.15, postal_prefixes: ["K", "L", "M", "N", "P"], area_codes: ["416", "647", "613", "905", "519"], cities: [Toronto, Ottawa, Hamilton, London]}
+    - {code: "BC", name: British Columbia,          share: 0.08, postal_prefixes: ["V"],                 area_codes: ["604", "250", "778"], cities: [Vancouver, Victoria, Kelowna]}
+    - {code: "NS", name: Nova Scotia,               share: 0.025, postal_prefixes: ["B"],                area_codes: ["902", "782"], cities: [Halifax]}
+    - {code: "PE", name: Prince Edward Island,      share: 0.015, postal_prefixes: ["C"],                area_codes: ["902"], cities: [Charlottetown]}
+    - {code: "NL", name: Newfoundland and Labrador, share: 0.015, postal_prefixes: ["A"],                area_codes: ["709"], cities: ["St. John's"]}
+    - {code: "YT", name: Yukon,                     share: 0.0075, postal_prefixes: ["Y"],               area_codes: ["867"], cities: [Whitehorse]}
+    - {code: "NT", name: Northwest Territories,     share: 0.0075, postal_prefixes: ["X"],               area_codes: ["867"], cities: [Yellowknife]}
+  provinces_not_served:          # GMS products are not offered here -> invalid customers
+    - {code: "QC", name: Quebec,        postal_prefixes: ["G", "H", "J"], cities: [Montreal]}
+    - {code: "NB", name: New Brunswick, postal_prefixes: ["E"],           cities: [Moncton]}
+    - {code: "NU", name: Nunavut,       postal_prefixes: ["X"],           cities: [Iqaluit]}
+
+  age_bands:                     # GMS-style rating bands; premium factor is synthetic
+    - {band: "Under 35", min_age: 0,  max_age: 34,  premium_factor: 1.00}
+    - {band: "35-44",    min_age: 35, max_age: 44,  premium_factor: 1.15}
+    - {band: "45-54",    min_age: 45, max_age: 54,  premium_factor: 1.40}
+    - {band: "55-64",    min_age: 55, max_age: 64,  premium_factor: 1.80}
+    - {band: "65-74",    min_age: 65, max_age: 74,  premium_factor: 2.40}
+    - {band: "75+",      min_age: 75, max_age: 120, premium_factor: 3.20}
+  coverage_type_premium_factor: {single: 1.00, couple: 1.90, family: 2.60}
+  customer_age_range_at_extract_end: {min: 18, max: 89}
+
+  plans:
+    - {plan_name: BasicPlan,            policy_type: health, coverage_amount: 1500.00,    deductible_options: [0.00],                 base_premium: 45.00,  premium_frequencies: [monthly, quarterly, yearly]}
+    - {plan_name: ExtendaPlan,          policy_type: health, coverage_amount: 3000.00,    deductible_options: [0.00, 100.00],         base_premium: 85.00,  premium_frequencies: [monthly, quarterly, yearly]}
+    - {plan_name: OmniPlan,             policy_type: health, coverage_amount: 5000.00,    deductible_options: [0.00, 100.00, 250.00], base_premium: 140.00, premium_frequencies: [monthly, quarterly, yearly]}
+    - {plan_name: Replacement Health,   policy_type: health, coverage_amount: 2000.00,    deductible_options: [0.00],                 base_premium: 120.00, premium_frequencies: [monthly], note: guaranteed acceptance}
+    - {plan_name: Dental Basic,         policy_type: dental, coverage_amount: 1000.00,    deductible_options: [0.00, 50.00],          base_premium: 35.00,  premium_frequencies: [monthly, quarterly, yearly], note: synthetic name modelled on the GMS dental add-on}
+    - {plan_name: Dental Plus,          policy_type: dental, coverage_amount: 2000.00,    deductible_options: [0.00, 50.00],          base_premium: 60.00,  premium_frequencies: [monthly, quarterly, yearly], note: synthetic name modelled on the GMS dental add-on}
+    - {plan_name: TravelStar,           policy_type: travel, coverage_amount: 5000000.00, deductible_options: [0.00, 250.00, 500.00], base_premium: null,   premium_frequencies: [single], note: "single-trip; premium 40-400 by age band and trip length; policy term = trip"}
+    - {plan_name: StudentPlan,          policy_type: travel, coverage_amount: 2000000.00, deductible_options: [0.00],                 base_premium: 70.00,  premium_frequencies: [monthly, yearly], note: 12-month term}
+  benefit_period: "coverage_amount applies per policy year (health, dental) or per policy term (travel)"
+  waiting_periods:
+    dental: {days: 90, applies_to_claim_types: [basic, major]}
+  eligibility_rules:
+    - id: ELIG_TRAVEL_80
+      rule: "Customer aged 80+ at trip_start is covered for emergency medical only within Canada (destination_country = CA)."
+    - id: ELIG_DENTAL_WAIT
+      rule: "Dental basic/major claim with service_date < policy start_date + 90 days is inside the waiting period."
+    - id: ELIG_SERVED_PROVINCE
+      rule: "Customer province must be in provinces_served."
+
+  claim_types:                   # claim_type is scoped by product line
+    health:
+      - {claim_type: prescription_drugs,  share: 0.35, lognormal: {mu: 4.0, sigma: 0.8}, provider_types: [pharmacy],          required_documents: [receipt, prescription]}
+      - {claim_type: health_practitioner, share: 0.35, lognormal: {mu: 4.9, sigma: 0.5}, provider_types: [clinic, practitioner_office], required_documents: [receipt]}
+      - {claim_type: vision,              share: 0.12, lognormal: {mu: 5.3, sigma: 0.4}, provider_types: [optical_store],     required_documents: [receipt, prescription]}
+      - {claim_type: hearing_aids,        share: 0.03, lognormal: {mu: 7.3, sigma: 0.3}, provider_types: [hearing_clinic],    required_documents: [receipt, referral]}
+      - {claim_type: medical_equipment,   share: 0.07, lognormal: {mu: 5.8, sigma: 0.7}, provider_types: [medical_supplier],  required_documents: [receipt, referral]}
+      - {claim_type: ambulance,           share: 0.04, lognormal: {mu: 5.9, sigma: 0.4}, provider_types: [ambulance_service], required_documents: [invoice]}
+      - {claim_type: hospital_cash,       share: 0.04, lognormal: {mu: 5.0, sigma: 0.5}, provider_types: [hospital],          required_documents: [hospital_discharge_summary]}
+    dental:
+      - {claim_type: preventive, share: 0.55, lognormal: {mu: 5.3, sigma: 0.3}, provider_types: [dental_clinic], required_documents: [receipt]}
+      - {claim_type: basic,      share: 0.35, lognormal: {mu: 5.7, sigma: 0.5}, provider_types: [dental_clinic], required_documents: [receipt]}
+      - {claim_type: major,      share: 0.10, lognormal: {mu: 7.0, sigma: 0.5}, provider_types: [dental_clinic], required_documents: [receipt, treatment_plan, xray]}
+    travel:
+      - {claim_type: emergency_medical, incident_type: medical,      share: 0.45, lognormal: {mu: 7.5, sigma: 1.2}, provider_types: [foreign_hospital, foreign_clinic, hospital], required_documents: [itemized_invoice, medical_report, proof_of_travel]}
+      - {claim_type: trip_cancellation, incident_type: cancellation, share: 0.25, lognormal: {mu: 7.3, sigma: 0.6}, provider_types: [travel_supplier], required_documents: [cancellation_invoice, booking_confirmation, supporting_statement]}
+      - {claim_type: trip_interruption, incident_type: interruption, share: 0.10, lognormal: {mu: 7.0, sigma: 0.6}, provider_types: [travel_supplier], required_documents: [receipt, booking_confirmation, supporting_statement]}
+      - {claim_type: baggage,           incident_type: baggage,      share: 0.20, lognormal: {mu: 6.3, sigma: 0.5}, provider_types: [airline],         required_documents: [baggage_irregularity_report, receipt, proof_of_travel]}
+  travel_incident_sub_limits:     # CAD; used for the 'near benefit maximum' trait on travel
+    medical: "= policy coverage_amount"
+    cancellation: "= insured trip cost, 1000-8000"
+    interruption: 5000.00
+    baggage: 1000.00
+  claim_id_prefix: {health: "H", dental: "D", travel: "T"}
+
+  document_types: [receipt, invoice, itemized_invoice, prescription, referral, treatment_plan, xray,
+                   medical_report, hospital_discharge_summary, proof_of_travel, booking_confirmation,
+                   cancellation_invoice, supporting_statement, baggage_irregularity_report]
+  provider_types: [pharmacy, clinic, practitioner_office, optical_store, hearing_clinic, medical_supplier,
+                   ambulance_service, hospital, dental_clinic, foreign_hospital, foreign_clinic,
+                   travel_supplier, airline]
+  practitioner_types: [physiotherapist, chiropractor, massage_therapist, psychologist, naturopath, optometrist]
+  submission_channels:
+    - {channel: online_portal,           share: 0.45}
+    - {channel: mobile_app,              share: 0.25}
+    - {channel: provider_direct_billing, share: 0.22, only_provider_types: [pharmacy, dental_clinic]}
+    - {channel: mail,                    share: 0.08}
+  sales_channels: [online, broker, call_centre]
+  claim_payment_methods: [direct_deposit, cheque, provider_direct]   # provider_direct iff submission_channel = provider_direct_billing
+  premium_payment_methods: [pad, credit_card, cheque]                # pad = pre-authorized debit
+  denial_reasons: [not_covered, waiting_period, benefit_maximum_reached, missing_documentation,
+                   policy_inactive, late_submission, duplicate_claim, suspected_fraud]
+  travel_destinations:          # exchange_rate_to_cad drawn uniformly from the range
+    - {country: "US", currency: USD, rate_range: [1.3300, 1.4000], share: 0.45}
+    - {country: "MX", currency: MXN, rate_range: [0.0700, 0.0820], share: 0.15}
+    - {country: "FR", currency: EUR, rate_range: [1.4500, 1.5200], share: 0.08}
+    - {country: "IT", currency: EUR, rate_range: [1.4500, 1.5200], share: 0.06}
+    - {country: "GB", currency: GBP, rate_range: [1.7000, 1.7800], share: 0.08}
+    - {country: "JP", currency: JPY, rate_range: [0.0090, 0.0098], share: 0.04}
+    - {country: "CA", currency: CAD, rate_range: [1.0000, 1.0000], share: 0.14, note: out-of-province travel}
+
+# -----------------------------------------------------------------------------
+# CSV FILES
+# -----------------------------------------------------------------------------
+files:
+
+  - file: Customer.csv
+    brief_group: Claims Master Data (1 of 3)
+    path: data/raw/Customer.csv
+    grain: one row per customer
+    primary_key: [customer_id]
+    expected_rows: "~157 (150 base + 4 duplicate-person rows + 3 unserved-province customers)"
+    secondary_date_convention: "DD/MM/YYYY"
+    dirty_row_pool: 0.10        # share of rows sampled once; rate-based defects land only here
+    fields:
+      - name: customer_id
+        type: string
+        description: "Customer identifier assigned by the policy administration system."
+        format: "`C` + 5 digits, e.g. `C00017`"
+        pattern: '^C\d{5}$'
+        nullable: false
+        key_role: primary_key
+        objectives: [fraud, retention, operations, region, policy]
+        pii: none
+      - name: first_name
+        type: string
+        description: "Given name. Used only for duplicate-person resolution in core."
+        format: "Title case, trimmed (Faker en_CA)"
+        nullable: false
+        key_role: none
+        objectives: []
+        pii: direct
+      - name: last_name
+        type: string
+        description: "Family name. Used only for duplicate-person resolution in core."
+        format: "Title case, trimmed (Faker en_CA)"
+        nullable: false
+        key_role: none
+        objectives: []
+        pii: direct
+      - name: date_of_birth
+        type: date
+        description: "Policyholder date of birth. Marts receive age / age band only."
+        format: "ISO date; age 18-89 on the extract end date"
+        nullable: false
+        key_role: none
+        objectives: [fraud, retention, region, policy]
+        pii: direct
+      - name: gender
+        type: enum
+        description: "Self-reported gender."
+        allowed: ["F", "M", "X"]
+        nullable: true
+        null_meaning: "Legitimate: not disclosed (~3%). No error nulls are injected in this field."
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: address
+        type: string
+        description: "Street address (civic number, street, optional unit)."
+        format: "e.g. `2410 Albert St Unit 5`"
+        nullable: false
+        key_role: none
+        objectives: []
+        pii: direct
+      - name: city
+        type: string
+        description: "City of residence."
+        format: "Title case; from reference_data.provinces_served[].cities"
+        nullable: false
+        key_role: none
+        objectives: [region]
+        pii: quasi
+      - name: province
+        type: enum
+        description: "Home province/territory code. Authoritative source for a claim's region (overview 4.5)."
+        allowed: ["SK", "AB", "MB", "ON", "BC", "NS", "PE", "NL", "YT", "NT"]
+        nullable: false
+        key_role: none
+        objectives: [fraud, retention, operations, region, policy]
+        pii: quasi
+      - name: postal_code
+        type: string
+        description: "Canadian postal code. First letter must agree with province; marts receive the FSA (first 3 characters) only."
+        format: "`A1A 1A1`, upper case, one space"
+        pattern: '^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z] \d[ABCEGHJ-NPRSTV-Z]\d$'
+        nullable: false
+        key_role: none
+        objectives: [region]
+        pii: direct
+      - name: phone
+        type: string
+        description: "Primary phone number; area code consistent with province."
+        format: "E.164, e.g. `+13065550142`"
+        pattern: '^\+1\d{10}$'
+        nullable: true
+        null_meaning: "Legitimate: not provided (~5%)."
+        key_role: none
+        objectives: []
+        pii: direct
+      - name: email
+        type: string
+        description: "Contact e-mail address."
+        format: "lower case, `local@domain.tld`"
+        nullable: true
+        null_meaning: "Legitimate: not provided (~8%)."
+        key_role: none
+        objectives: []
+        pii: direct
+      - name: customer_since
+        type: date
+        description: "Start of the customer relationship (first-ever policy, including policies older than the extract). True tenure for retention."
+        format: "ISO date; 2005-01-01 <= value <= earliest Policy.start_date of the customer"
+        nullable: false
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: last_updated
+        type: datetime
+        description: "Last modification timestamp in the source system. Tie-breaker ('most recent') when merging duplicate persons."
+        format: "ISO datetime with -06:00 offset; customer_since <= value <= extract end"
+        nullable: false
+        key_role: none
+        objectives: []
+        pii: none
+    defects:
+      - {id: DUP_ENTITY, fields: [customer_id], target: {count: 4}, detail: "4 persons re-entered under a new customer_id. Normalized first_name, last_name, date_of_birth, postal_code are identical; raw formatting may differ; one row of each pair lacks phone or email; last_updated differs. At least 2 of the duplicate IDs own a policy."}
+      - {id: INV_UNSERVED_PROVINCE, fields: [province, postal_code], target: {count: 3}, detail: "3 additional customers in QC, NB, NU with matching postal codes; each owns one policy and 0-1 claims, so dependants must be handled."}
+      - {id: INV_AGE, fields: [date_of_birth], target: {count: 3}, detail: "1 future date, 1 sentinel `1900-01-01`, 1 age of 15 at policy start."}
+      - {id: MISS_ERROR, fields: [date_of_birth, province], target: {count: 4}, detail: "2 missing date_of_birth; 2 missing province (recoverable from the postal-code first letter)."}
+      - {id: FMT_DATE, fields: [date_of_birth, customer_since], target: {pool_share: 0.40}, variants: ["DD/MM/YYYY", "Mon DD, YYYY"]}
+      - {id: FMT_PROVINCE, fields: [province], target: {pool_share: 0.48}, variants: ["Sask.", "saskatchewan", "Saskatchewan", " sk ", "Alta.", "Ontario", "man."]}
+      - {id: FMT_GENDER, fields: [gender], target: {pool_share: 0.60}, variants: ["Female", "female", "f", "Male", "MALE", "m", "Non-binary"]}
+      - {id: FMT_PHONE, fields: [phone], target: {pool_share: 0.60}, variants: ["(306) 555-0142", "306-555-0142", "306.555.0142", "3065550142", "+1 306 555 0142"]}
+      - {id: FMT_POSTAL, fields: [postal_code], target: {pool_share: 0.60}, variants: ["s4p 3y2", "S4P3Y2", " S4P 3Y2 "]}
+      - {id: FMT_TEXT_WHITESPACE, fields: [first_name, last_name, city, email], target: {pool_share: 0.32}, variants: ["trailing space", "UPPER CASE", "lower case"]}
+
+  - file: Policy.csv
+    brief_group: Claims Master Data (2 of 3)
+    path: data/raw/Policy.csv
+    grain: one row per policy
+    primary_key: [policy_id]
+    expected_rows: "~183 (180 base + 3 policies of unserved-province customers)"
+    secondary_date_convention: "MM/DD/YYYY"
+    dirty_row_pool: 0.10        # share of rows sampled once; rate-based defects land only here
+    fields:
+      - name: policy_id
+        type: string
+        description: "Policy identifier."
+        format: "`P` + 5 digits, e.g. `P00104`"
+        pattern: '^P\d{5}$'
+        nullable: false
+        key_role: primary_key
+        objectives: [fraud, retention, region, policy]
+        pii: none
+      - name: customer_id
+        type: string
+        description: "Policy owner. Authoritative owner for claims and premiums (overview 4.5)."
+        format: "`C` + 5 digits"
+        pattern: '^C\d{5}$'
+        nullable: false
+        key_role: foreign_key
+        references: Customer.customer_id
+        objectives: [fraud, retention, policy]
+        pii: none
+      - name: policy_type
+        type: enum
+        description: "Product line."
+        allowed: [health, dental, travel]
+        nullable: false
+        key_role: none
+        objectives: [fraud, retention, operations, region, policy]
+        pii: none
+      - name: plan_name
+        type: enum
+        description: "Plan within the product line; must belong to policy_type (reference_data.plans)."
+        allowed: [BasicPlan, ExtendaPlan, OmniPlan, Replacement Health, Dental Basic, Dental Plus, TravelStar, StudentPlan]
+        nullable: false
+        key_role: none
+        objectives: [fraud, retention, policy]
+        pii: none
+      - name: coverage_type
+        type: enum
+        description: "Who is covered. The oldest applicant sets the rate; the policyholder is assumed to be the oldest applicant."
+        allowed: [single, couple, family]
+        nullable: false
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: start_date
+        type: date
+        description: "Coverage effective date. May precede the history start (policy already in force on 2023-07-01)."
+        format: "ISO date; customer_since <= value <= extract end"
+        nullable: false
+        key_role: none
+        objectives: [fraud, retention, policy]
+        pii: none
+      - name: end_date
+        type: date
+        description: "Date coverage ended or will end: lapse, cancellation or expiry date; for travel, the end of the trip/term."
+        format: "ISO date; >= start_date"
+        nullable: true
+        null_meaning: "Legitimate: health/dental policy with status = active (open-ended, renews each period)."
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: status
+        type: enum
+        description: "Status AS OF THE EXTRACT END DATE. Retention must derive status as of snapshot_date from dates, not use this column as a feature (leakage)."
+        allowed: [active, lapsed, cancelled, expired]
+        nullable: false
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: sales_channel
+        type: enum
+        description: "Channel through which the policy was sold."
+        allowed: [online, broker, call_centre]
+        nullable: false
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: coverage_amount
+        type: "decimal(12,2)"
+        description: "Benefit maximum from the plan: per policy year (health, dental) or per term for emergency medical (travel)."
+        format: "> 0; value from reference_data.plans"
+        nullable: false
+        key_role: none
+        objectives: [fraud, policy]
+        pii: none
+      - name: deductible_amount
+        type: "decimal(12,2)"
+        description: "Deductible applied once per policy year (health, dental) or once per term (travel)."
+        format: ">= 0; one of the plan's deductible_options"
+        nullable: false
+        key_role: none
+        objectives: [policy]
+        pii: none
+    defects:
+      - {id: ORPHAN_FK, fields: [customer_id], target: {count: 2}, detail: "customer_id that does not exist in Customer.csv."}
+      - {id: INV_DATE_ORDER, fields: [start_date, end_date], target: {count: 2}, detail: "end_date earlier than start_date."}
+      - {id: MISS_ERROR, fields: [sales_channel, plan_name], target: {count: 4}, detail: "2 missing sales_channel, 2 missing plan_name (plan_name recoverable only when coverage_amount is unique to one plan)."}
+      - {id: FMT_ID, fields: [customer_id], target: {pool_share: 0.12}, variants: ["c00017", "C00017 ", " C00017"]}
+      - {id: FMT_DATE, fields: [start_date, end_date], target: {pool_share: 0.40}, variants: ["MM/DD/YYYY", "Mon DD, YYYY"]}
+      - {id: FMT_CATEGORY_CASE, fields: [policy_type, status, coverage_type, sales_channel], target: {pool_share: 0.40}, variants: ["Health", "DENTAL", "active ", "Single", "Call Centre"]}
+      - {id: TYPE_AMOUNT_TEXT, fields: [coverage_amount, deductible_amount], target: {pool_share: 0.40}, variants: ["$5,000.00", "5000 CAD", "1,500"]}
+
+  - file: Claim.csv
+    brief_group: Claims Master Data (3 of 3)
+    path: data/raw/Claim.csv
+    grain: one row per claim
+    primary_key: [claim_id]
+    expected_rows: "~220 (210 base + 6 exact duplicates + 4 near-duplicates)"
+    secondary_date_convention: "DD/MM/YYYY"
+    dirty_row_pool: 0.08        # share of rows sampled once; rate-based defects land only here
+    fields:
+      - name: claim_id
+        type: string
+        description: "Claim identifier; system of record for claim existence. Prefix = product line; the numeric part is unique across all prefixes."
+        format: "`H`/`D`/`T` + 5 digits, e.g. `H00012`"
+        pattern: '^[HDT]\d{5}$'
+        nullable: false
+        key_role: primary_key
+        objectives: [fraud, retention, operations, region, policy]
+        pii: none
+      - name: policy_id
+        type: string
+        description: "Policy under which the claim is made; its policy_type must match the claim_id prefix."
+        format: "`P` + 5 digits"
+        pattern: '^P\d{5}$'
+        nullable: false
+        key_role: foreign_key
+        references: Policy.policy_id
+        objectives: [fraud, retention, operations, region, policy]
+        pii: none
+      - name: customer_id
+        type: string
+        description: "Claimant. Copy of the policy owner; Policy.customer_id wins on conflict."
+        format: "`C` + 5 digits"
+        pattern: '^C\d{5}$'
+        nullable: false
+        key_role: denormalized_copy
+        references: Policy.customer_id
+        objectives: [fraud, retention]
+        pii: none
+      - name: claim_type
+        type: enum
+        description: "Benefit claimed; valid values depend on the product line (reference_data.claim_types)."
+        allowed: [prescription_drugs, health_practitioner, vision, hearing_aids, medical_equipment, ambulance, hospital_cash, preventive, basic, major, emergency_medical, trip_cancellation, trip_interruption, baggage]
+        nullable: false
+        key_role: none
+        objectives: [fraud, operations, region, policy]
+        pii: none
+      - name: service_date
+        type: date
+        description: "Date the service was rendered or the incident occurred (for cancellation: the cancellation date). Equals the earliest JSON line-item service_date."
+        format: "ISO date; within [Policy.start_date, Policy.end_date]; <= claim_date"
+        nullable: false
+        key_role: none
+        objectives: [fraud, operations]
+        pii: none
+      - name: claim_date
+        type: date
+        description: "Submission date. Its weekday drives the weekend-submission trait."
+        format: "ISO date; service_date <= value <= extract end; value - service_date <= 365 days"
+        nullable: false
+        key_role: none
+        objectives: [fraud, retention, operations, region, policy]
+        pii: none
+      - name: claim_amount
+        type: "decimal(12,2)"
+        description: "Total amount claimed in CAD. Travel claims converted from the JSON currency at exchange_rate_to_cad. Should equal the sum of JSON line items."
+        format: "> 0; lognormal per claim_type"
+        nullable: false
+        key_role: none
+        objectives: [fraud, operations, region, policy]
+        pii: none
+      - name: approved_amount
+        type: "decimal(12,2)"
+        description: "Amount approved for payment after deductible, co-insurance and plan limits."
+        format: "0 <= value <= claim_amount; 0 when denied"
+        nullable: true
+        null_meaning: "Legitimate: claim_status = pending (not yet decided)."
+        key_role: none
+        objectives: [fraud, retention, region, policy]
+        pii: none
+      - name: claim_status
+        type: enum
+        description: "Status in the claims system. Copy of Claim_Payment.decision_outcome (pending = no payment row); the payment file wins on conflict."
+        allowed: [pending, approved, partially_approved, denied]
+        nullable: false
+        key_role: denormalized_copy
+        references: Claim_Payment.decision_outcome
+        objectives: [fraud, retention, operations]
+        pii: none
+      - name: region
+        type: enum
+        description: "Claimant's HOME province (not the incident location; a travel claim in the US still has a Canadian region). Customer.province wins on conflict."
+        allowed: ["SK", "AB", "MB", "ON", "BC", "NS", "PE", "NL", "YT", "NT"]
+        nullable: false
+        key_role: denormalized_copy
+        references: Customer.province
+        objectives: [region]
+        pii: none
+      - name: is_fraud_synthetic_label
+        type: boolean
+        description: "Simulated special-investigation outcome, assigned probabilistically from the fraud traits. Target variable only; never a feature. Kept defect-free."
+        allowed: ["true", "false"]
+        nullable: false
+        key_role: none
+        objectives: [fraud]
+        pii: none
+    defects:
+      - {id: DUP_EXACT, fields: ["*"], target: {count: 6}, detail: "Whole rows repeated (repeated load)."}
+      - {id: DUP_NEAR_KEY, fields: [claim_id], target: {count: 4}, detail: "Duplicate rows whose claim_id differs only in case/whitespace, e.g. `h00012` vs `H00012 `."}
+      - {id: ORPHAN_FK, fields: [policy_id], target: {count: 3}, detail: "policy_id that does not exist in Policy.csv (the claims keep their JSON files)."}
+      - {id: XF_STATUS_CONFLICT, fields: [claim_status], target: {count: 8}, detail: "claim_status disagrees with Claim_Payment.decision_outcome, incl. 2 rows showing pending although a decision exists."}
+      - {id: XF_REGION_CONFLICT, fields: [region], target: {count: 8}, detail: "region differs from the customer's province."}
+      - {id: XF_OWNER_CONFLICT, fields: [customer_id], target: {count: 5}, detail: "customer_id differs from the policy owner (valid ID of another customer)."}
+      - {id: INV_CLAIM_BEFORE_POLICY, fields: [service_date], target: {count: 3}, detail: "service_date earlier than Policy.start_date (distinct from the early-claim fraud trait, which stays inside coverage)."}
+      - {id: INV_DATE_ORDER, fields: [service_date, claim_date], target: {count: 2}, detail: "service_date later than claim_date."}
+      - {id: INV_NEGATIVE_AMOUNT, fields: [claim_amount], target: {count: 3}, detail: "Sign flipped; absolute value matches the JSON line items."}
+      - {id: OUT_ERROR, fields: [claim_amount], target: {count: 2}, detail: "Decimal shift (x100). JSON line items still sum to the true value, which separates it from genuine outliers."}
+      - {id: MISS_ERROR, fields: [claim_amount, service_date], target: {count: 4}, detail: "2 missing claim_amount, 2 missing service_date; both recoverable from JSON."}
+      - {id: FMT_ID, fields: [policy_id, customer_id], target: {pool_share: 0.12}, variants: ["p00104", "P00104 "]}
+      - {id: FMT_DATE, fields: [service_date, claim_date], target: {pool_share: 0.40}, variants: ["DD/MM/YYYY", "Mon DD, YYYY"]}
+      - {id: FMT_PROVINCE, fields: [region], target: {pool_share: 0.40}, variants: ["Sask.", "saskatchewan", "Alberta", " mb"]}
+      - {id: FMT_CATEGORY_CASE, fields: [claim_status, claim_type], target: {pool_share: 0.40}, variants: ["Approved", "APPROVED", "approved ", "Partially Approved", "Prescription_Drugs"]}
+      - {id: TYPE_AMOUNT_TEXT, fields: [claim_amount, approved_amount], target: {pool_share: 0.32}, variants: ["$1,250.00", "1,250.00", "1250.00 CAD"]}
+
+  - file: Claim_Payment.csv
+    brief_group: Claims Payment Data
+    path: data/raw/Claim_Payment.csv
+    grain: one row per adjudication decision (at most one per claim in the ground truth)
+    primary_key: [payment_id]
+    expected_rows: "~203 (~195 decided claims + 5 exact duplicates + 3 orphans)"
+    secondary_date_convention: "YYYYMMDD"
+    dirty_row_pool: 0.08        # share of rows sampled once; rate-based defects land only here
+    row_rules:
+      - "Pending claims have NO row (legitimate absence)."
+      - "Denied: decision fields populated, payment_amount = 0, payment_date / payment_method / payment_status / transaction_reference null (legitimate)."
+      - "Approved or partially approved, payment_status = scheduled: payment_date and transaction_reference null (legitimate)."
+    fields:
+      - name: payment_id
+        type: string
+        description: "Adjudication / payment record identifier."
+        format: "`PAY` + 5 digits, e.g. `PAY00087`"
+        pattern: '^PAY\d{5}$'
+        nullable: false
+        key_role: primary_key
+        objectives: [operations]
+        pii: none
+      - name: claim_id
+        type: string
+        description: "Claim decided by this record."
+        format: "`H`/`D`/`T` + 5 digits"
+        pattern: '^[HDT]\d{5}$'
+        nullable: false
+        key_role: foreign_key
+        references: Claim.claim_id
+        objectives: [fraud, retention, operations, region, policy]
+        pii: none
+      - name: processing_start_date
+        type: date
+        description: "Date an adjuster opened the claim. Queue time = processing_start_date - claim_date."
+        format: "ISO date; >= Claim.claim_date"
+        nullable: false
+        key_role: none
+        objectives: [operations]
+        pii: none
+      - name: decision_date
+        type: date
+        description: "Date the adjudication decision was made (for every outcome, including denials). Handling time = decision_date - processing_start_date."
+        format: "ISO date; >= processing_start_date; <= extract end"
+        nullable: false
+        key_role: none
+        objectives: [fraud, retention, operations]
+        pii: none
+      - name: decision_outcome
+        type: enum
+        description: "Adjudication result. Authoritative for the claim's decision (overview 4.5)."
+        allowed: [approved, partially_approved, denied]
+        nullable: false
+        key_role: none
+        objectives: [fraud, retention, operations, region, policy]
+        pii: none
+      - name: payment_date
+        type: date
+        description: "Date funds were issued."
+        format: "ISO date; >= decision_date; >= Claim.claim_date"
+        nullable: true
+        null_meaning: "Legitimate: decision_outcome = denied, or payment_status = scheduled."
+        key_role: none
+        objectives: [operations, policy]
+        pii: none
+      - name: payment_amount
+        type: "decimal(12,2)"
+        description: "Amount paid or scheduled, CAD. Must equal Claim.approved_amount."
+        format: ">= 0; 0 when denied"
+        nullable: false
+        key_role: none
+        objectives: [fraud, region, policy]
+        pii: none
+      - name: payment_method
+        type: enum
+        description: "How the payment is made; provider_direct if and only if the JSON submission_channel is provider_direct_billing."
+        allowed: [direct_deposit, cheque, provider_direct]
+        nullable: true
+        null_meaning: "Legitimate: decision_outcome = denied."
+        key_role: none
+        objectives: [fraud, operations]
+        pii: none
+      - name: payment_status
+        type: enum
+        description: "Payment state on the extract end date."
+        allowed: [paid, scheduled]
+        nullable: true
+        null_meaning: "Legitimate: decision_outcome = denied."
+        key_role: none
+        objectives: [operations]
+        pii: none
+      - name: transaction_reference
+        type: string
+        description: "Banking transaction reference; unique when present. Used for payment reconciliation and duplicate detection."
+        format: "`TXN` + 10 digits"
+        pattern: '^TXN\d{10}$'
+        nullable: true
+        null_meaning: "Legitimate: denied, or payment_status = scheduled."
+        key_role: natural_key
+        objectives: []
+        pii: none
+      - name: denial_reason
+        type: enum
+        description: "Reason for denial, or for the declined part of a partial approval."
+        allowed: [not_covered, waiting_period, benefit_maximum_reached, missing_documentation, policy_inactive, late_submission, duplicate_claim, suspected_fraud]
+        nullable: true
+        null_meaning: "Legitimate: approved (always null) or partially_approved (optional). Required when denied."
+        key_role: none
+        objectives: [fraud, retention, operations]
+        pii: none
+    defects:
+      - {id: DUP_EXACT, fields: ["*"], target: {count: 5}, detail: "Whole rows repeated (repeated load)."}
+      - {id: ORPHAN_FK, fields: [claim_id], target: {count: 3}, detail: "claim_id not present in Claim.csv."}
+      - {id: INV_PAYMENT_BEFORE_SUBMISSION, fields: [payment_date], target: {count: 3}, detail: "payment_date earlier than Claim.claim_date."}
+      - {id: INV_DATE_ORDER, fields: [processing_start_date, decision_date], target: {count: 2}, detail: "decision_date earlier than processing_start_date."}
+      - {id: XF_PAYMENT_AMOUNT, fields: [payment_amount], target: {count: 3}, detail: "payment_amount differs from Claim.approved_amount."}
+      - {id: MISS_ERROR, fields: [decision_date], target: {count: 2}, detail: "decision_date missing on a decided row (never legitimate)."}
+      - {id: FMT_ID, fields: [claim_id], target: {pool_share: 0.12}, variants: ["h00012", "H00012 "]}
+      - {id: FMT_DATE, fields: [processing_start_date, decision_date, payment_date], target: {pool_share: 0.40}, variants: ["YYYYMMDD", "Mon DD, YYYY"]}
+      - {id: FMT_CATEGORY_CASE, fields: [decision_outcome, payment_status, payment_method], target: {pool_share: 0.40}, variants: ["Denied", "PAID", "Direct Deposit", "partially approved"]}
+      - {id: TYPE_AMOUNT_TEXT, fields: [payment_amount], target: {pool_share: 0.32}, variants: ["$1,250.00", "1,250.00"]}
+
+  - file: Policy_Premium.csv
+    brief_group: Policy Premium Data
+    path: data/raw/Policy_Premium.csv
+    grain: one row per premium instalment
+    primary_key: [premium_id]
+    expected_rows: "~3,500 (instalments due 2023-07-01 to 2026-06-30, + 15 duplicates + 5 orphans)"
+    secondary_date_convention: "MM/DD/YYYY"
+    dirty_row_pool: 0.05        # share of rows sampled once; rate-based defects land only here
+    row_rules:
+      - "Instalments are generated for every period the policy is in force within [history_start, extract end]; none after Policy.end_date."
+      - "missed is only generated for due_date <= extract end - 30 days; more recent instalments are paid or late."
+      - "A lapsed policy has at least one missed instalment in the 90 days before its end_date."
+    fields:
+      - name: premium_id
+        type: string
+        description: "Premium instalment identifier."
+        format: "`PRM` + 6 digits, e.g. `PRM001234`"
+        pattern: '^PRM\d{6}$'
+        nullable: false
+        key_role: primary_key
+        objectives: []
+        pii: none
+      - name: policy_id
+        type: string
+        description: "Policy the instalment belongs to."
+        format: "`P` + 5 digits"
+        pattern: '^P\d{5}$'
+        nullable: false
+        key_role: foreign_key
+        references: Policy.policy_id
+        objectives: [retention, policy]
+        pii: none
+      - name: customer_id
+        type: string
+        description: "Payer. Copy of the policy owner; Policy.customer_id wins on conflict."
+        format: "`C` + 5 digits"
+        pattern: '^C\d{5}$'
+        nullable: false
+        key_role: denormalized_copy
+        references: Policy.customer_id
+        objectives: [retention]
+        pii: none
+      - name: premium_amount
+        type: "decimal(12,2)"
+        description: "Amount due for the instalment, CAD = base_premium x age-band factor x coverage-type factor x months in the period."
+        format: "> 0"
+        nullable: false
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: premium_frequency
+        type: enum
+        description: "Billing frequency; constant within a policy (a policy attribute repeated on each instalment). `single` = one-off travel premium."
+        allowed: [monthly, quarterly, yearly, single]
+        nullable: false
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: age_band
+        type: enum
+        description: "Rating band of the oldest applicant (the policyholder) on the due date; can change over a policy's life."
+        allowed: ["Under 35", "35-44", "45-54", "55-64", "65-74", "75+"]
+        nullable: false
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: due_date
+        type: date
+        description: "Instalment due date."
+        format: "ISO date; max(Policy.start_date, history_start) <= value <= min(end_date, extract end)"
+        nullable: false
+        key_role: none
+        objectives: [retention, policy]
+        pii: none
+      - name: paid_date
+        type: date
+        description: "Date the instalment was received."
+        format: "ISO date"
+        nullable: true
+        null_meaning: "Legitimate: payment_status = missed."
+        key_role: none
+        objectives: [retention]
+        pii: none
+      - name: payment_status
+        type: enum
+        description: "Derivable from the dates: paid (paid_date <= due_date), late (paid_date > due_date), missed (paid_date null)."
+        allowed: [paid, late, missed]
+        nullable: false
+        key_role: none
+        objectives: [retention]
+        pii: none
+      - name: payment_method
+        type: enum
+        description: "How the premium was paid (pad = pre-authorized debit)."
+        allowed: [pad, credit_card, cheque]
+        nullable: true
+        null_meaning: "Legitimate: payment_status = missed."
+        key_role: none
+        objectives: [retention]
+        pii: none
+    defects:
+      - {id: DUP_EXACT, fields: ["*"], target: {count: 15}, detail: "One daily load of 15 rows repeated."}
+      - {id: ORPHAN_FK, fields: [policy_id], target: {count: 5}, detail: "policy_id not present in Policy.csv."}
+      - {id: XF_OWNER_CONFLICT, fields: [customer_id], target: {count: 10}, detail: "customer_id differs from the policy owner."}
+      - {id: INV_NEGATIVE_AMOUNT, fields: [premium_amount], target: {count: 4}, detail: "Negative amount; refunds are not modelled, so always an error."}
+      - {id: INV_DERIVED_STATUS, fields: [payment_status], target: {count: 5}, detail: "payment_status = paid although paid_date > due_date."}
+      - {id: MISS_ERROR, fields: [paid_date], target: {count: 4}, detail: "paid_date missing while payment_status is paid or late."}
+      - {id: FMT_ID, fields: [policy_id], target: {pool_share: 0.08}, variants: ["p00104", " P00104"]}
+      - {id: FMT_DATE, fields: [due_date, paid_date], target: {pool_share: 0.20}, variants: ["MM/DD/YYYY", "Mon DD, YYYY"]}
+      - {id: FMT_CATEGORY_CASE, fields: [payment_status, premium_frequency, payment_method], target: {pool_share: 0.20}, variants: ["Paid", "LATE", "Monthly ", "PAD"]}
+      - {id: TYPE_AMOUNT_TEXT, fields: [premium_amount], target: {pool_share: 0.20}, variants: ["$85.00", "85.00 CAD"]}
+
+# -----------------------------------------------------------------------------
+# JSON CLAIM-DETAIL FILES
+# -----------------------------------------------------------------------------
+json_claim_detail:
+  path_pattern: "data/raw/json/<claim_id>.json"
+  file_count: 200
+  grain: one file per claim
+  composition: "194 parseable files matching a claim + 2 malformed files (real claims) + 4 orphan files = 200"
+  dirty_row_pool: 0.10          # share of the 194 parseable matched files eligible for rate-based JSON defects
+  structure_rule: "Common fields + line_items[] + exactly ONE product object (health | dental | travel) matching product_line. Product objects differ by design; this is legitimate variation, not a defect."
+  common_fields:
+    - {name: schema_version, type: string, description: "Version of the portal/API payload schema.", allowed: ["1.0"], nullable: false, key_role: none, objectives: [], pii: none}
+    - {name: claim_id, type: string, description: "Claim this file details. Claim.csv decides whether the claim exists.", format: "`H`/`D`/`T` + 5 digits; equals the file name", pattern: '^[HDT]\d{5}$', nullable: false, key_role: foreign_key, references: Claim.claim_id, objectives: [fraud, retention, operations, region, policy], pii: none}
+    - {name: product_line, type: enum, description: "Product line; must match the claim_id prefix and the product object present.", allowed: [health, dental, travel], nullable: false, key_role: none, objectives: [fraud, operations, region, policy], pii: none}
+    - {name: submission_channel, type: enum, description: "How the claim arrived.", allowed: [online_portal, mobile_app, provider_direct_billing, mail], nullable: false, key_role: none, objectives: [fraud, operations], pii: none}
+    - {name: submitted_at, type: datetime, description: "Submission timestamp; its date part equals Claim.claim_date. Hour and weekday feed fraud traits.", format: "ISO datetime, -06:00", nullable: false, key_role: none, objectives: [fraud, operations], pii: none}
+    - {name: provider.provider_id, type: string, description: "Provider identifier (object `provider`). Provider concentration trait.", format: "`PRV` + 4 digits", pattern: '^PRV\d{4}$', nullable: false, key_role: natural_key, objectives: [fraud], pii: none}
+    - {name: provider.name, type: string, description: "Provider business name.", format: "Free text", nullable: false, key_role: none, objectives: [], pii: none}
+    - {name: provider.type, type: enum, description: "Provider category; must fit the claim_type (reference_data.claim_types).", allowed: [pharmacy, clinic, practitioner_office, optical_store, hearing_clinic, medical_supplier, ambulance_service, hospital, dental_clinic, foreign_hospital, foreign_clinic, travel_supplier, airline], nullable: false, key_role: none, objectives: [fraud, operations, policy], pii: none}
+    - {name: line_items, type: array, description: "Billed items (at least one). Sum of amount (x exchange_rate_to_cad for travel) = Claim.claim_amount.", format: "array of line-item objects, >= 1", nullable: false, key_role: none, objectives: [fraud, policy], pii: none}
+    - {name: adjuster_id, type: string, description: "Adjuster assigned to the claim.", format: "`ADJ` + 3 digits (ADJ001-ADJ012)", pattern: '^ADJ\d{3}$', nullable: true, null_meaning: "Legitimate: pending claim not yet assigned.", key_role: none, objectives: [fraud, operations], pii: none}
+    - {name: adjuster_notes, type: string, description: "Free-text adjuster notes.", format: "Free text, <= 500 chars", nullable: true, null_meaning: "Legitimate: no notes written.", key_role: none, objectives: [fraud], pii: none}
+    - {name: documents_submitted, type: array, description: "Documents received. Completeness is judged against required_documents for the claim_type; an empty array is a legitimate value.", allowed: [receipt, invoice, itemized_invoice, prescription, referral, treatment_plan, xray, medical_report, hospital_discharge_summary, proof_of_travel, booking_confirmation, cancellation_invoice, supporting_statement, baggage_irregularity_report], nullable: false, key_role: none, objectives: [fraud, operations], pii: none}
+  line_item_fields:
+    - {name: line_no, type: integer, description: "Sequence within the claim.", format: "1..n, no gaps", nullable: false, key_role: none, objectives: [], pii: none}
+    - {name: service_date, type: date, description: "Date of this service; min over items = Claim.service_date.", format: "ISO date", nullable: false, key_role: none, objectives: [fraud], pii: none}
+    - {name: description, type: string, description: "Item description.", format: "Free text", nullable: false, key_role: none, objectives: [], pii: none}
+    - {name: quantity, type: integer, description: "Units billed.", format: ">= 1", nullable: false, key_role: none, objectives: [fraud], pii: none}
+    - {name: unit_amount, type: "decimal(12,2)", description: "Price per unit, in the claim currency (CAD unless travel.currency says otherwise).", format: "> 0", nullable: false, key_role: none, objectives: [fraud], pii: none}
+    - {name: amount, type: "decimal(12,2)", description: "quantity x unit_amount, in the claim currency.", format: "> 0", nullable: false, key_role: none, objectives: [fraud, policy], pii: none}
+  product_objects:
+    health:
+      claim_fields:
+        - {name: health.practitioner_type, type: enum, description: "Practitioner who delivered the service.", allowed: [physiotherapist, chiropractor, massage_therapist, psychologist, naturopath, optometrist], nullable: true, null_meaning: "Legitimate: claim_type not in (health_practitioner, vision).", key_role: none, objectives: [fraud, region, policy], pii: none}
+        - {name: health.number_of_visits, type: integer, description: "Visits covered by the claim.", format: ">= 1", nullable: true, null_meaning: "Legitimate: claim_type <> health_practitioner.", key_role: none, objectives: [fraud, policy], pii: none}
+        - {name: health.prescription, type: object, description: "Prescription details.", format: "{din, drug_name, days_supply, is_generic}", nullable: true, null_meaning: "Legitimate: claim_type <> prescription_drugs.", key_role: none, objectives: [fraud, policy], pii: none}
+        - {name: health.prescription.din, type: string, description: "Drug Identification Number (synthetic).", format: "8 digits, keep leading zeros", pattern: '^\d{8}$', nullable: false, key_role: none, objectives: [fraud], pii: none}
+        - {name: health.prescription.drug_name, type: string, description: "Drug name.", format: "Free text", nullable: false, key_role: none, objectives: [], pii: none}
+        - {name: health.prescription.days_supply, type: integer, description: "Days of medication dispensed.", format: "1-90", nullable: false, key_role: none, objectives: [fraud], pii: none}
+        - {name: health.prescription.is_generic, type: boolean, description: "Generic drug dispensed.", allowed: ["true", "false"], nullable: false, key_role: none, objectives: [policy], pii: none}
+      line_item_fields: []
+    dental:
+      claim_fields:
+        - {name: dental.claim_category, type: enum, description: "Highest procedure category on the claim (major > basic > preventive); equals Claim.claim_type.", allowed: [preventive, basic, major], nullable: false, key_role: none, objectives: [region, policy], pii: none}
+      line_item_fields:
+        - {name: procedure_code, type: string, description: "CDA-style procedure code (synthetic, not validated against the CDA list).", format: "5 digits as text, e.g. `01202`", pattern: '^\d{5}$', nullable: false, key_role: none, objectives: [fraud, policy], pii: none}
+        - {name: procedure_category, type: enum, description: "Category of this procedure.", allowed: [preventive, basic, major], nullable: false, key_role: none, objectives: [policy], pii: none}
+        - {name: tooth_number, type: integer, description: "Tooth treated, FDI notation.", format: "11-18, 21-28, 31-38, 41-48", nullable: true, null_meaning: "Legitimate: procedure not tooth-specific (exam, cleaning).", key_role: none, objectives: [fraud], pii: none}
+    travel:
+      claim_fields:
+        - {name: travel.trip_start, type: date, description: "Trip departure date; within the policy term.", format: "ISO date", nullable: false, key_role: none, objectives: [fraud], pii: none}
+        - {name: travel.trip_end, type: date, description: "Trip return date.", format: "ISO date; >= trip_start", nullable: false, key_role: none, objectives: [fraud], pii: none}
+        - {name: travel.destination_country, type: string, description: "Destination (CA = out-of-province travel).", format: "ISO 3166-1 alpha-2", pattern: '^[A-Z]{2}$', nullable: false, key_role: none, objectives: [fraud, region, policy], pii: none}
+        - {name: travel.incident_type, type: enum, description: "Incident; maps 1:1 to Claim.claim_type.", allowed: [medical, cancellation, interruption, baggage], nullable: false, key_role: none, objectives: [fraud, region], pii: none}
+        - {name: travel.incident_date, type: date, description: "Incident date. Inside [trip_start, trip_end] except cancellation (before trip_start).", format: "ISO date", nullable: false, key_role: none, objectives: [fraud], pii: none}
+        - {name: travel.currency, type: string, description: "Currency of line-item amounts.", format: "ISO 4217, e.g. `USD`", pattern: '^[A-Z]{3}$', nullable: false, key_role: none, objectives: [], pii: none}
+        - {name: travel.exchange_rate_to_cad, type: "decimal(10,4)", description: "CAD per 1 unit of currency; 1.0000 for CAD. claim_amount = round(sum(amount) x rate, 2).", format: "> 0", nullable: false, key_role: none, objectives: [fraud], pii: none}
+        - {name: travel.incident_sub_limit, type: "decimal(12,2)", description: "Benefit maximum for this incident type, CAD (reference_data.travel_incident_sub_limits).", format: "> 0", nullable: false, key_role: none, objectives: [fraud], pii: none}
+      line_item_fields: []
+  reconciliation:
+    amount_tolerance_cad: 0.01
+    rules:
+      - "health/dental: sum(line_items.amount) = Claim.claim_amount"
+      - "travel: round(sum(line_items.amount) x exchange_rate_to_cad, 2) = Claim.claim_amount"
+      - "min(line_items.service_date) = Claim.service_date"
+      - "date(submitted_at) = Claim.claim_date"
+  defects:
+    - {id: JSON_MALFORMED, target: {count: 2}, detail: "1 truncated file, 1 with a trailing comma; both named after real claim_ids. Ingestion must log and continue."}
+    - {id: JSON_ORPHAN, target: {count: 4}, detail: "Well-formed files whose claim_id is not in Claim.csv."}
+    - {id: JSON_MISSING_FILE, target: {count: 14}, detail: "Claims in Claim.csv with no JSON file (in addition to the 2 whose file is malformed)."}
+    - {id: JSON_MISSING_KEY, target: {pool_share: 0.20}, fields: [adjuster_id, provider.type, documents_submitted, submission_channel], detail: "Key ABSENT (not null)."}
+    - {id: JSON_KEY_DRIFT, target: {pool_share: 0.12}, fields: [line_items, claim_id], detail: "Legacy key names: `lineItems`, `ClaimID`."}
+    - {id: JSON_TYPE_DRIFT, target: {pool_share: 0.20}, fields: [line_items.amount, line_items.unit_amount, travel.exchange_rate_to_cad], detail: "Numbers as strings: `\"95.00\"`, `\"$95.00\"`."}
+    - {id: JSON_SHAPE_DRIFT, target: {pool_share: 0.08}, fields: [documents_submitted, line_items], detail: "documents_submitted as comma-separated string; single line item as an object instead of an array."}
+
+# -----------------------------------------------------------------------------
+# GROUND-TRUTH INVARIANTS (true in the clean data; defects break them)
+# -----------------------------------------------------------------------------
+cross_file_invariants:
+  - {id: INV01, rule: "Every Policy.customer_id exists in Customer.csv."}
+  - {id: INV02, rule: "Every Claim.policy_id exists in Policy.csv; the policy's policy_type matches the claim_id prefix and claim_type."}
+  - {id: INV03, rule: "Claim.customer_id = Policy.customer_id; Policy_Premium.customer_id = Policy.customer_id."}
+  - {id: INV04, rule: "Claim.region = Customer.province of the claimant."}
+  - {id: INV05, rule: "Policy.start_date <= Claim.service_date <= Claim.claim_date <= extract end; service_date <= Policy.end_date when end_date is set."}
+  - {id: INV06, rule: "Each non-pending claim has exactly one Claim_Payment row; each pending claim has none."}
+  - {id: INV07, rule: "Claim.claim_status = Claim_Payment.decision_outcome (pending when there is no row)."}
+  - {id: INV08, rule: "Claim.claim_date <= processing_start_date <= decision_date <= payment_date."}
+  - {id: INV09, rule: "Claim_Payment.payment_amount = Claim.approved_amount; 0 for denied."}
+  - {id: INV10, rule: "Customer.customer_since <= min(Policy.start_date) of the customer."}
+  - {id: INV11, rule: "Policy_Premium rows exist only while the policy is in force and within [history_start, extract end]."}
+  - {id: INV12, rule: "Policy.status = lapsed implies a missed instalment in the 90 days before end_date."}
+  - {id: INV13, rule: "Customer.province is served, and postal_code's first letter belongs to it."}
+  - {id: INV14, rule: "JSON reconciliation rules hold (amounts, service_date, submission date)."}
+  - {id: INV15, rule: "Payment method provider_direct iff JSON submission_channel = provider_direct_billing."}
+
+# -----------------------------------------------------------------------------
+# EMBEDDED SIGNALS (patterns, NOT defects; never written to the defect log)
+# -----------------------------------------------------------------------------
+signals:
+  fraud:
+    label_field: Claim.is_fraud_synthetic_label
+    target_fraud_rate: 0.04
+    labelling: "Traits raise the probability of the label; some fraud shows few traits and some legitimate claims show several."
+    traits:
+      - {id: F1_EARLY_CLAIM,        carriers: [Claim.service_date, Policy.start_date],              rule: "service_date within 30 days of start_date"}
+      - {id: F2_WAITING_PERIOD,     carriers: [Claim.service_date, Policy.start_date, Claim.claim_type], rule: "dental basic/major inside the 90-day waiting period"}
+      - {id: F3_NEAR_MAXIMUM,       carriers: [Claim.claim_amount, Policy.coverage_amount, travel.incident_sub_limit], rule: ">= 90% of the applicable maximum"}
+      - {id: F4_REPEAT_CLAIMS,      carriers: [Claim.customer_id, Claim.claim_date],                rule: ">= 3 claims by one customer within 30 days"}
+      - {id: F5_PROVIDER_CONCENTRATION, carriers: [provider.provider_id],                          rule: "3-4 providers linked to a disproportionate share of fraud"}
+      - {id: F6_LINE_ITEM_MISMATCH, carriers: [line_items.amount, Claim.claim_amount],              rule: "line items do not add up to claim_amount (inflated header amount)"}
+      - {id: F7_MISSING_DOCUMENTS,  carriers: [documents_submitted],                                rule: "required documents missing"}
+      - {id: F8_WEEKEND_SUBMISSION, carriers: [Claim.claim_date, submitted_at],                     rule: "submitted Saturday/Sunday or 00:00-05:00"}
+      - {id: F9_TRAVEL_DATES,       carriers: [travel.incident_date, travel.trip_start, travel.trip_end], rule: "incident outside the trip window, or 80+ medical claim abroad"}
+    genuine_outliers: {count: 3, detail: "Very large but legitimate claims (e.g. US emergency medical ~CAD 85,000); JSON agrees with Claim.csv. Must be kept."}
+  retention:
+    drivers: [late or missed premiums, denied claims, short tenure, premium increase at age-band change]
+    rule: "Drivers raise lapse/cancel probability; some lapses fall in the outcome window 2026-04-01..2026-06-30. Travel expiry is not churn."
+  operations:
+    slow_segments: [provinces outside SK, travel claims, mail submissions, incomplete documents, 2-3 specific adjusters]
+    rule: "Queue and handling times drawn from gamma distributions with larger scale for slow segments; denied claims also carry decision times."
+  region_policy:
+    rule: "Claim frequency and severity vary by province, age band and plan so that loss ratios differ across cells."
+
+# -----------------------------------------------------------------------------
+# DEFECT CATALOGUE AND LOG CONTRACT
+# -----------------------------------------------------------------------------
+defect_catalogue:
+  - {id: DUP_EXACT,                     category: Duplicates,            description: "Whole row repeated by a repeated load.",                           detection_hint: "Row equality on raw values."}
+  - {id: DUP_NEAR_KEY,                  category: Duplicates,            description: "Duplicate whose key differs only in case/whitespace.",             detection_hint: "Normalize key (trim, upper) then dedupe."}
+  - {id: DUP_ENTITY,                    category: Duplicates,            description: "Same person under two customer_ids.",                              detection_hint: "Exact match on normalized name, DOB, postal code."}
+  - {id: FMT_DATE,                      category: Format inconsistencies, description: "Dates in a non-ISO format.",                                        detection_hint: "Parse ISO, then the file's documented secondary convention; never guess per row."}
+  - {id: FMT_PROVINCE,                  category: Format inconsistencies, description: "Province names/abbreviations instead of codes.",                   detection_hint: "Mapping table to 2-letter codes."}
+  - {id: FMT_GENDER,                    category: Format inconsistencies, description: "Gender spelled out or in other casing.",                           detection_hint: "Mapping table to F/M/X."}
+  - {id: FMT_PHONE,                     category: Format inconsistencies, description: "Phone in non-E.164 formats.",                                      detection_hint: "Strip non-digits, prefix +1."}
+  - {id: FMT_POSTAL,                    category: Format inconsistencies, description: "Postal code casing/spacing.",                                      detection_hint: "Upper, remove spaces, reinsert after 3rd char."}
+  - {id: FMT_CATEGORY_CASE,             category: Format inconsistencies, description: "Categorical values with other casing, spaces or trailing blanks.", detection_hint: "Trim, lower, spaces to underscores, validate against enum."}
+  - {id: FMT_TEXT_WHITESPACE,           category: Format inconsistencies, description: "Free text with trailing spaces or wrong case.",                    detection_hint: "Trim; title case names/cities; lower e-mail."}
+  - {id: FMT_ID,                        category: Format inconsistencies, description: "Key value with wrong case or whitespace (not a duplicate).",        detection_hint: "Normalize before joining."}
+  - {id: MISS_ERROR,                    category: Missing values,        description: "Required value missing.",                                          detection_hint: "Null where this dictionary says nullable = false or the null condition is not met."}
+  - {id: INV_NEGATIVE_AMOUNT,           category: Invalid values,        description: "Negative money amount.",                                           detection_hint: "amount < 0."}
+  - {id: INV_AGE,                       category: Invalid values,        description: "Impossible date of birth.",                                         detection_hint: "Future date, sentinel 1900-01-01, age < 18 at policy start."}
+  - {id: INV_UNSERVED_PROVINCE,         category: Invalid values,        description: "Customer in QC, NB or NU.",                                         detection_hint: "Province not in provinces_served."}
+  - {id: INV_DATE_ORDER,                category: Invalid values,        description: "Date sequence broken within a file.",                               detection_hint: "Compare ordered date pairs."}
+  - {id: INV_CLAIM_BEFORE_POLICY,       category: Invalid values,        description: "Service before the policy start.",                                  detection_hint: "Join Policy; service_date < start_date."}
+  - {id: INV_PAYMENT_BEFORE_SUBMISSION, category: Invalid values,        description: "Payment before submission.",                                        detection_hint: "Join Claim; payment_date < claim_date."}
+  - {id: INV_DERIVED_STATUS,            category: Invalid values,        description: "Stored status contradicts the dates it derives from.",              detection_hint: "Recompute status from dates."}
+  - {id: TYPE_AMOUNT_TEXT,              category: Type problems,         description: "Amount stored as formatted text.",                                  detection_hint: "Strip $, commas, 'CAD'; cast to numeric."}
+  - {id: OUT_ERROR,                     category: Outliers,              description: "Erroneous outlier (decimal shift).",                                detection_hint: "Extreme value contradicted by JSON line items."}
+  - {id: XF_STATUS_CONFLICT,            category: Cross-file conflicts,  description: "claim_status vs decision_outcome.",                                 detection_hint: "Payment file wins; log."}
+  - {id: XF_REGION_CONFLICT,            category: Cross-file conflicts,  description: "Claim region vs customer province.",                                detection_hint: "Customer wins; log."}
+  - {id: XF_OWNER_CONFLICT,             category: Cross-file conflicts,  description: "customer_id vs policy owner.",                                      detection_hint: "Policy wins; log."}
+  - {id: XF_PAYMENT_AMOUNT,             category: Cross-file conflicts,  description: "payment_amount vs approved_amount.",                                detection_hint: "Flag; do not overwrite."}
+  - {id: ORPHAN_FK,                     category: Cross-file conflicts,  description: "Foreign key with no parent.",                                       detection_hint: "Anti-join to parent; quarantine."}
+  - {id: JSON_MALFORMED,                category: JSON issues,           description: "File is not valid JSON.",                                           detection_hint: "Parse error; log file, continue."}
+  - {id: JSON_ORPHAN,                   category: JSON issues,           description: "JSON claim_id not in Claim.csv.",                                   detection_hint: "Anti-join to claims."}
+  - {id: JSON_MISSING_FILE,             category: JSON issues,           description: "Claim with no JSON file.",                                          detection_hint: "Anti-join from claims."}
+  - {id: JSON_MISSING_KEY,              category: JSON issues,           description: "Expected key absent.",                                              detection_hint: "Key-presence check vs this schema."}
+  - {id: JSON_KEY_DRIFT,                category: JSON issues,           description: "Legacy/alternative key name.",                                      detection_hint: "Alias map to canonical names."}
+  - {id: JSON_TYPE_DRIFT,               category: JSON issues,           description: "Number stored as string.",                                          detection_hint: "Type check; clean and cast."}
+  - {id: JSON_SHAPE_DRIFT,              category: JSON issues,           description: "Array/object/string shape differs.",                                detection_hint: "Coerce to canonical shape."}
+
+defect_injection_rules:
+  - "Generate and save the clean ground truth first; inject defects into copies only."
+  - "At most one value defect per (row, field); key-breaking defects (ORPHAN_FK, DUP_*) are not stacked on the same row."
+  - "Never inject defects into Claim.is_fraud_synthetic_label or into signal carriers in a way that removes the signal."
+  - "Count-based defects (target.count) are absolute numbers of rows/files and may fall anywhere in the file."
+  - "Rate-based defects (target.pool_share) apply only to the file's dirty-row pool: sample dirty_row_pool x rows once, then give each defect to pool_share of the pool rows (minimum 1). A pool row may carry several format defects, like a badly keyed record."
+  - "Target: about 5-15% of all records affected overall (overview 3.4). Small master files run higher because cross-file defects concentrate on them."
+  - "Defects are drawn with the same random seed so the log is reproducible."
+  - "Every injected defect is written to the defect log; signals are not."
+
+defect_log_schema:
+  path: data/raw/_defect_log.csv
+  note: "Evaluation artefact only; the pipeline must never read it or the ground truth."
+  columns:
+    - {name: defect_id, type: string, description: "Sequential log id, e.g. DL00001"}
+    - {name: defect_type, type: enum, description: "defect_catalogue id"}
+    - {name: source, type: string, description: "File name, e.g. Claim.csv or json/H00012.json"}
+    - {name: record_key, type: string, description: "Primary key of the affected row/file (ground-truth value)"}
+    - {name: field, type: string, description: "Affected field, or * for whole row"}
+    - {name: original_value, type: string, description: "Ground-truth value (empty for inserted rows)"}
+    - {name: injected_value, type: string, description: "Value written to the raw file"}
