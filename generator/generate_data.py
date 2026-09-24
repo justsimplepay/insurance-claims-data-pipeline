@@ -80,7 +80,7 @@ class Generator:
         self.fake=Faker("en_CA"); self.fake.seed_instance(seed+99)
         self.signal=defaultdict(set)
         self.forced_provider={}
-        self.providers=self._providers(); self.hot={"PRV0001","PRV0002","PRV0003","PRV0004"}; self.slow={"ADJ010","ADJ011","ADJ012"}
+        self.providers=self._providers(); self.hot={"PRV0001","PRV0002","PRV0003","PRV0005"}; self.slow={"ADJ010","ADJ011","ADJ012"}
 
     def _providers(self):
         types=["pharmacy","dental_clinic","clinic","travel_supplier","practitioner_office","optical_store","hearing_clinic","medical_supplier","ambulance_service","hospital","foreign_hospital","foreign_clinic","airline"]
