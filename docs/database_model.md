@@ -201,14 +201,16 @@ The source deliberately contains the same person under multiple customer IDs.
 
 `staging.customer_identity_map` records deterministic survivor mapping instead of silently deleting aliases.
 
-The frozen matching rule is exact equality after normalization of:
+The primary matching rule is exact equality after normalization of:
 
 - first name
 - last name
 - date of birth
 - postal code
 
-Survivorship prefers the most complete record, then the most recent `last_updated`.
+The generated batch also contains one intended duplicate-person row whose DOB is independently corrupted by an age defect. For that overlap case, a deliberately conservative fallback is used: normalized name, postal code, address and city must agree; at least one contact value must agree; and exactly one of the two DOB values must fall outside the valid extract-end age range. A conflicting pair of otherwise valid DOB values is never merged.
+
+Survivorship prefers a valid DOB, then the most complete record, then the most recent `last_updated`.
 
 Example:
 
