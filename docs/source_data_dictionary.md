@@ -1,6 +1,6 @@
 # Source Data Dictionary: Raw Claims Sources
 
-*GMS Data Engineer Case Study. Version 1.1, Wednesday, September 23, 2026. Based on the project overview v1.4.*
+*GMS Data Engineer Case Study. Version 1.2, Wednesday, September 23, 2026. Based on the project overview v1.5.*
 *Machine-readable companion: `docs/source_data_dictionary.yaml` (the YAML is authoritative; the tables below are rendered from it).*
 
 ---
@@ -11,7 +11,7 @@ This document defines what the **raw, messy source files** look like before any 
 
 **Source-model assumption:** the three Claims Master Data files are represented as separate entity extracts—`Customer.csv`, `Policy.csv`, and `Claim.csv`—corresponding to customer demographics, policy details, and claim information in the case study. This is a modelling assumption, not a claim that the brief permits only this interpretation.
 
-**Design discipline:** source complexity is included only where it serves the assessment. Every field or rule must support at least one analytics objective, establish an important relationship/grain, or create/resolve a meaningful data-quality or reconciliation case. Complexity for its own sake is avoided.
+**Design discipline:** source complexity is included only where it serves the assessment. Every field or rule must support at least one analytics objective, establish an important relationship/grain, or create/resolve a meaningful data-quality or reconciliation case. Complexity for its own sake is avoided. The raw layer is intentionally not perfectly normalized: selected redundant attributes and heterogeneous JSON shapes are retained where they create realistic reconciliation, schema-normalization, or data-quality work; staging/core establish the canonical values.
 
 It serves two readers:
 
@@ -50,7 +50,7 @@ Every field is described by its **ground-truth** definition. The *Defects inject
 |---|---|
 | Random seed | 20260923 |
 | History window | 2023-07-01 to 2026-06-30 (extract end) |
-| Retention snapshot | 2026-03-31; outcome window 2026-04-01 to 2026-06-30 |
+| Retention observation | 2025-04-01 to 2026-03-31; snapshot 2026-03-31; outcome window 2026-04-01 to 2026-06-30 |
 | Base volumes | 150 customers, 180 policies, 210 claims, exactly 200 JSON files |
 
 ---
@@ -173,12 +173,10 @@ Master file 3 of 3; system of record for claim existence. Grain: one row per cla
 | `approved_amount` | decimal(12,2) | Amount approved for payment after deductible, co-insurance and plan limits. | 0 <= value <= claim_amount; 0 when denied | Yes — legit: claim_status = pending (not yet decided). | – | 1,2,4,5 | none |
 | `claim_status` | enum | Status in the claims system. Copy of Claim_Payment.decision_outcome (pending = no payment row); the payment file wins on conflict. | `pending`, `approved`, `partially_approved`, `denied` | No | Copy of `Claim_Payment.decision_outcome` | 1,2,3 | none |
 | `region` | enum | Claimant's HOME province (not the incident location; a travel claim in the US still has a Canadian region). Customer.province wins on conflict. | `SK`, `AB`, `MB`, `ON`, `BC`, `NS`, `PE`, `NL`, `YT`, `NT` | No | Copy of `Customer.province` | 4 | none |
-| `is_fraud_synthetic_label` | boolean | Simulated special-investigation outcome, assigned probabilistically from the fraud traits. Target variable only; never a feature. Kept defect-free. | `true`, `false` | No | – | 1 | none |
 
 **Record rules:**
 - The `claim_id` prefix, `Policy.policy_type` and `claim_type` agree (for example `H` + `health` + `vision`).
 - `approved_amount` is null only for pending claims and is `0.00` for denied claims.
-- `is_fraud_synthetic_label` simulates a special-investigation outcome. It is the modelling target only, and it is deliberately kept free of defects so that label noise does not blur the cleaning results.
 
 **Defects injected**
 
@@ -219,7 +217,7 @@ Grain: one row per adjudication decision. The ground truth has at most one row p
 | `payment_method` | enum | How the payment is made; provider_direct if and only if the JSON submission_channel is provider_direct_billing. | `direct_deposit`, `cheque`, `provider_direct` | Yes — legit: decision_outcome = denied. | – | 1,3 | none |
 | `payment_status` | enum | Payment state on the extract end date. | `paid`, `scheduled` | Yes — legit: decision_outcome = denied. | – | 3 | none |
 | `transaction_reference` | string | Banking transaction reference; unique when present. Used for payment reconciliation and duplicate detection. | `TXN` + 10 digits | Yes — legit: denied, or payment_status = scheduled. | NK | – | none |
-| `denial_reason` | enum | Reason for denial, or for the declined part of a partial approval. | `not_covered`, `waiting_period`, `benefit_maximum_reached`, `missing_documentation`, `policy_inactive`, `late_submission`, `duplicate_claim`, `suspected_fraud` | Yes — legit: approved (always null) or partially_approved (optional). Required when denied. | – | 1,2,3 | none |
+| `denial_reason` | enum | Reason for denial, or for the declined part of a partial approval. | `not_covered`, `waiting_period`, `benefit_maximum_reached`, `missing_documentation`, `policy_inactive`, `late_submission`, `duplicate_claim` | Yes — legit: approved (always null) or partially_approved (optional). Required when denied. | – | 1,2,3 | none |
 
 **Row rules (legitimate nulls and absences)**
 
@@ -271,6 +269,7 @@ Grain: one row per premium instalment.
 - `missed` is generated only for instalments due at least 30 days before the extract end, so recent unpaid instalments are not ambiguous.
 - A lapsed policy has at least one missed instalment in the 90 days before its `end_date`.
 - `payment_status` is derivable from the dates; the stored value is kept as a cross-check (`INV_DERIVED_STATUS`).
+- `age_band` is a denormalized rating value and must equal the band derived from `Customer.date_of_birth` as of `due_date`; disagreements are reconciliation failures.
 - Premium = plan base premium × age-band factor × coverage-type factor × months in the period (§11).
 
 **Defects injected**
@@ -294,7 +293,14 @@ Grain: one row per premium instalment.
 
 **Location and naming:** `data/raw/json/<claim_id>.json`, exactly **200** files. 194 parseable files matching a claim + 2 malformed files (real claims) + 4 orphan files = 200.
 
-**Structure:** common fields, a `line_items` array, and **exactly one** product object (`health`, `dental` or `travel`) matching `product_line`. The differing product objects are legitimate variation by design, not a defect. Nested paths are written with dots (`provider.type`).
+**Structure:** all 200 files live in the same raw directory. Each file contains common fields, a `line_items` array, and **exactly one** product object (`health`, `dental` or `travel`) matching `product_line`. The differing product objects are legitimate variation by design, not a defect; health/dental/travel specialization therefore lives primarily in the JSON layer rather than in separate master CSVs. Nested paths are written with dots (`provider.type`).
+
+**JSON variation classes:**
+- **Legitimate heterogeneity:** product-specific objects and conditional nested fields expected from the business schema.
+- **Recoverable schema drift:** alternate key names, type drift, or array/object/string shape drift that deterministic parsing can normalize.
+- **Unrecoverable/quarantined input:** malformed JSON, missing identity needed to route the record, or orphan claim files. These are logged and excluded from canonical core records.
+
+The ingestion path is deterministic; an LLM/LangChain component is not required for these structured/semi-structured files.
 
 ### 9.1 Common fields
 
@@ -480,6 +486,7 @@ These hold in the clean data. The defects in §4 to §9 deliberately break them,
 | INV13 | Customer.province is served, and postal_code's first letter belongs to it. |
 | INV14 | JSON reconciliation rules hold (amounts, service_date, submission date). |
 | INV15 | Payment method provider_direct iff JSON submission_channel = provider_direct_billing. |
+| INV16 | Policy_Premium.age_band = the age band derived from the policyholder's date_of_birth as of Policy_Premium.due_date. |
 
 ---
 
@@ -527,11 +534,12 @@ Dental waiting period: 90 days for `basic` and `major`.
 
 **Provinces:** SK (35.0%), AB (20.0%), MB (15.0%), ON (15.0%), BC (8.0%), NS (2.5%), PE (1.5%), NL (1.5%), YT (0.8%), NT (0.8%). **Not served (invalid): QC, NB, NU.**
 
-**Eligibility rules (from GMS public information):**
+**Eligibility / validation rules used by the synthetic model:**
 
-- `ELIG_TRAVEL_80`: Customer aged 80+ at trip_start is covered for emergency medical only within Canada (destination_country = CA).
-- `ELIG_DENTAL_WAIT`: Dental basic/major claim with service_date < policy start_date + 90 days is inside the waiting period.
-- `ELIG_SERVED_PROVINCE`: Customer province must be in provinces_served.
+- `ELIG_DENTAL_WAIT`: selected synthetic dental plans use a 90-day waiting period; a basic/major claim with `service_date < policy.start_date + 90 days` is inside that synthetic waiting period.
+- `ELIG_SERVED_PROVINCE`: Customer province must be in `provinces_served`.
+
+The previously proposed universal age-80 travel rule is not part of the frozen model because it is product-specific and unnecessary for the assessment.
 
 **Other domains:** submission channels `online_portal`, `mobile_app`, `provider_direct_billing` (pharmacies and dental clinics only), `mail`; claim payment methods `direct_deposit`, `cheque`, `provider_direct` (if and only if the claim was direct-billed); premium payment methods `pad` (pre-authorized debit), `credit_card`, `cheque`; 12 adjusters `ADJ001`–`ADJ012`; about 80 providers `PRV0001`–`PRV0080`.
 
@@ -547,17 +555,17 @@ Signals are **patterns in valid data**, not defects: they are not written to the
 | `F2_WAITING_PERIOD` | `Claim.service_date`, `Policy.start_date`, `Claim.claim_type` | dental basic/major inside the 90-day waiting period |
 | `F3_NEAR_MAXIMUM` | `Claim.claim_amount`, `Policy.coverage_amount`, `travel.incident_sub_limit` | >= 90% of the applicable maximum |
 | `F4_REPEAT_CLAIMS` | `Claim.customer_id`, `Claim.claim_date` | >= 3 claims by one customer within 30 days |
-| `F5_PROVIDER_CONCENTRATION` | `provider.provider_id` | 3-4 providers linked to a disproportionate share of fraud |
+| `F5_PROVIDER_CONCENTRATION` | `provider.provider_id` | 3-4 providers linked to a disproportionate share of claims carrying other suspicious traits |
 | `F6_LINE_ITEM_MISMATCH` | `line_items.amount`, `Claim.claim_amount` | line items do not add up to claim_amount (inflated header amount) |
 | `F7_MISSING_DOCUMENTS` | `documents_submitted` | required documents missing |
 | `F8_WEEKEND_SUBMISSION` | `Claim.claim_date`, `submitted_at` | submitted Saturday/Sunday or 00:00-05:00 |
-| `F9_TRAVEL_DATES` | `travel.incident_date`, `travel.trip_start`, `travel.trip_end` | incident outside the trip window, or 80+ medical claim abroad |
+| `F9_TRAVEL_DATES` | `travel.incident_date`, `travel.trip_start`, `travel.trip_end` | incident outside the valid trip window (with cancellation handled by its documented pre-trip rule) |
 
-- **Fraud labelling:** target rate about 4%. Traits *raise the probability* of `is_fraud_synthetic_label`; some fraud shows few traits and some legitimate claims show several, so rule-based flags cannot reproduce the label exactly.
+- **Fraud preparation:** there is no synthetic fraud target in the raw sources or marts. The generator controls the prevalence and co-occurrence of suspicious patterns so the fraud mart can expose useful downstream features without fabricating an investigation outcome.
 - **Genuine outliers:** 3 very large but legitimate claims (for example a US emergency-medical claim of about CAD 85,000). The JSON agrees with `Claim.csv`, which is what separates them from `OUT_ERROR`. They must be kept.
-- **Retention:** late or missed premiums, denied claims, short tenure and premium increases at an age-band change raise lapse probability; some lapses fall in the outcome window. Travel expiry is not churn.
+- **Retention:** the mart grain is one row per eligible customer. Eligibility requires at least one active health or dental policy on 2026-03-31. Features use the 2025-04-01 to 2026-03-31 observation window (with earlier `customer_since` retained for tenure). `churned = 1` only when all health/dental policies active at the snapshot lapse/cancel during 2026-04-01 to 2026-06-30 and no active/replacement health or dental policy starts by 2026-06-30. Travel-only customers and normal travel expiry are excluded from churn.
 - **Operations:** slower queue and handling times for provinces outside SK, travel claims, mail submissions, incomplete documents and 2–3 specific adjusters.
-- **Region and policy:** claim frequency and severity vary by province, age band and plan, so loss ratios differ across cells.
+- **Region and policy:** claim frequency, approved claim amounts, and premium amounts vary by province, age band and plan so claims-to-premium performance ratios differ across cells. The metric is not described as an actuarial loss ratio.
 
 ---
 
@@ -605,7 +613,7 @@ Categories follow overview §3.4. The detection hint is what the pipeline is exp
 
 - Generate and save the clean ground truth first; inject defects into copies only.
 - At most one value defect per (row, field); key-breaking defects (ORPHAN_FK, DUP_*) are not stacked on the same row.
-- Never inject defects into Claim.is_fraud_synthetic_label or into signal carriers in a way that removes the signal.
+- Do not inject defects into signal carriers in a way that destroys the intended embedded pattern; signals are patterns to preserve through cleaning, not labels supplied to the pipeline.
 - Count-based defects (target.count) are absolute numbers of rows/files and may fall anywhere in the file.
 - Rate-based defects (target.pool_share) apply only to the file's dirty-row pool: sample dirty_row_pool x rows once, then give each defect to pool_share of the pool rows (minimum 1). A pool row may carry several format defects, like a badly keyed record.
 - Target: about 5-15% of all records affected overall (overview 3.4). Small master files run higher because cross-file defects concentrate on them.
@@ -640,21 +648,20 @@ Estimated affected is an upper bound (overlaps reduce it). Overall this sits ins
 
 ---
 
-## 14. Proposed Updates to the Project Overview (v1.4)
+## 14. Source-Schema Freeze (v1.2 / Overview v1.5)
 
-These refinements came up while writing the dictionary. They do not change any decision; they fill gaps.
+The source model is frozen for generator design. The following decisions are now resolved:
 
-| # | Change | Reason |
-|---|---|---|
-| 1 | Add `last_updated` to `Customer.csv` | §4.5 merges duplicate persons on "most complete, then most recent"; "most recent" needs a timestamp. |
-| 2 | Add `single` to `premium_frequency` | A single-trip travel policy has one premium; no existing value fits. |
-| 3 | Place `is_fraud_synthetic_label` in `Claim.csv` as a simulated investigation outcome | The label needs a source file; the brief allows only five CSVs. It is never used as a feature. |
-| 4 | Add `trip_interruption` / `interruption` as a travel claim type | GMS's trip cancellation and interruption product covers both. |
-| 5 | JSON: add `schema_version`, `submitted_at`, line-item `service_date`, `travel.incident_date` and `travel.incident_sub_limit` | Needed for the weekend trait, service-date reconciliation, travel date checks and the near-maximum trait on travel. |
-| 6 | Claim payments: `payment_status` values `paid` / `scheduled` | Separates "decided but not yet paid" (a legitimate null `payment_date`) from errors. |
-| 7 | Claim `region` = the claimant's **home** province | Travel incidents happen abroad; regional insights are about the book of business. |
-| 8 | JSON path `data/raw/json/<claim_id>.json` | Matches the repository layout (the overview says `claims/`). |
-| 9 | Document one non-ISO date convention per source file | Makes `DD/MM` vs `MM/DD` resolvable without guessing. |
-| 10 | Defect log at `data/raw/_defect_log.csv`; the pipeline must never read it | Keeps evaluation separate from processing. |
+| Decision | Frozen position |
+|---|---|
+| Claims Master files | `Customer.csv`, `Policy.csv`, `Claim.csv` as three entity extracts. |
+| Product-specific claim detail | Exactly 200 mixed health/dental/travel JSON files in `data/raw/json/`; product-specific objects are legitimate schema heterogeneity. |
+| `Claim_Payment.csv` | One row per adjudicated claim, carrying the downstream adjudication/payment lifecycle needed for processing-time analysis. |
+| Fraud target | No synthetic investigation/fraud target is emitted to raw sources or marts. |
+| Retention | Customer-level cohort; 12-month observation window ending 2026-03-31 and 90-day outcome window ending 2026-06-30; travel-only customers/expiry are not churn. |
+| Policy optimization | Use an exposure-aligned approved-claims-to-premium-due performance ratio; do not call it a formal actuarial loss ratio. |
+| Raw messiness | Preserve purposeful redundancy, formatting defects, schema drift, malformed/orphan JSON, and cross-source conflicts where they demonstrate cleaning/reconciliation value. |
+| GMS-specific assumptions | Public GMS context informs realism; synthetic premiums, limits, deductibles, distributions and detailed eligibility rules are explicitly synthetic. |
+| Defect log | `data/raw/_defect_log.csv` is evaluation-only and must never be read by the pipeline. |
 
-**Open points for the Database Model chat (not decided here):** survivorship rules per attribute when merging duplicate customers (for example, the earliest `customer_since`); the treatment of dependants of unserved-province customers (quarantine or keep and flag); and the exact churn-label definition, which this dictionary only constrains (health and dental lapses or cancellations in the outcome window).
+Remaining implementation choices such as exact generator probabilities, customer-survivorship details, and quarantine-table mechanics belong to the generator/database-model stages and must not change these source semantics.
