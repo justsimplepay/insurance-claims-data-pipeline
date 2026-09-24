@@ -424,9 +424,10 @@ This covers the "SQL queries or Python scripts" deliverable with both.
 5. Processing is a batch run. Event-driven or streaming ingestion is noted as a possible extension.
 6. Model-ready features and flags are provided; model building is out of scope.
 7. Currency is CAD. Travel claims in foreign currency are converted using a recorded exchange rate.
-8. The data covers 2023-07-01 to 2026-06-30. Retention uses a snapshot date of 2026-03-31 and a 90-day outcome window.
-9. The fraud label is synthetic and probabilistic. In production, it would come from investigation outcomes.
+8. The data covers 2023-07-01 to 2026-06-30. Retention uses a 12-month observation window (2025-04-01 to 2026-03-31), snapshot date 2026-03-31, and 90-day outcome window through 2026-06-30.
+9. No synthetic fraud/investigation target is emitted. The generator embeds suspicious patterns and the fraud mart exposes engineered features for downstream analysis.
 10. The customer base is weighted toward Saskatchewan and western Canada, reflecting a Regina-based insurer.
+11. Synthetic generation is reproducible: stable stage-specific RNG streams, deterministic ordering/rounding, and a generation manifest make reruns verifiable.
 
 ---
 
@@ -439,7 +440,7 @@ This covers the "SQL queries or Python scripts" deliverable with both.
 | 1 | **Planning** | Overview, requirements, decisions, final requirements review | This document (done) |
 | 2 | **Git and local setup** | Repo, folder structure, `.gitignore`, virtual environment | Initialized repo (done) |
 | 3 | **Source Data Dictionary** | The raw files only: `Customer`, `Policy`, `Claim`, `Claim_Payment`, and `Policy_Premium` CSVs, the JSON schema per product line, and the defect types injected per file | `docs/source_data_dictionary.md` + YAML read by the generator |
-| 4 | **Synthetic Data Generation** | Generator, embedded signals, time windows, defect injection, defect log | `generator/`, `data/raw/`, defect log |
+| 4 | **Synthetic Data Generation** | Generator specification, causal stage order, snapshot split, embedded signals, reproducibility, defect injection, defect log | `docs/generator_specification.md`, `generator/`, `data/raw/`, defect log, generation manifest |
 | 5 | **Database Model** | Staging, core, and mart schemas; keys and grain; source-to-core mapping; validation, source-of-truth, and reconciliation rules; mart column lists; ERD (Mermaid) | `docs/database_model.md` + YAML read by the pipeline |
 | 6 | **Supabase Setup, Ingestion and Cleaning** | Schemas, DDL, raw loading, staging transformations, JSON flattening | `sql/`, `pipeline/` |
 | 7 | **Core Model and Objective Datasets** | Integration, reconciliation, feature engineering, five mart queries, CSV exports (can be split per objective if long) | `output/` |
@@ -472,7 +473,7 @@ This covers the "SQL queries or Python scripts" deliverable with both.
   - data-quality results (defects injected vs. detected)
   - possible extensions
 - **Zipped folder:**
-  - `docs/`: project overview, source data dictionary, database model
+  - `docs/`: project overview, source data dictionary, generator specification, database model
   - `generator/`: data generation scripts
   - `data/raw/`: the 5 CSVs and 200 JSON files (shipped so reviewers need not run the generator)
   - `sql/`: DDL, staging, core, and mart queries
@@ -487,5 +488,7 @@ This covers the "SQL queries or Python scripts" deliverable with both.
   - Reply on the original thread.
 
 ### 9.4 Immediate next step
-1. Create the Supabase project in `ca-central-1` and store the database password in a password manager (never in the repo).
-2. Open the **Source Data Dictionary** chat (chat 3). Save its Markdown output to the project files and commit both files to `docs/`.
+1. Finalize the numeric/calibration section of `docs/generator_specification.md` (distributions, signal prevalence tolerances, churn calibration, processing-time multipliers, and defect overlap rules).
+2. Implement the generator against the frozen source dictionary and generator stage contracts.
+3. Run the clean invariant + signal-recovery QA gate before injecting any defects.
+4. Rerun with the same seed and verify the generation manifest/file hashes before moving to the database model.
