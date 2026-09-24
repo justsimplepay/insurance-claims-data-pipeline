@@ -13,7 +13,7 @@ source files
 raw
     |
     v
-2. staging transformations       (next implementation step)
+2. transform_staging.py
     |
     v
 staging
@@ -77,3 +77,33 @@ business rows are then loaded in one transaction.
 
 This gives the assessment's initial one-time load the same mechanics needed for
 future recurring batches.
+
+
+## Step 2: staging transformation
+
+`transform_staging.py` executes `sql/10_staging_transformations.sql` for one
+successful raw `load_id`. It defaults to the latest successful ingestion run.
+
+```bash
+python pipeline/transform_staging.py
+```
+
+Or run a specific batch:
+
+```bash
+python pipeline/transform_staging.py --load-id 3
+```
+
+The staging step is atomic and idempotent per load. It rebuilds that load's
+staging rows and performs deterministic normalization, duplicate handling,
+recoverable JSON schema-drift normalization, JSON flattening, data-quality
+logging, and quarantine.
+
+Reusable parsing/normalization functions are defined in
+`sql/07_create_staging_helpers.sql`; they are database setup objects and are
+not recreated for every batch.
+
+Source-of-truth reconciliation across systems is intentionally deferred to the
+core step. For example, staging normalizes `Claim.region`, but the core step
+will compare it with the authoritative `Customer.province` and use the
+customer value when they conflict.
