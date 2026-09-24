@@ -20,6 +20,15 @@ class GeneratorTests(unittest.TestCase):
             self.assertEqual(result["manifest"]["raw_counts"]["Claim.csv"], 220)
             self.assertEqual(result["manifest"]["raw_counts"]["Claim_Payment.csv"], 203)
             self.assertFalse(result["qa"]["errors"])
+            self.assertFalse(result["manifest"]["raw_qa"]["errors"])
+            self.assertGreaterEqual(result["manifest"]["raw_qa"]["affected_record_file_share"], 0.05)
+            self.assertLessEqual(result["manifest"]["raw_qa"]["affected_record_file_share"], 0.15)
+            counts = result["manifest"]["raw_qa"]["defect_counts"]
+            self.assertEqual(counts["JSON_MALFORMED"], 2)
+            self.assertEqual(counts["JSON_ORPHAN"], 4)
+            self.assertEqual(counts["JSON_MISSING_FILE"], 14)
+            self.assertEqual(counts["DUP_EXACT"], 26)  # 6 claims + 5 payments + 15 premiums
+            self.assertEqual(counts["ORPHAN_FK"], 13)  # 2 policies + 3 claims + 3 payments + 5 premiums
 
     def test_reference_run_is_reproducible(self) -> None:
         with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
