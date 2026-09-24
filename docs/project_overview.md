@@ -1,6 +1,6 @@
 # GMS Data Engineer Case Study: Project Overview, Decisions & Plan
 
-*Reference document for all chats in this project. Version 1.4, last updated Wednesday, September 23, 2026.*
+*Reference document for all chats in this project. Version 1.5, last updated Wednesday, September 23, 2026.*
 
 ---
 
@@ -13,6 +13,7 @@
 | 1.2 | Sept 23, 2026 | Split the data model work into two chats: a Source Data Dictionary (raw files, feeds the generator) and a Database Model (staging, core, marts; designed against generated data). Added the completed Git setup. Updated §9.1 chat structure, §9.2 timeline, §9.3 repo docs, and §9.4 next step. |
 | 1.3 | Sept 23, 2026 | The three master files are now split **by entity** (`Customer.csv`, `Policy.csv`, `Claim.csv`) instead of by product line. Final file names set for all five CSVs. Fields added: `customer_since`, `address`, `coverage_amount`, `deductible_amount`, `premium_frequency`, `processing_start_date`, `transaction_reference`, claim ID prefixes by type. Defects rewritten as within-file and cross-file issues (§3.4). Updated §2, §3.4, §4.3, §4.4, §4.5, §6, §7 (Decision 1, core tables), §8 (assumption 3), and §9.1. |
 | 1.4 | Sept 23, 2026 | Locked the three Claims Master files as entity extracts (`Customer.csv`, `Policy.csv`, `Claim.csv`) as an explicit, conservative modelling assumption rather than claiming it is the only or "most literal" interpretation. Added a design principle to keep complexity where it demonstrates data-engineering value: every field or rule must support an analytics objective, an important relationship, or a meaningful data-quality/reconciliation problem. The report will state the source-model assumption briefly and will not discuss rejected alternatives. |
+| 1.5 | Sept 23, 2026 | Finalized source semantics. Removed the synthetic fraud target from all business sources and marts; retained `Claim_Payment.csv` as an adjudication/payment lifecycle extract; fixed retention as a customer-level 12-month observation / 90-day outcome design; replaced actuarial "loss ratio" language with a claims-to-premium performance metric; and formalized JSON as one mixed directory of health, dental, and travel claim files with legitimate product heterogeneity plus deliberate schema drift. |
 
 ---
 
@@ -109,7 +110,7 @@ The email also asks for assumptions, methodologies, and supporting explanations.
   - missing documents
   - weekend submission
 
-  **Labelling approach:** the traits *raise the probability* of fraud rather than determine it. Some fraud claims show few traits, and some legitimate claims show several. This prevents the rule-based flags from matching the label perfectly, which would make the exercise look circular. The label column is named **`is_fraud_synthetic_label`**. The report notes that in production, labels would come from special investigation outcomes.
+  **No synthetic fraud target is emitted.** The generator embeds suspicious patterns only. The pipeline prepares fraud-oriented features and flags for downstream data scientists, but no raw source or analytics mart contains a fabricated fraud label.
 - **Churn:** late or missed premiums and denied claims raise the probability of a policy lapsing. Lapses are timed so that some occur inside the outcome window defined in §3.5.
 - **Operations:** certain regions, claim types, submission channels, and incomplete document sets are slower. Denied claims also carry decision times, so their bottlenecks are measurable.
 - **Region and policy:** claim frequency and cost vary by province, age group, and product.
@@ -141,18 +142,21 @@ Aim for about **5–15% of records affected**. Defect types:
   - orphan foreign keys (a claim referencing a policy that does not exist, a payment for an unknown claim)
 - **JSON issues:** missing keys, different structures by product type, nested objects, and one or two malformed files.
 
-**Why these defects:** they are the problems typical of operational exports: manual entry (formats, casing), repeated loads (duplicates), and denormalized copies of the same attribute in several files that drift apart (cross-file conflicts).
+**Why these defects:** they are the problems typical of operational exports: manual entry (formats, casing), repeated loads (duplicates), semi-structured schema drift, and denormalized copies of the same attribute in several files that drift apart (cross-file conflicts). The raw layer is intentionally not perfectly normalized; this redundancy is kept only where it creates useful data-quality or reconciliation work. Staging/core establish the canonical values.
 
 ### 3.5 Snapshot date and time windows
 
 | Parameter | Value | Purpose |
 |---|---|---|
 | History start | 2023-07-01 | Earliest generated activity |
-| `snapshot_date` | 2026-03-31 | Retention features use only events on or before this date |
-| Outcome window | 2026-04-01 to 2026-06-30 (90 days) | Churn label = policy lapsed or cancelled inside this window |
+| Retention observation window | 2025-04-01 to 2026-03-31 (12 months) | Claim/payment/premium features for retention are restricted to this period; tenure may use earlier `customer_since` |
+| `snapshot_date` | 2026-03-31 | Customer must have at least one active health or dental policy on this date to enter the retention cohort |
+| Outcome window | 2026-04-01 to 2026-06-30 (90 days) | Customer-level churn is evaluated only in this future window |
 | Extract end date | 2026-06-30 | Last date in the data; Fraud, Operations, Region, and Policy marts use the full history to this date |
 
-**Reason:** tenure, days since last claim, premium arrears, and the churn label all depend on an as-of date. Computing features only from events before the snapshot, and the label only from events after it, prevents label leakage in the retention mart. All dates are parameters of the generator and the pipeline.
+**Retention definition:** the mart grain is one row per eligible customer. An eligible customer has at least one active health or dental policy on `snapshot_date`; travel-only customers are excluded because normal travel-policy expiry is not treated as churn. `churned = 1` when all health/dental policies that were active at the snapshot lapse or are cancelled during the outcome window and the customer has no active or replacement health/dental policy starting by the extract end. Otherwise `churned = 0`.
+
+**Reason:** tenure, days since last claim, premium arrears, and the churn outcome all depend on an as-of date. Restricting predictive features to the observation window and evaluating churn only after the snapshot prevents label leakage. All dates are parameters of the generator and pipeline.
 
 ---
 
@@ -175,10 +179,11 @@ Aim for about **5–15% of records affected**. Defect types:
   - ambulance, hearing aids, medical equipment, hospital cash
 - **Claim channels:** online submission, and direct billing by participating providers.
 
-### 4.2 Validation rules derived from GMS products
-- GMS products are **not offered in Quebec, New Brunswick, or Nunavut**, so customers in QC, NB, or NU are invalid.
-- Travellers **aged 80 and over** are covered for emergency medical only **within Canada**.
-- **Dental waiting period** (up to 3 months): a claim inside the period is an eligibility or fraud flag.
+### 4.2 GMS-informed context and synthetic business rules
+- GMS products are **not offered in Quebec, New Brunswick, or Nunavut**, so customers in QC, NB, or NU are deliberately injected as invalid regional records.
+- Public GMS information is used to keep the synthetic data contextually realistic, but generated premiums, limits, deductibles, distributions, and detailed eligibility rules are **synthetic modelling assumptions**, not representations of GMS's internal configuration.
+- Selected synthetic dental plans use a 90-day waiting period so the dataset contains a defensible timing/eligibility feature. This is documented as a synthetic rule rather than a universal GMS rule.
+- The previously proposed universal "age 80+ travel within Canada only" rule is removed from the mandatory model because it is product-specific and does not add enough value to the assessment.
 
 ### 4.3 Fields by source
 
@@ -220,25 +225,20 @@ Row rules:
 
 Lateness is derivable as `paid_date > due_date`, and a missed instalment has a null `paid_date` (legitimate).
 
-**Claim Details (JSON, one per claim)**
-- **Common fields:**
-  - `claim_id`, `product_line`
-  - `provider` (id, name, type)
-  - `line_items[]`, `adjuster_id`, `adjuster_notes`, `documents_submitted[]`
-  - `submission_channel`
-- **Health:** practitioner type, number of visits, prescription information.
-- **Dental:** procedure code, category (preventive, basic, major), tooth number.
-- **Travel:**
-  - `trip_start`, `trip_end`, `destination_country`
-  - incident type (medical, cancellation, baggage)
-  - currency and exchange rate
+**Claim Details (JSON, one per claim; exactly 200 files in one raw directory)**
+- The same directory contains health, dental, and travel claim files. `product_line` and the claim identifier determine which legitimate product-specific object is expected.
+- **Common envelope:** `claim_id`, `product_line`, `submission_channel`, `submitted_at`, `provider`, `line_items[]`, `adjuster_id`, `documents_submitted[]`.
+- **Health:** practitioner / visit / prescription-specific nested fields where applicable.
+- **Dental:** dental category and procedure-specific line-item fields.
+- **Travel:** trip dates, destination, incident information, currency, exchange rate, and applicable incident sub-limit.
+- Product-specific shapes are **legitimate heterogeneity**. Separately, the generator injects recoverable schema drift (renamed keys, type drift, array/object drift) and unrecoverable cases (malformed/orphan files) so ingestion must normalize, validate, log, and quarantine appropriately.
 
 ### 4.4 Field-to-objective mapping
 - **Fraud:**
   - timing relative to policy start and waiting periods
   - amount versus benefit maximum (`coverage_amount`)
   - frequency, provider patterns, line-item consistency, documents
-  - `is_fraud_synthetic_label` (for supervised modelling)
+  - no source fraud label; the mart exposes engineered suspicious-pattern features for downstream modelling
 - **Retention:**
   - premium payment history, policy status, denied claims, tenure (`customer_since`)
   - all computed as of `snapshot_date`
@@ -251,9 +251,9 @@ Lateness is derivable as `paid_date > due_date`, and a missed instalment has a n
   - province, city, product line, claim type, amounts
   - aggregated by quarter
 - **Policy optimization:**
-  - the **loss ratio** (claims paid ÷ premiums earned) by plan, age band, coverage type, and province
-  - claims and premiums are matched to the **same exposure period** at each grain
-  - `policy_months` shows exposure, and `low_exposure_flag` marks cells below a minimum threshold, so newly written policies do not show inflated ratios
+  - a **claims-to-premium performance ratio** using approved claim amounts divided by premium amounts due over the same analysis/exposure period
+  - this is intentionally not described as an actuarial loss ratio because the synthetic sources do not model incurred-loss reserves, IBNR, claims adjustment expenses, or formal earned-premium accounting
+  - claims and premiums are matched to the **same exposure period** at each grain; exposure fields and a low-exposure flag prevent misleading comparisons for short-lived policies
 
 ### 4.5 Source-of-truth and reconciliation rules
 
