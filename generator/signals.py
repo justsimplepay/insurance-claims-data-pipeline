@@ -195,21 +195,16 @@ def plan_phase_a_signals(
             overlap_candidates = [i for i in compatible if out.at[i, "_tmp"] in f3_tmp]
         overlap = overlap_candidates[:desired_overlap]
         chosen = list(overlap)
-        if len(chosen) < 6:
-            for idx in compatible:
-                if idx in chosen:
-                    continue
-                if signal[out.at[idx, "_tmp"]]:
-                    continue
-                chosen.append(idx)
-                if len(chosen) == 6:
-                    break
-        if len(chosen) < 6:
-            for idx in compatible:
-                if idx not in chosen:
-                    chosen.append(idx)
-                if len(chosen) == 6:
-                    break
+        for idx in compatible:
+            if len(chosen) == 6:
+                break
+            if idx in chosen:
+                continue
+            # F5-only carriers must be genuinely signal-free so the exact
+            # 12-claim overlap target remains reproducible.
+            if signal[out.at[idx, "_tmp"]]:
+                continue
+            chosen.append(idx)
         if len(chosen) != 6:
             raise AssertionError(f"unable to reserve six F5 carriers for {provider_id}")
         for idx in chosen:
