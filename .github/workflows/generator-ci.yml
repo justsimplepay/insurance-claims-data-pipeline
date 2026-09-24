@@ -24,3 +24,12 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python -m unittest generator.test_generator -v
       - run: python generate_data.py
+      - name: Package frozen reference dataset
+        run: tar -czf reference-dataset.tar.gz data/raw
+      - name: Upload frozen reference dataset
+        uses: actions/upload-artifact@v4
+        with:
+          name: insurance-claims-reference-${{ github.sha }}
+          path: reference-dataset.tar.gz
+          if-no-files-found: error
+          retention-days: 90
