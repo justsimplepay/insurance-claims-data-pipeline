@@ -132,3 +132,37 @@ canonical PK/FK-constrained relational model. In particular:
 
 Cross-source conflicts and deterministic repairs are appended to
 `staging.data_quality_log` with `CORE_*` rule IDs.
+
+
+## Step 4: analytics marts and CSV export
+
+Build all five objective-specific marts:
+
+```bash
+python pipeline/build_marts.py
+```
+
+Then export the five clean CSV deliverables plus the data-quality log:
+
+```bash
+python pipeline/export_outputs.py --load-id 3
+```
+
+This creates:
+
+- `output/fraud_detection.csv`
+- `output/customer_retention.csv`
+- `output/operational_efficiency.csv`
+- `output/region_wise_insights.csv`
+- `output/policy_optimization.csv`
+- `output/data_quality_log.csv`
+
+The marts deliberately contain engineered features and summaries rather than
+fraud/churn model predictions. The retention mart is the one exception in that
+it contains the documented future-window `churned` outcome label, because that
+label is explicitly defined by the project design for supervised downstream
+analysis.
+
+The policy mart reports an exposure-aligned
+`claims_to_premium_performance_ratio`; it is not described as an actuarial
+loss ratio.
