@@ -235,8 +235,11 @@ class DefectInjector:
             row["last_updated"] = C.EXTRACT_END.isoformat() + "T12:00:00-06:00"
             c = pd.concat([c, pd.DataFrame([row])], ignore_index=True)
             self._log("DUP_ENTITY", "Customer.csv", row["customer_id"], "customer_id", original, row["customer_id"])
-        p.at[base_p[0], "customer_id"] = duplicate_ids[0]
-        p.at[base_p[1], "customer_id"] = duplicate_ids[1]
+        for policy_idx, duplicate_id in zip(base_p[:2], duplicate_ids[:2]):
+            policy_id = p.at[policy_idx, "policy_id"]
+            p.at[policy_idx, "customer_id"] = duplicate_id
+            cl.loc[cl["policy_id"] == policy_id, "customer_id"] = duplicate_id
+            pr.loc[pr["policy_id"] == policy_id, "customer_id"] = duplicate_id
 
         for j, prov in enumerate(["QC", "NB", "NU"]):
             cid = f"C{155 + j:05d}"
@@ -260,9 +263,18 @@ class DefectInjector:
 
         self._set(c, "Customer.csv", base_c[20], "customer_id", "date_of_birth", date(2030, 1, 1), "INV_AGE")
         self._set(c, "Customer.csv", base_c[21], "customer_id", "date_of_birth", date(1900, 1, 1), "INV_AGE")
-        owner = str(p.at[base_p[2], "customer_id"])
-        age_idx = int(c.index[c["customer_id"] == owner][0])
-        st = p.at[base_p[2], "start_date"]
+        used_age_indices = {base_c[20], base_c[21]}
+        age_idx = None
+        st = None
+        for policy_idx in base_p:
+            owner = str(p.at[policy_idx, "customer_id"])
+            matches = c.index[c["customer_id"] == owner].tolist()
+            if matches and matches[0] not in used_age_indices:
+                age_idx = int(matches[0])
+                st = p.at[policy_idx, "start_date"]
+                break
+        if age_idx is None or st is None:
+            raise AssertionError("could not reserve distinct INV_AGE row")
         self._set(c, "Customer.csv", age_idx, "customer_id", "date_of_birth", date(st.year - 15, st.month, min(st.day, 28)), "INV_AGE")
         for idx in base_c[22:24]:
             self._set(c, "Customer.csv", idx, "customer_id", "date_of_birth", None, "MISS_ERROR")
@@ -358,8 +370,13 @@ class DefectInjector:
 
         parseable = [cid for cid in sorted(physical) if cid not in malformed]
         json_pool = list(self.rng.choice(parseable, size=max(1, int(round(len(parseable) * 0.10))), replace=False))
+        self.rng.shuffle(json_pool)
+        missing_key_ids = json_pool[0:4]
+        key_drift_ids = json_pool[4:6]
+        type_drift_ids = json_pool[6:10]
+        shape_drift_ids = json_pool[10:12]
 
-        for cid in self._pool_sample(json_pool, 0.20):
+        for cid in missing_key_ids:
             d = physical[cid]
             choices = ["adjuster_id", "documents_submitted", "submission_channel", "provider.type"]
             field = choices[int(self.rng.integers(0, len(choices)))]
@@ -369,7 +386,7 @@ class DefectInjector:
                 old = d.pop(field, None)
             self._log("JSON_MISSING_KEY", f"json/{cid}.json", cid, field, old, "<absent>")
 
-        for cid in self._pool_sample(json_pool, 0.12):
+        for cid in key_drift_ids:
             d = physical[cid]
             if self.rng.random() < 0.5 and "line_items" in d:
                 d["lineItems"] = d.pop("line_items")
@@ -378,7 +395,7 @@ class DefectInjector:
                 d["ClaimID"] = d.pop("claim_id")
                 self._log("JSON_KEY_DRIFT", f"json/{cid}.json", cid, "claim_id", "claim_id", "ClaimID")
 
-        for cid in self._pool_sample(json_pool, 0.20):
+        for cid in type_drift_ids:
             d = physical[cid]
             if isinstance(d.get("line_items"), list) and d["line_items"]:
                 item = d["line_items"][0]
@@ -391,7 +408,7 @@ class DefectInjector:
                 d["travel"]["exchange_rate_to_cad"] = str(old)
                 self._log("JSON_TYPE_DRIFT", f"json/{cid}.json", cid, "travel.exchange_rate_to_cad", old, str(old))
 
-        for cid in self._pool_sample(json_pool, 0.08):
+        for cid in shape_drift_ids:
             d = physical[cid]
             if isinstance(d.get("documents_submitted"), list):
                 old = d["documents_submitted"]
