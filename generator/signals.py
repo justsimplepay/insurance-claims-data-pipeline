@@ -182,7 +182,7 @@ def plan_phase_a_signals(
         ("PRV0001", lambda x: x["claim_type"] == "prescription_drugs", 3),
         ("PRV0002", lambda x: x["product_line"] == "dental", 6),
         ("PRV0003", lambda x: x["claim_type"] == "health_practitioner", 3),
-        ("PRV0004", lambda x: x["claim_type"] in {"trip_cancellation", "trip_interruption"}, 0),
+        ("PRV0005", lambda x: x["claim_type"] == "health_practitioner", 0),
     ]
     f2_tmp = {out.at[i, "_tmp"] for i in f2_rows}
     f3_tmp = {out.at[i, "_tmp"] for i in f3_selected}
