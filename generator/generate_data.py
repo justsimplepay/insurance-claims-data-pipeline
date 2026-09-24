@@ -12,6 +12,7 @@ import pandas as pd
 from faker import Faker
 
 from . import config as C
+from .defects import build_messy_raw
 
 TZ = timezone(timedelta(hours=-6))
 Q = Decimal("0.01")
@@ -233,43 +234,11 @@ class Generator:
         return {"errors":[],"signal_counts":dict(sig),"pending_claims":pending,"premium_rows":len(premiums),"payment_rows":len(payments)}
 
     def raw(self,customers,policies,claims,payments,premiums,docs):
-        log=[]; c=customers[[x for x in customers if not x.startswith("_")]].copy();p=policies[[x for x in policies if not x.startswith("_")]].copy();cl=claims[["claim_id","policy_id","customer_id","claim_type","service_date","claim_date","claim_amount","approved_amount","claim_status","region"]].copy();pay=payments[["payment_id","claim_id","processing_start_date","decision_date","decision_outcome","payment_date","payment_amount","payment_method","payment_status","transaction_reference","denial_reason"]].copy();pr=premiums.copy()
-        def lg(t,s,k,f,o,n): log.append({"defect_type":t,"source":s,"record_key":k,"field":f,"original_value":str(o),"injected_value":str(n)})
-        for j in range(4):
-            row=c.iloc[j].copy(); old=row.customer_id;row.customer_id=f"C{151+j:05d}";c=pd.concat([c,pd.DataFrame([row])],ignore_index=True);lg("DUP_ENTITY","Customer.csv",row.customer_id,"customer_id",old,row.customer_id)
-        for j,prov in enumerate(["QC","NB","NU"]):
-            cid=f"C{155+j:05d}";row=c.iloc[0].copy();row.customer_id=cid;row.province=prov;c=pd.concat([c,pd.DataFrame([row])],ignore_index=True);lg("INV_UNSERVED_PROVINCE","Customer.csv",cid,"province","SK",prov)
-            prow=p.iloc[j].copy();prow.policy_id=f"P{181+j:05d}";prow.customer_id=cid;p=pd.concat([p,pd.DataFrame([prow])],ignore_index=True)
-        for idx in cl.index[:8]: o=cl.at[idx,"claim_status"];cl.at[idx,"claim_status"]="denied" if o!="denied" else "approved";lg("XF_STATUS_CONFLICT","Claim.csv",cl.at[idx,"claim_id"],"claim_status",o,cl.at[idx,"claim_status"])
-        for idx in cl.index[8:16]: o=cl.at[idx,"region"];cl.at[idx,"region"]="AB" if o!="AB" else "SK";lg("XF_REGION_CONFLICT","Claim.csv",cl.at[idx,"claim_id"],"region",o,cl.at[idx,"region"])
-        for idx in cl.index[16:21]: o=cl.at[idx,"customer_id"];cl.at[idx,"customer_id"]="C00150" if o!="C00150" else "C00149";lg("XF_OWNER_CONFLICT","Claim.csv",cl.at[idx,"claim_id"],"customer_id",o,cl.at[idx,"customer_id"])
-        cldups=[]
-        for idx in cl.index[:6]: row=cl.loc[idx].copy();cldups.append(row);lg("DUP_EXACT","Claim.csv",row.claim_id,"*","row","duplicate")
-        for idx in cl.index[6:10]: row=cl.loc[idx].copy();o=row.claim_id;row.claim_id=o.lower()+" ";cldups.append(row);lg("DUP_NEAR_KEY","Claim.csv",o,"claim_id",o,row.claim_id)
-        cl=pd.concat([cl,pd.DataFrame(cldups)],ignore_index=True)
-        pdups=[]
-        for idx in pay.index[:5]: row=pay.loc[idx].copy();pdups.append(row);lg("DUP_EXACT","Claim_Payment.csv",row.payment_id,"*","row","duplicate")
-        pay=pd.concat([pay,pd.DataFrame(pdups)],ignore_index=True)
-        for j in range(3): row=pay.iloc[j].copy();row.payment_id=f"PAY{201+j:05d}";row.claim_id=f"H9{j+1:04d}";pay=pd.concat([pay,pd.DataFrame([row])],ignore_index=True);lg("ORPHAN_FK","Claim_Payment.csv",row.payment_id,"claim_id","",row.claim_id)
-        for idx in pr.index[:10]: o=pr.at[idx,"customer_id"];pr.at[idx,"customer_id"]="C00150" if o!="C00150" else "C00149";lg("XF_OWNER_CONFLICT","Policy_Premium.csv",pr.at[idx,"premium_id"],"customer_id",o,pr.at[idx,"customer_id"])
-        maxid=len(pr)
-        for j in range(5): row=pr.iloc[j].copy();row.premium_id=f"PRM{maxid+j+1:06d}";row.policy_id=f"P9{j+1:04d}";pr=pd.concat([pr,pd.DataFrame([row])],ignore_index=True);lg("ORPHAN_FK","Policy_Premium.csv",row.premium_id,"policy_id","",row.policy_id)
-        dups=[]
-        for idx in pr.index[:15]: row=pr.loc[idx].copy();dups.append(row);lg("DUP_EXACT","Policy_Premium.csv",row.premium_id,"*","row","duplicate")
-        pr=pd.concat([pr,pd.DataFrame(dups)],ignore_index=True)
-        ids=sorted(docs); missing=set(ids[:14]); malformed=set(ids[14:16]); physical={k:copy.deepcopy(v) for k,v in docs.items() if k not in missing}
-        for x in missing: lg("JSON_MISSING_FILE",f"json/{x}.json",x,"*",x,"")
-        texts={}
-        for cid,d in physical.items():
-            t=json.dumps(serial(d),indent=2,ensure_ascii=False)
-            if cid in malformed: t=t[:-2];lg("JSON_MALFORMED",f"json/{cid}.json",cid,"*","valid","malformed")
-            texts[f"{cid}.json"]=t+"\n"
-        for j,cid in enumerate(ids[16:20],1):
-            d=copy.deepcopy(docs[cid]);oid=f"H9{j:04d}";d["claim_id"]=oid;texts[f"{oid}.json"]=json.dumps(serial(d),indent=2)+"\n";lg("JSON_ORPHAN",f"json/{oid}.json",oid,"claim_id",cid,oid)
-        df=pd.DataFrame(log).sort_values(["source","record_key","field","defect_type"]).reset_index(drop=True);df.insert(0,"defect_id",[f"DL{i+1:05d}" for i in range(len(df))])
-        return {"Customer.csv":c,"Policy.csv":p,"Claim.csv":cl,"Claim_Payment.csv":pay,"Policy_Premium.csv":pr},texts,df
+        return build_messy_raw(
+            customers, policies, claims, payments, premiums, docs, self.signal, self.seed
+        )
 
-    def write(self,tables,texts,defects,clean_qa):
+    def write(self,tables,texts,defects,clean_qa,raw_qa):
         raw=self.root/"data"/"raw"; js=raw/"json"; raw.mkdir(parents=True,exist_ok=True);shutil.rmtree(js,ignore_errors=True);js.mkdir()
         def ready(df):
             x=df.copy()
@@ -280,12 +249,12 @@ class Generator:
         for n,t in sorted(texts.items()): (js/n).write_text(t,encoding="utf-8",newline="\n")
         (raw/"_clean_qa.json").write_text(json.dumps(serial(clean_qa),indent=2,sort_keys=True)+"\n")
         hashes={str(x.relative_to(self.root)).replace(os.sep,"/"):hashlib.sha256(x.read_bytes()).hexdigest() for x in sorted(raw.rglob("*")) if x.is_file() and x.name!="_generation_manifest.json"}
-        manifest={"master_seed":self.seed,"scale":1,"generator_spec_version":"0.3","source_dictionary_version":"1.2","python_version":platform.python_version(),"numpy_version":np.__version__,"pandas_version":pd.__version__,"clean_counts":{"customers":150,"policies":180,"claims":210,"payments":len(tables["Claim_Payment.csv"])-8,"premiums":len(tables["Policy_Premium.csv"])-20},"raw_counts":{k:len(v) for k,v in tables.items()},"json_files":len(texts),"defects":len(defects),"raw_qa":{"errors":[]},"sha256":hashes}
+        manifest={"master_seed":self.seed,"scale":1,"generator_spec_version":"0.3","source_dictionary_version":"1.2","python_version":platform.python_version(),"numpy_version":np.__version__,"pandas_version":pd.__version__,"clean_counts":{"customers":150,"policies":180,"claims":210,"payments":195,"premiums":int(clean_qa["premium_rows"])},"raw_counts":{k:len(v) for k,v in tables.items()},"json_files":len(texts),"defects":len(defects),"raw_qa":raw_qa,"sha256":hashes}
         (raw/"_generation_manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n")
         return manifest
 
     def run(self):
-        c=self.customers();p=self.policies(c);pr=self.premiums(c,p);cl=self.claims(c,p);cl,pay,docs=self.details_and_payments(cl,p,c);qa=self.clean_qa(c,p,cl,pay,pr,docs);tables,texts,defects=self.raw(c,p,cl,pay,pr,docs);manifest=self.write(tables,texts,defects,qa)
+        c=self.customers();p=self.policies(c);pr=self.premiums(c,p);cl=self.claims(c,p);cl,pay,docs=self.details_and_payments(cl,p,c);qa=self.clean_qa(c,p,cl,pay,pr,docs);tables,texts,defects,raw_qa=self.raw(c,p,cl,pay,pr,docs);manifest=self.write(tables,texts,defects,qa,raw_qa)
         assert len(texts)==200 and len(tables["Customer.csv"])==157 and len(tables["Policy.csv"])==183 and len(tables["Claim.csv"])==220 and len(tables["Claim_Payment.csv"])==203
         return {"qa":qa,"manifest":manifest}
 
