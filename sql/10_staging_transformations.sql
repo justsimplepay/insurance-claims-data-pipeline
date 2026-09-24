@@ -229,49 +229,96 @@ SET record_status = 'accepted'
 WHERE load_id = (SELECT load_id FROM _gms_load_context)
   AND record_status = 'candidate';
 
--- Resolve duplicate persons deterministically: most complete row, then most
--- recent last_updated, then the lowest staging surrogate ID.
-WITH ranked AS (
+-- Resolve duplicate persons deterministically.
+--
+-- Primary match: normalized first name + last name + DOB + postal code.
+--
+-- High-confidence fallback: the generated source contains one duplicate-person
+-- row whose DOB was independently corrupted by an age defect. To avoid losing
+-- that identity link, a pair may still match when name, postal code, address
+-- and city all agree, at least one contact value agrees, and exactly one DOB is
+-- outside the source's valid extract-end age range (18-89). This is deliberately
+-- conservative: a conflicting pair of otherwise valid DOBs is never merged.
+WITH eligible AS (
     SELECT
         c.*,
-        row_number() OVER (
-            PARTITION BY
-                lower(c.first_name),
-                lower(c.last_name),
-                c.date_of_birth,
-                replace(c.postal_code, ' ', '')
-            ORDER BY
-                (
-                    (c.date_of_birth IS NOT NULL)::int
-                  + (c.province IS NOT NULL)::int
-                  + (c.phone IS NOT NULL)::int
-                  + (c.email IS NOT NULL)::int
-                ) DESC,
-                c.last_updated DESC NULLS LAST,
-                c.stg_customer_row_id
-        ) AS person_rank
+        (
+            c.date_of_birth BETWEEN DATE '1936-07-01' AND DATE '2008-06-30'
+        ) AS dob_is_valid,
+        (
+            (c.date_of_birth IS NOT NULL)::int
+          + (c.province IS NOT NULL)::int
+          + (c.phone IS NOT NULL)::int
+          + (c.email IS NOT NULL)::int
+        ) AS completeness_score
     FROM staging.customers c
     WHERE c.load_id = (SELECT load_id FROM _gms_load_context)
       AND c.record_status <> 'rejected'
-      AND c.first_name IS NOT NULL
-      AND c.last_name IS NOT NULL
-      AND c.date_of_birth IS NOT NULL
-      AND c.postal_code IS NOT NULL
+),
+candidate_matches AS (
+    SELECT
+        r.stg_customer_row_id AS source_row_id,
+        r.customer_id AS source_customer_id,
+        s.stg_customer_row_id AS candidate_survivor_row_id,
+        s.customer_id AS candidate_survivor_customer_id,
+        s.dob_is_valid,
+        s.completeness_score,
+        s.last_updated,
+        CASE
+            WHEN r.stg_customer_row_id = s.stg_customer_row_id THEN 'self'
+            WHEN lower(r.first_name) = lower(s.first_name)
+             AND lower(r.last_name) = lower(s.last_name)
+             AND r.date_of_birth = s.date_of_birth
+             AND replace(r.postal_code, ' ', '') = replace(s.postal_code, ' ', '')
+                THEN 'exact_identity_key'
+            ELSE 'high_confidence_dob_repair'
+        END AS match_type
+    FROM eligible r
+    JOIN eligible s
+      ON r.stg_customer_row_id = s.stg_customer_row_id
+      OR (
+          lower(r.first_name) = lower(s.first_name)
+          AND lower(r.last_name) = lower(s.last_name)
+          AND replace(r.postal_code, ' ', '') = replace(s.postal_code, ' ', '')
+          AND (
+              r.date_of_birth = s.date_of_birth
+              OR (
+                  lower(r.address) = lower(s.address)
+                  AND lower(r.city) = lower(s.city)
+                  AND (
+                      (
+                          r.email IS NOT NULL
+                          AND s.email IS NOT NULL
+                          AND lower(r.email) = lower(s.email)
+                      )
+                      OR (
+                          r.phone IS NOT NULL
+                          AND s.phone IS NOT NULL
+                          AND r.phone = s.phone
+                      )
+                  )
+                  AND r.date_of_birth IS DISTINCT FROM s.date_of_birth
+                  AND r.dob_is_valid IS DISTINCT FROM s.dob_is_valid
+              )
+          )
+      )
 ),
 resolved AS (
-    SELECT
-        r.stg_customer_row_id,
-        r.customer_id AS source_customer_id,
-        s.customer_id AS canonical_customer_id,
-        s.stg_customer_row_id AS survivor_stg_customer_row_id,
-        CASE WHEN r.person_rank = 1 THEN 'survivor' ELSE 'duplicate_alias' END AS resolution_type
-    FROM ranked r
-    JOIN ranked s
-      ON lower(s.first_name) = lower(r.first_name)
-     AND lower(s.last_name) = lower(r.last_name)
-     AND s.date_of_birth = r.date_of_birth
-     AND replace(s.postal_code, ' ', '') = replace(r.postal_code, ' ', '')
-     AND s.person_rank = 1
+    SELECT *
+    FROM (
+        SELECT
+            m.*,
+            row_number() OVER (
+                PARTITION BY m.source_row_id
+                ORDER BY
+                    m.dob_is_valid DESC,
+                    m.completeness_score DESC,
+                    m.last_updated DESC NULLS LAST,
+                    m.candidate_survivor_row_id
+            ) AS survivor_rank
+        FROM candidate_matches m
+    ) ranked
+    WHERE survivor_rank = 1
 )
 INSERT INTO staging.customer_identity_map (
     load_id, source_customer_id, canonical_customer_id,
@@ -280,32 +327,17 @@ INSERT INTO staging.customer_identity_map (
 SELECT
     (SELECT load_id FROM _gms_load_context),
     source_customer_id,
-    canonical_customer_id,
-    survivor_stg_customer_row_id,
-    resolution_type
+    candidate_survivor_customer_id,
+    candidate_survivor_row_id,
+    CASE
+        WHEN source_row_id = candidate_survivor_row_id THEN 'survivor'
+        ELSE 'duplicate_alias'
+    END
 FROM resolved
 ON CONFLICT (load_id, source_customer_id) DO UPDATE
 SET canonical_customer_id = EXCLUDED.canonical_customer_id,
     survivor_stg_customer_row_id = EXCLUDED.survivor_stg_customer_row_id,
     resolution_type = EXCLUDED.resolution_type;
-
--- Customers that could not participate in the natural-person match map to self.
-INSERT INTO staging.customer_identity_map (
-    load_id, source_customer_id, canonical_customer_id,
-    survivor_stg_customer_row_id, resolution_type
-)
-SELECT
-    c.load_id, c.customer_id, c.customer_id, c.stg_customer_row_id, 'survivor'
-FROM staging.customers c
-WHERE c.load_id = (SELECT load_id FROM _gms_load_context)
-  AND c.customer_id IS NOT NULL
-  AND c.record_status <> 'rejected'
-  AND NOT EXISTS (
-      SELECT 1
-      FROM staging.customer_identity_map m
-      WHERE m.load_id = c.load_id
-        AND m.source_customer_id = c.customer_id
-  );
 
 UPDATE staging.customers c
 SET record_status = 'duplicate'
@@ -323,11 +355,21 @@ SELECT
     c.load_id, sf.source_name, 'raw.customer_csv', c.raw_row_id, c.customer_id,
     'DUP_ENTITY', 'customer_id', 'warning', 'deduplicated',
     c.customer_id, m.canonical_customer_id,
-    jsonb_build_object('survivor_customer_id', m.canonical_customer_id)
+    jsonb_build_object(
+        'survivor_customer_id', m.canonical_customer_id,
+        'resolution',
+        CASE
+            WHEN c.date_of_birth IS DISTINCT FROM s.date_of_birth
+                THEN 'high_confidence_match_with_invalid_dob'
+            ELSE 'normalized_identity_key'
+        END
+    )
 FROM staging.customers c
 JOIN staging.customer_identity_map m
   ON m.load_id = c.load_id
  AND m.source_customer_id = c.customer_id
+JOIN staging.customers s
+  ON s.stg_customer_row_id = m.survivor_stg_customer_row_id
 JOIN raw.customer_csv r ON r.raw_row_id = c.raw_row_id
 JOIN raw.source_files sf ON sf.source_file_id = r.source_file_id
 WHERE c.load_id = (SELECT load_id FROM _gms_load_context)
