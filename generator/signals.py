@@ -195,14 +195,15 @@ def plan_phase_a_signals(
             overlap_candidates = [i for i in compatible if out.at[i, "_tmp"] in f3_tmp]
         overlap = overlap_candidates[:desired_overlap]
         chosen = list(overlap)
-        for idx in compatible:
-            if idx in chosen:
-                continue
-            if signal[out.at[idx, "_tmp"]]:
-                continue
-            chosen.append(idx)
-            if len(chosen) == 6:
-                break
+        if len(chosen) < 6:
+            for idx in compatible:
+                if idx in chosen:
+                    continue
+                if signal[out.at[idx, "_tmp"]]:
+                    continue
+                chosen.append(idx)
+                if len(chosen) == 6:
+                    break
         if len(chosen) < 6:
             for idx in compatible:
                 if idx not in chosen:
