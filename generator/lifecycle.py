@@ -46,6 +46,25 @@ def age_band(dob: date, at: date) -> str:
     raise ValueError(a)
 
 
+def premium_status_as_of(due_date: date, paid_date: date | None, as_of: date) -> str | None:
+    """Derive the observable premium state at a historical cutoff.
+
+    Payments after the cutoff are censored. An instalment unpaid for at least
+    30 days is treated as missed; a more recent unpaid instalment remains
+    outstanding rather than inheriting its eventual extract-end status.
+    """
+    if due_date > as_of:
+        return None
+
+    if paid_date is not None and not pd.isna(paid_date) and paid_date <= as_of:
+        return "paid" if paid_date <= due_date else "late"
+
+    if due_date <= as_of - timedelta(days=30):
+        return "missed"
+
+    return "outstanding"
+
+
 def age_factor(band: str) -> Decimal:
     return Decimal(str(next(x[3] for x in C.AGE_BANDS if x[0] == band)))
 
@@ -355,8 +374,26 @@ def apply_retention(
     replacement_rows = p[p["_replacement_case"] == True]  # noqa: E712
     replacement_customers = set(replacement_rows["customer_id"].tolist())
 
-    prem_obs = premiums_a[(premiums_a["due_date"] >= C.OBS_START) & (premiums_a["due_date"] <= C.SNAPSHOT_DATE)]
-    prem_90 = premiums_a[(premiums_a["due_date"] > C.SNAPSHOT_DATE - timedelta(days=90)) & (premiums_a["due_date"] <= C.SNAPSHOT_DATE)]
+    # Reconstruct premium behaviour exactly as it was observable at the
+    # retention snapshot. Payments after the snapshot must not influence the
+    # churn-generating features.
+    premiums_snapshot = premiums_a.copy()
+    premiums_snapshot["snapshot_status"] = premiums_snapshot.apply(
+        lambda row: premium_status_as_of(
+            row["due_date"],
+            row["paid_date"],
+            C.SNAPSHOT_DATE,
+        ),
+        axis=1,
+    )
+    prem_obs = premiums_snapshot[
+        (premiums_snapshot["due_date"] >= C.OBS_START)
+        & (premiums_snapshot["due_date"] <= C.SNAPSHOT_DATE)
+    ]
+    prem_90 = premiums_snapshot[
+        (premiums_snapshot["due_date"] > C.SNAPSHOT_DATE - timedelta(days=90))
+        & (premiums_snapshot["due_date"] <= C.SNAPSHOT_DATE)
+    ]
     denied_customers = set(
         claims_a[
             (claims_a["claim_date"] >= C.OBS_START)
@@ -372,8 +409,8 @@ def apply_retention(
     for cid in eligible:
         cp = prem_obs[prem_obs["customer_id"] == cid]
         cp90 = prem_90[prem_90["customer_id"] == cid]
-        missed90 = int((cp90["payment_status"] == "missed").any())
-        late2 = int((cp["payment_status"] == "late").sum() >= 2)
+        missed90 = int((cp90["snapshot_status"] == "missed").any())
+        late2 = int((cp["snapshot_status"] == "late").sum() >= 2)
         denied = int(cid in denied_customers)
         short = int((C.SNAPSHOT_DATE - cmap[cid]["customer_since"]).days < 365)
         bands = [band_order[x] for x in cp.sort_values("due_date")["age_band"].tolist()]
@@ -420,7 +457,7 @@ def apply_retention(
     # Realize sampled churn. All snapshot-active HD policies terminate; at most one
     # suitable monthly policy lapses, the rest cancel.
     churners = retention.loc[retention["churned"] == 1, "customer_id"].tolist()
-    premiums_by_policy = premiums_a.groupby("policy_id")
+    premiums_by_policy = premiums_snapshot.groupby("policy_id")
     for cid in churners:
         idxs = p.index[
             (p["customer_id"] == cid)
@@ -440,7 +477,7 @@ def apply_retention(
                     continue
                 pp = premiums_by_policy.get_group(pid)
                 missed = pp[
-                    (pp["payment_status"] == "missed")
+                    (pp["snapshot_status"] == "missed")
                     & (pp["due_date"] > C.SNAPSHOT_DATE - timedelta(days=90))
                     & (pp["due_date"] <= C.SNAPSHOT_DATE)
                 ]
