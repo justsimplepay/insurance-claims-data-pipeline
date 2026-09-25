@@ -25,6 +25,7 @@ from pathlib import Path
 
 import psycopg
 
+from bootstrap_database import bootstrap_database
 from ingest_raw import run_ingestion
 from transform_staging import transform_staging
 from load_core import load_core
@@ -294,6 +295,9 @@ def main() -> int:
     )
 
     try:
+        _print_stage(0, "Database bootstrap")
+        bootstrap_database(database_url)
+
         _print_stage(1, "Raw ingestion")
         load_id = run_ingestion(
             database_url=database_url,
