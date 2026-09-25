@@ -57,10 +57,11 @@ SELECT
     'date_of_birth',
     'error',
     'repaired',
-    c.date_of_birth::text,
+    NULL,
     NULL,
     jsonb_build_object(
-        'reason','DOB is outside the valid extract-end age range (18-89) and no authoritative alternate source exists'
+        'reason','DOB is outside the valid extract-end age range (18-89) and no authoritative alternate source exists',
+        'pii_value_redacted', true
     )
 FROM staging.customers c
 WHERE c.load_id = (SELECT load_id FROM _gms_core_context)
@@ -69,26 +70,19 @@ WHERE c.load_id = (SELECT load_id FROM _gms_core_context)
   AND c.date_of_birth NOT BETWEEN DATE '1936-07-01' AND DATE '2008-06-30';
 
 INSERT INTO core.customers (
-    customer_id, first_name, last_name, date_of_birth, gender, address, city,
-    province, postal_code, phone, email, customer_since, last_updated,
-    source_load_id, source_raw_row_id
+    customer_id, date_of_birth, gender, province, fsa,
+    customer_since, last_updated, source_load_id, source_raw_row_id
 )
 SELECT
     c.customer_id,
-    c.first_name,
-    c.last_name,
     CASE
         WHEN c.date_of_birth BETWEEN DATE '1936-07-01' AND DATE '2008-06-30'
             THEN c.date_of_birth
         ELSE NULL
     END,
     CASE WHEN c.gender IN ('F','M','X') THEN c.gender ELSE NULL END,
-    c.address,
-    c.city,
     c.province,
-    c.postal_code,
-    CASE WHEN c.phone ~ '^\+1[0-9]{10}$' THEN c.phone ELSE NULL END,
-    c.email,
+    c.fsa,
     c.customer_since,
     c.last_updated,
     c.load_id,
@@ -97,16 +91,10 @@ FROM staging.customers c
 WHERE c.load_id = (SELECT load_id FROM _gms_core_context)
   AND c.record_status = 'accepted'
 ON CONFLICT (customer_id) DO UPDATE
-SET first_name = EXCLUDED.first_name,
-    last_name = EXCLUDED.last_name,
-    date_of_birth = EXCLUDED.date_of_birth,
+SET date_of_birth = EXCLUDED.date_of_birth,
     gender = EXCLUDED.gender,
-    address = EXCLUDED.address,
-    city = EXCLUDED.city,
     province = EXCLUDED.province,
-    postal_code = EXCLUDED.postal_code,
-    phone = EXCLUDED.phone,
-    email = EXCLUDED.email,
+    fsa = EXCLUDED.fsa,
     customer_since = EXCLUDED.customer_since,
     last_updated = EXCLUDED.last_updated,
     source_load_id = EXCLUDED.source_load_id,
