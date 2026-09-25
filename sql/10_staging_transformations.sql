@@ -1379,7 +1379,7 @@ WHERE NOT EXISTS (
     WHERE sf.load_id=c.load_id
       AND sf.source_format='json'
       AND staging.normalize_id(
-          regexp_replace(sf.source_name, '\.json, '', 'i')
+          regexp_replace(sf.source_name, '\.json$', '', 'i')
       )=c.claim_id
 );
 
