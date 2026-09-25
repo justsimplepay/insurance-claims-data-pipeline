@@ -2,3 +2,4 @@ Faker==40.39.0
 numpy==2.5.3
 pandas==2.3.3
 psycopg[binary]>=3.2,<4
+streamlit>=1.40,<2
