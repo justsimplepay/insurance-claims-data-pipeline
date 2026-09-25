@@ -88,6 +88,7 @@ INSERT INTO staging.customers (
     city,
     province,
     postal_code,
+    fsa,
     phone,
     email,
     customer_since,
@@ -111,6 +112,7 @@ SELECT
         staging.postal_province(r.postal_code, r.city)
     ),
     staging.normalize_postal(r.postal_code),
+    left(staging.normalize_postal(r.postal_code), 3),
     staging.normalize_phone(r.phone),
     lower(staging.clean_text(r.email)),
     staging.parse_date(r.customer_since, 'DMY'),
