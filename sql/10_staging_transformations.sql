@@ -907,6 +907,79 @@ WHERE sf.load_id = (SELECT load_id FROM _gms_load_context)
   AND f.parse_status = 'parsed'
   AND x.details IS NOT NULL;
 
+-- Recoverable numeric strings are normalized into typed staging fields, but
+-- their source-type mismatch is still logged explicitly.
+WITH parsed_json AS (
+    SELECT
+        sf.load_id,
+        sf.source_name,
+        f.source_file_id,
+        f.payload_jsonb,
+        staging.normalize_id(
+            COALESCE(f.payload_jsonb->>'claim_id', f.payload_jsonb->>'ClaimID')
+        ) AS claim_id,
+        CASE
+            WHEN jsonb_typeof(COALESCE(f.payload_jsonb->'line_items', f.payload_jsonb->'lineItems'))='array'
+                THEN COALESCE(f.payload_jsonb->'line_items', f.payload_jsonb->'lineItems')
+            WHEN jsonb_typeof(COALESCE(f.payload_jsonb->'line_items', f.payload_jsonb->'lineItems'))='object'
+                THEN jsonb_build_array(COALESCE(f.payload_jsonb->'line_items', f.payload_jsonb->'lineItems'))
+            ELSE '[]'::jsonb
+        END AS items
+    FROM raw.claim_detail_files f
+    JOIN raw.source_files sf USING (source_file_id)
+    WHERE sf.load_id=(SELECT load_id FROM _gms_load_context)
+      AND f.parse_status='parsed'
+),
+drift AS (
+    SELECT
+        p.load_id,
+        p.source_name,
+        p.source_file_id,
+        p.claim_id,
+        format('line_items[%s].%s', i.ordinality - 1, v.field_name) AS field_name,
+        v.raw_value #>> '{}' AS original_value
+    FROM parsed_json p
+    CROSS JOIN LATERAL jsonb_array_elements(p.items)
+        WITH ORDINALITY AS i(value, ordinality)
+    CROSS JOIN LATERAL (
+        VALUES
+          ('amount'::text, i.value->'amount'),
+          ('unit_amount'::text, i.value->'unit_amount')
+    ) AS v(field_name, raw_value)
+    WHERE jsonb_typeof(v.raw_value)='string'
+
+    UNION ALL
+
+    SELECT
+        p.load_id,
+        p.source_name,
+        p.source_file_id,
+        p.claim_id,
+        'travel.exchange_rate_to_cad',
+        p.payload_jsonb #>> '{travel,exchange_rate_to_cad}'
+    FROM parsed_json p
+    WHERE jsonb_typeof(
+        p.payload_jsonb #> '{travel,exchange_rate_to_cad}'
+    )='string'
+)
+INSERT INTO staging.data_quality_log (
+    load_id, source_name, source_table, source_record_id, business_key,
+    rule_id, field_name, severity, action, original_value, details
+)
+SELECT
+    load_id,
+    source_name,
+    'raw.claim_detail_files',
+    source_file_id,
+    claim_id,
+    'JSON_TYPE_DRIFT',
+    field_name,
+    'warning',
+    'normalized',
+    original_value,
+    jsonb_build_object('source_type','string','target_type','number')
+FROM drift;
+
 -- Malformed JSON is intentionally retained in raw, logged, and quarantined.
 INSERT INTO staging.data_quality_log (
     load_id, source_name, source_table, source_record_id, business_key,
