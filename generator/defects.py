@@ -225,6 +225,24 @@ class DefectInjector:
 
         base_c, base_p, base_cl, base_pay, base_pr = list(c.index), list(p.index), list(cl.index), list(pay.index), list(pr.index)
 
+        # Claims carrying designed fraud/anomaly signals must survive source
+        # corruption so downstream QA can evaluate those intended patterns.
+        protected_claims = {cid for cid, sig in self.signal.items() if sig}
+        protected_policy_ids = set(
+            cl.loc[cl["claim_id"].isin(protected_claims), "policy_id"].astype(str)
+        )
+        protected_customer_ids = set(
+            cl.loc[cl["claim_id"].isin(protected_claims), "customer_id"].astype(str)
+        )
+        safe_customer_indices = [
+            i for i in base_c if str(c.at[i, "customer_id"]) not in protected_customer_ids
+        ]
+        safe_policy_indices = [
+            i for i in base_p if str(p.at[i, "policy_id"]) not in protected_policy_ids
+        ]
+        protected_idx = set(cl.index[cl["claim_id"].isin(protected_claims)])
+        safe_claim_indices = [i for i in base_cl if i not in protected_idx]
+
         duplicate_ids = []
         for j in range(4):
             row = c.iloc[j].copy()
@@ -261,12 +279,12 @@ class DefectInjector:
             q["due_date"], q["paid_date"], q["payment_status"] = date(2026, 1 + j, 1), date(2026, 1 + j, 1), "paid"
             pr = pd.concat([pr, pd.DataFrame([q])], ignore_index=True)
 
-        self._set(c, "Customer.csv", base_c[20], "customer_id", "date_of_birth", date(2030, 1, 1), "INV_AGE")
-        self._set(c, "Customer.csv", base_c[21], "customer_id", "date_of_birth", date(1900, 1, 1), "INV_AGE")
-        used_age_indices = {base_c[20], base_c[21]}
+        self._set(c, "Customer.csv", safe_customer_indices[20], "customer_id", "date_of_birth", date(2030, 1, 1), "INV_AGE")
+        self._set(c, "Customer.csv", safe_customer_indices[21], "customer_id", "date_of_birth", date(1900, 1, 1), "INV_AGE")
+        used_age_indices = {safe_customer_indices[20], safe_customer_indices[21]}
         age_idx = None
         st = None
-        for policy_idx in base_p:
+        for policy_idx in safe_policy_indices:
             owner = str(p.at[policy_idx, "customer_id"])
             matches = c.index[c["customer_id"] == owner].tolist()
             if matches and matches[0] not in used_age_indices:
@@ -276,41 +294,39 @@ class DefectInjector:
         if age_idx is None or st is None:
             raise AssertionError("could not reserve distinct INV_AGE row")
         self._set(c, "Customer.csv", age_idx, "customer_id", "date_of_birth", date(st.year - 15, st.month, min(st.day, 28)), "INV_AGE")
-        for idx in base_c[22:24]:
+        for idx in safe_customer_indices[22:24]:
             self._set(c, "Customer.csv", idx, "customer_id", "date_of_birth", None, "MISS_ERROR")
-        for idx in base_c[24:26]:
+        for idx in safe_customer_indices[24:26]:
             self._set(c, "Customer.csv", idx, "customer_id", "province", None, "MISS_ERROR")
 
-        for j, idx in enumerate(base_p[10:12], 1):
+        for j, idx in enumerate(safe_policy_indices[10:12], 1):
             self._set(p, "Policy.csv", idx, "policy_id", "customer_id", f"C9{j:04d}", "ORPHAN_FK")
-        for idx in base_p[12:14]:
+        for idx in safe_policy_indices[12:14]:
             self._set(p, "Policy.csv", idx, "policy_id", "end_date", p.at[idx, "start_date"] - timedelta(days=1), "INV_DATE_ORDER")
-        for idx in base_p[14:16]:
+        for idx in safe_policy_indices[14:16]:
             self._set(p, "Policy.csv", idx, "policy_id", "sales_channel", None, "MISS_ERROR")
-        for idx in base_p[16:18]:
+        for idx in safe_policy_indices[16:18]:
             self._set(p, "Policy.csv", idx, "policy_id", "plan_name", None, "MISS_ERROR")
 
-        protected_claims = {cid for cid, sig in self.signal.items() if "F6" in sig or "OUTLIER" in sig}
-        protected_idx = set(cl.index[cl["claim_id"].isin(protected_claims)])
-        for idx in base_cl[0:8]:
+        for idx in safe_claim_indices[0:8]:
             old = cl.at[idx, "claim_status"]
             self._set(cl, "Claim.csv", idx, "claim_id", "claim_status", "denied" if old != "denied" else "approved", "XF_STATUS_CONFLICT")
-        for idx in base_cl[8:16]:
+        for idx in safe_claim_indices[8:16]:
             old = cl.at[idx, "region"]
             self._set(cl, "Claim.csv", idx, "claim_id", "region", "AB" if old != "AB" else "SK", "XF_REGION_CONFLICT")
-        for idx in base_cl[16:21]:
+        for idx in safe_claim_indices[16:21]:
             old = cl.at[idx, "customer_id"]
             self._set(cl, "Claim.csv", idx, "claim_id", "customer_id", "C00150" if old != "C00150" else "C00149", "XF_OWNER_CONFLICT")
-        for j, idx in enumerate(base_cl[21:24], 1):
+        for j, idx in enumerate(safe_claim_indices[21:24], 1):
             self._set(cl, "Claim.csv", idx, "claim_id", "policy_id", f"P9{j:04d}", "ORPHAN_FK")
 
         pstart = policies.set_index("policy_id")["start_date"].to_dict()
-        for idx in base_cl[24:27]:
+        for idx in safe_claim_indices[24:27]:
             self._set(cl, "Claim.csv", idx, "claim_id", "service_date", pstart[cl.at[idx, "policy_id"]] - timedelta(days=1), "INV_CLAIM_BEFORE_POLICY")
-        for idx in base_cl[27:29]:
+        for idx in safe_claim_indices[27:29]:
             self._set(cl, "Claim.csv", idx, "claim_id", "service_date", cl.at[idx, "claim_date"] + timedelta(days=2), "INV_DATE_ORDER")
 
-        eligible_amount = [i for i in base_cl if i not in protected_idx and i not in set(base_cl[:29])]
+        eligible_amount = [i for i in safe_claim_indices if i not in set(safe_claim_indices[:29])]
         for idx in eligible_amount[:3]:
             self._set(cl, "Claim.csv", idx, "claim_id", "claim_amount", -abs(Decimal(str(cl.at[idx, "claim_amount"]))), "INV_NEGATIVE_AMOUNT")
         for idx in eligible_amount[3:5]:
@@ -363,7 +379,24 @@ class DefectInjector:
         self._format_premium(pr, base_pr)
 
         ids = sorted(docs)
-        missing, malformed = set(ids[:14]), set(ids[14:16])
+        # JSON needed to repair intentionally corrupted claim facts must remain
+        # physically present and parseable. Likewise, designed signal carriers
+        # are not selected for destructive JSON defects.
+        repair_dependent_claims = {
+            row["record_key"]
+            for row in self.log
+            if row["source"] == "Claim.csv"
+            and row["defect_type"] in {"INV_NEGATIVE_AMOUNT", "OUT_ERROR", "MISS_ERROR"}
+            and row["field"] in {"claim_amount", "service_date"}
+        }
+        json_destructive_candidates = [
+            cid for cid in ids
+            if cid not in protected_claims and cid not in repair_dependent_claims
+        ]
+        if len(json_destructive_candidates) < 16:
+            raise AssertionError("insufficient claims for independent JSON destructive defects")
+        missing = set(json_destructive_candidates[:14])
+        malformed = set(json_destructive_candidates[14:16])
         physical = {k: copy.deepcopy(v) for k, v in docs.items() if k not in missing}
         for cid in sorted(missing):
             self._log("JSON_MISSING_FILE", f"json/{cid}.json", cid, "*", cid, "")
