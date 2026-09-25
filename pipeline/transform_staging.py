@@ -1,4 +1,4 @@
-"""Execute the recurring raw -> staging transformation for one load.\n\nIncludes post-transform DQ semantic validation.\n"""
+"""Execute the recurring raw -> staging transformation for one load."""
 
 from __future__ import annotations
 
@@ -12,65 +12,6 @@ import psycopg
 
 SQL_PATH = Path(__file__).resolve().parents[1] / "sql" / "10_staging_transformations.sql"
 
-CASCADE_CLASSIFICATION_SQL = """
-UPDATE staging.data_quality_log q
-SET rule_id = 'UPSTREAM_PARENT_REJECTED'
-FROM staging.claims c
-WHERE q.load_id = %(load_id)s
-  AND q.source_table = 'raw.claim_csv'
-  AND q.source_record_id = c.raw_row_id
-  AND q.rule_id = 'ORPHAN_FK'
-  AND EXISTS (
-      SELECT 1 FROM staging.policies p
-      WHERE p.load_id = c.load_id AND p.policy_id = c.policy_id
-  );
-
-UPDATE staging.data_quality_log q
-SET rule_id = 'UPSTREAM_PARENT_REJECTED'
-FROM staging.claim_payments cp
-WHERE q.load_id = %(load_id)s
-  AND q.source_table = 'raw.claim_payment_csv'
-  AND q.source_record_id = cp.raw_row_id
-  AND q.rule_id = 'ORPHAN_FK'
-  AND EXISTS (
-      SELECT 1 FROM staging.claims c
-      WHERE c.load_id = cp.load_id AND c.claim_id = cp.claim_id
-  );
-
-UPDATE staging.data_quality_log q
-SET rule_id = 'UPSTREAM_PARENT_REJECTED'
-FROM staging.policy_premiums pp
-WHERE q.load_id = %(load_id)s
-  AND q.source_table = 'raw.policy_premium_csv'
-  AND q.source_record_id = pp.raw_row_id
-  AND q.rule_id = 'ORPHAN_FK'
-  AND EXISTS (
-      SELECT 1 FROM staging.policies p
-      WHERE p.load_id = pp.load_id AND p.policy_id = pp.policy_id
-  );
-
-UPDATE staging.data_quality_log q
-SET rule_id = 'UPSTREAM_PARENT_REJECTED'
-FROM staging.policies p
-WHERE q.load_id = %(load_id)s
-  AND q.source_table = 'raw.policy_csv'
-  AND q.source_record_id = p.raw_row_id
-  AND q.rule_id = 'ORPHAN_FK'
-  AND EXISTS (
-      SELECT 1 FROM staging.customers c
-      WHERE c.load_id = p.load_id AND c.customer_id = p.customer_id
-  );
-
-UPDATE staging.data_quality_log q
-SET rule_id = 'UPSTREAM_PARENT_REJECTED'
-WHERE q.load_id = %(load_id)s
-  AND q.source_table = 'raw.claim_detail_files'
-  AND q.rule_id = 'JSON_ORPHAN'
-  AND EXISTS (
-      SELECT 1 FROM staging.claims c
-      WHERE c.load_id = q.load_id AND c.claim_id = q.business_key
-  );
-"""
 
 
 def latest_successful_load(conn: psycopg.Connection) -> int:
