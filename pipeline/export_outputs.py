@@ -77,7 +77,35 @@ def export_outputs(database_url: str, output_dir: Path, load_id: int | None) -> 
             SELECT
                 dq_id, load_id, source_name, source_table, source_record_id,
                 business_key, rule_id, field_name, severity, action,
-                original_value, clean_value, details, detected_at
+                CASE
+                    WHEN source_table='raw.customer_csv'
+                     AND field_name IN (
+                        'first_name','last_name','date_of_birth','address',
+                        'city','postal_code','phone','email'
+                     )
+                        THEN NULL
+                    ELSE original_value
+                END AS original_value,
+                CASE
+                    WHEN source_table='raw.customer_csv'
+                     AND field_name IN (
+                        'first_name','last_name','date_of_birth','address',
+                        'city','postal_code','phone','email'
+                     )
+                        THEN NULL
+                    ELSE clean_value
+                END AS clean_value,
+                CASE
+                    WHEN source_table='raw.customer_csv'
+                     AND field_name IN (
+                        'first_name','last_name','date_of_birth','address',
+                        'city','postal_code','phone','email'
+                     )
+                        THEN COALESCE(details, '{}'::jsonb)
+                             || jsonb_build_object('pii_value_redacted', true)
+                    ELSE details
+                END AS details,
+                detected_at
             FROM staging.data_quality_log
             WHERE load_id=%s
             ORDER BY dq_id
