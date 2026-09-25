@@ -23,6 +23,22 @@ permissions:
 jobs:
   generator:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: claims_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d claims_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/claims_ci
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,6 +49,8 @@ jobs:
       - run: python -m unittest discover -s pipeline -p 'test_*.py' -v
       - run: python -m py_compile pipeline/*.py
       - run: python generate_data.py
+      - name: Run clean database bootstrap and end-to-end pipeline
+        run: python pipeline/run_pipeline.py --batch-name ci-${{ github.sha }} --output-dir output/ci
       - name: Freeze validated source inputs in repository
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
