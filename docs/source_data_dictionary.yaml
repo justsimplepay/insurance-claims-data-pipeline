@@ -46,8 +46,8 @@ conventions:
     natural_key: business identifier from an external system; unique when present
     none: ordinary attribute
   pii_classes:
-    direct: identifies a person on its own; stays in core, never in marts (Decision 5)
-    quasi: identifying in combination; only a generalized form reaches marts
+    direct: identifies a person on its own; retained in raw only unless strictly required for a documented transformation. Exact DOB may persist in core for age-band derivation; names/contact/address do not reach core or marts.
+    quasi: identifying in combination; only a generalized form reaches core/marts when analytically required
     none: not personal
 
 parameters:
@@ -215,7 +215,7 @@ files:
         pii: none
       - name: first_name
         type: string
-        description: "Given name. Used only for duplicate-person resolution in core."
+        description: "Given name. Used transiently for duplicate-person resolution in staging, then scrubbed."
         format: "Title case, trimmed (Faker en_CA)"
         nullable: false
         key_role: none
@@ -223,7 +223,7 @@ files:
         pii: direct
       - name: last_name
         type: string
-        description: "Family name. Used only for duplicate-person resolution in core."
+        description: "Family name. Used transiently for duplicate-person resolution in staging, then scrubbed."
         format: "Title case, trimmed (Faker en_CA)"
         nullable: false
         key_role: none
@@ -260,7 +260,7 @@ files:
         format: "Title case; from reference_data.provinces_served[].cities"
         nullable: false
         key_role: none
-        objectives: [region]
+        objectives: []
         pii: quasi
       - name: province
         type: enum
