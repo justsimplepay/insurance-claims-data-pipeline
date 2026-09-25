@@ -75,7 +75,7 @@ def export_outputs(database_url: str, output_dir: Path, load_id: int | None) -> 
         selected_load = load_id or latest_load_id(conn)
         dq_query = """
             SELECT
-                dq_id, load_id, source_name, source_table, source_record_id,
+                load_id, source_name, source_table, source_record_id,
                 business_key, rule_id, field_name, severity, action,
                 CASE
                     WHEN source_table='raw.customer_csv'
