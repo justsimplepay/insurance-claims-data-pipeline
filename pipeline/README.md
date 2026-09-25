@@ -25,10 +25,16 @@ staging
 core
     |
     v
-4. analytical mart generation    (later implementation step)
+4. build_marts.py
     |
     v
-marts / CSV deliverables
+marts
+    |
+    v
+5. export_outputs.py
+    |
+    v
+CSV deliverables
 ```
 
 ## Step 1: raw ingestion
@@ -166,3 +172,44 @@ analysis.
 The policy mart reports an exposure-aligned
 `claims_to_premium_performance_ratio`; it is not described as an actuarial
 loss ratio.
+
+
+## One-command end-to-end run
+
+Once the database setup DDL has been applied and `DATABASE_URL` is set, the
+complete recurring cycle can be executed with one command:
+
+```bash
+python pipeline/run_pipeline.py \
+  --raw-dir data/raw \
+  --batch-name initial_synthetic_batch \
+  --output-dir output
+```
+
+The runner performs:
+
+```text
+source files
+    -> raw ingestion
+    -> staging transformation and DQ classification
+    -> canonical core reconciliation
+    -> five analytics marts
+    -> CSV export
+    -> end-to-end validation
+```
+
+The raw stage is fingerprint-idempotent. If the same source batch has already
+been ingested successfully, its existing `load_id` is reused; staging and
+core are rebuilt/upserted deterministically for that load, the marts are
+refreshed, and the CSV outputs are overwritten.
+
+The final validation checks include:
+
+- fraud and operations marts each have one row per canonical claim;
+- regional aggregates preserve the canonical claim count;
+- retention remains one row per eligible customer;
+- marts do not expose direct-identifying customer columns;
+- the data-quality log is populated;
+- all six CSV exports exist.
+
+Use `--skip-validation` only when intentionally bypassing these smoke checks.
