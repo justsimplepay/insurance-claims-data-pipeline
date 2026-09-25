@@ -392,10 +392,13 @@ This covers the "SQL queries or Python scripts" deliverable with both.
 
 **Report justification sentence:** "PostgreSQL (via Supabase) was chosen for its relational integrity, native JSONB support for semi-structured claim details, schema-based layer separation, and Canadian region hosting; all transformations are scripted for full reproducibility on any PostgreSQL instance."
 
-### Decision 5: Data minimization in the marts
-- Direct identifiers (names, email, phone, full postal code, exact date of birth) stay in `core.customers` and **never appear in the five output CSVs**.
-- The marts use `customer_id`, age band, province, city, and the **forward sortation area** (first three characters of the postal code).
-- **Reason:** the data scientists do not need direct identifiers, and minimizing them is standard practice for health data. Together with `ca-central-1` hosting, this is mentioned in the report as privacy awareness for a Saskatchewan health insurer.
+### Decision 5: Data minimization across downstream layers
+- Raw preserves the source exactly for lineage and reproducibility.
+- Staging uses names/contact/address fields only long enough to normalize and resolve duplicate people, then scrubs those values. Exact DOB is retained only because downstream age-band derivation requires it.
+- `core.customers` keeps only the minimum analytical customer attributes: `customer_id`, exact DOB for age-band derivation, gender, province, generalized FSA, tenure dates, and lineage metadata. Names, address, city, full postal code, phone, and email do not enter core.
+- The marts and five analytical CSVs use only generalized geography (province/FSA where required) and age bands; city and all direct identifiers are excluded.
+- The exported DQ log also redacts raw/clean values for customer PII fields.
+- **Reason:** the analytical objectives do not require direct customer identifiers, so downstream persistence follows data-minimization and least-privilege principles.
 
 ### Decision 6: Build order is a thin slice first
 - First, a small generated dataset runs end to end: raw → staging → core → one mart.
