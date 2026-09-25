@@ -1386,6 +1386,37 @@ WHERE NOT EXISTS (
 );
 
 -- ---------------------------------------------------------------------------
+-- 7.1 Privacy minimization after customer identity resolution.
+-- ---------------------------------------------------------------------------
+-- Direct identifiers are needed transiently to normalize and deduplicate the
+-- Customer source. Once identity resolution and source-quality checks are
+-- complete, staging retains only attributes needed by downstream analytics.
+UPDATE staging.customers
+SET first_name = NULL,
+    last_name = NULL,
+    address = NULL,
+    city = NULL,
+    postal_code = NULL,
+    phone = NULL,
+    email = NULL
+WHERE load_id = (SELECT load_id FROM _gms_load_context);
+
+-- Do not duplicate direct or fine-grained quasi identifiers in the DQ log.
+-- DOB remains in staging.customers because downstream age-band derivation needs
+-- it, but its raw/clean representations are redacted from audit output.
+UPDATE staging.data_quality_log
+SET original_value = NULL,
+    clean_value = NULL,
+    details = COALESCE(details, '{}'::jsonb)
+              || jsonb_build_object('pii_value_redacted', true)
+WHERE load_id = (SELECT load_id FROM _gms_load_context)
+  AND source_table = 'raw.customer_csv'
+  AND field_name IN (
+      'first_name','last_name','date_of_birth','address',
+      'city','postal_code','phone','email'
+  );
+
+-- ---------------------------------------------------------------------------
 -- 8. Issue counts on staged source rows.
 -- ---------------------------------------------------------------------------
 
