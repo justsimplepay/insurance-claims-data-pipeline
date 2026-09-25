@@ -1204,8 +1204,12 @@ SELECT
     CASE
       WHEN d.claim_id IS NOT NULL AND NOT EXISTS (
           SELECT 1 FROM staging.claims c
-          WHERE c.load_id=d.load_id AND c.claim_id=d.claim_id AND c.record_status='accepted'
+          WHERE c.load_id=d.load_id AND c.claim_id=d.claim_id
       ) THEN 'JSON_ORPHAN'
+      WHEN d.claim_id IS NOT NULL AND NOT EXISTS (
+          SELECT 1 FROM staging.claims c
+          WHERE c.load_id=d.load_id AND c.claim_id=d.claim_id AND c.record_status='accepted'
+      ) THEN 'UPSTREAM_PARENT_REJECTED'
       ELSE 'JSON_INVALID_REQUIRED'
     END,
     'error', 'quarantined',
