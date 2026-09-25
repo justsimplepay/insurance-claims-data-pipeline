@@ -1,4 +1,4 @@
-"""Execute the recurring raw -> staging transformation for one load."""
+"""Execute the recurring raw -> staging transformation for one load.\n\nIncludes post-transform DQ semantic validation.\n"""
 
 from __future__ import annotations
 
