@@ -18,6 +18,7 @@ SQL_FILES = [
     ROOT / "sql" / "04_create_core_tables.sql",
     ROOT / "sql" / "05_create_indexes.sql",
     ROOT / "sql" / "06_enable_rls.sql",
+    ROOT / "sql" / "07_create_staging_helpers.sql",
 ]
 
 
