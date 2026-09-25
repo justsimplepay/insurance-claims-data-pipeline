@@ -32,7 +32,14 @@ premium_rows AS (
         pr.due_date,
         pr.premium_amount,
         pr.age_band,
-        pr.payment_status,
+        pr.paid_date,
+        CASE
+            WHEN pr.paid_date IS NOT NULL AND pr.paid_date <= x.snapshot_date
+                THEN CASE WHEN pr.paid_date <= pr.due_date THEN 'paid' ELSE 'late' END
+            WHEN pr.due_date <= x.snapshot_date - INTERVAL '30 days'
+                THEN 'missed'
+            ELSE 'outstanding'
+        END AS payment_status_at_snapshot,
         lag(pr.age_band) OVER (
             PARTITION BY pr.policy_id ORDER BY pr.due_date, pr.premium_id
         ) AS previous_age_band,
@@ -49,15 +56,18 @@ premium_features AS (
     SELECT
         customer_id,
         count(*)::integer AS premium_installment_count_12m,
-        count(*) FILTER (WHERE payment_status='late')::integer AS late_premium_count_12m,
-        count(*) FILTER (WHERE payment_status='missed')::integer AS missed_premium_count_12m,
-        count(*) FILTER (WHERE payment_status IN ('late','missed'))::integer AS late_or_missed_count_12m,
+        count(*) FILTER (WHERE payment_status_at_snapshot='late')::integer AS late_premium_count_12m,
+        count(*) FILTER (WHERE payment_status_at_snapshot='missed')::integer AS missed_premium_count_12m,
+        count(*) FILTER (WHERE payment_status_at_snapshot IN ('late','missed'))::integer AS late_or_missed_count_12m,
         round(
-            count(*) FILTER (WHERE payment_status IN ('late','missed'))::numeric
+            count(*) FILTER (WHERE payment_status_at_snapshot IN ('late','missed'))::numeric
             / NULLIF(count(*),0), 4
         ) AS late_or_missed_rate_12m,
         round(sum(premium_amount),2) AS premium_due_total_12m,
-        round(sum(premium_amount) FILTER (WHERE payment_status IN ('paid','late')),2) AS premium_paid_total_12m,
+        round(sum(premium_amount) FILTER (
+            WHERE paid_date IS NOT NULL
+              AND paid_date <= (SELECT snapshot_date FROM params)
+        ),2) AS premium_paid_total_12m,
         count(*) FILTER (
             WHERE previous_age_band IS NOT NULL AND age_band IS DISTINCT FROM previous_age_band
         )::integer AS age_band_change_count_12m,
