@@ -1181,8 +1181,12 @@ SELECT
     CASE
       WHEN NOT EXISTS (
           SELECT 1 FROM staging.policies pol
-          WHERE pol.load_id=p.load_id AND pol.policy_id=p.policy_id AND pol.record_status='accepted'
+          WHERE pol.load_id=p.load_id AND pol.policy_id=p.policy_id
       ) THEN 'ORPHAN_FK'
+      WHEN NOT EXISTS (
+          SELECT 1 FROM staging.policies pol
+          WHERE pol.load_id=p.load_id AND pol.policy_id=p.policy_id AND pol.record_status='accepted'
+      ) THEN 'UPSTREAM_PARENT_REJECTED'
       ELSE 'INVALID_REQUIRED'
     END,
     'error', 'quarantined',
