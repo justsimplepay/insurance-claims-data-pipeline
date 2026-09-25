@@ -1156,8 +1156,12 @@ SELECT
     CASE
       WHEN NOT EXISTS (
           SELECT 1 FROM staging.claims c
-          WHERE c.load_id=p.load_id AND c.claim_id=p.claim_id AND c.record_status='accepted'
+          WHERE c.load_id=p.load_id AND c.claim_id=p.claim_id
       ) THEN 'ORPHAN_FK'
+      WHEN NOT EXISTS (
+          SELECT 1 FROM staging.claims c
+          WHERE c.load_id=p.load_id AND c.claim_id=p.claim_id AND c.record_status='accepted'
+      ) THEN 'UPSTREAM_PARENT_REJECTED'
       WHEN p.processing_start_date IS NOT NULL AND p.decision_date IS NOT NULL
            AND p.decision_date < p.processing_start_date THEN 'INV_DATE_ORDER'
       ELSE 'INVALID_REQUIRED'
