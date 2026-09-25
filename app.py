@@ -294,11 +294,11 @@ def main() -> None:
 
         except (DemoInputError, RuntimeError) as exc:
             st.error(str(exc))
-        except Exception as exc:
-            # Keep credentials out of diagnostics while making deployment failures visible.
+        except Exception:
+            # Keep detailed diagnostics server-side; never expose connection details publicly.
             details = sanitize_log(traceback.format_exc(), database_url)
             print(details, file=sys.stderr, flush=True)
-            st.error(f"The demo job failed unexpectedly: {type(exc).__name__}: {exc}")
+            st.error("The demo job failed unexpectedly. Check the server logs for details.")
         finally:
             _PIPELINE_LOCK.release()
 
