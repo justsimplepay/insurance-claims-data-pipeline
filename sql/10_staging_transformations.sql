@@ -1361,7 +1361,28 @@ WITH source_claims AS (
     FROM staging.claims c
     WHERE c.load_id=(SELECT load_id FROM _gms_load_context)
       AND c.claim_id IS NOT NULL
-      AND c.claim_id ~ '^[HDT][0-9]{5}
+      AND c.claim_id ~ '^[HDT][0-9]{5}$'
+    ORDER BY c.claim_id, c.raw_row_id
+)
+INSERT INTO staging.data_quality_log (
+    load_id, source_name, source_table, source_record_id, business_key,
+    rule_id, severity, action, details
+)
+SELECT
+    c.load_id, 'Claim.csv / JSON directory', 'staging.claims',
+    c.raw_row_id, c.claim_id, 'JSON_MISSING_FILE', 'warning', 'flagged',
+    jsonb_build_object('reason','no physical JSON file exists for the claim')
+FROM source_claims c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM raw.source_files sf
+    WHERE sf.load_id=c.load_id
+      AND sf.source_format='json'
+      AND staging.normalize_id(
+          regexp_replace(sf.source_name, '\\.json$', '', 'i')
+      )=c.claim_id
+);
+
 -- ---------------------------------------------------------------------------
 -- 8. Issue counts on staged source rows.
 -- ---------------------------------------------------------------------------
