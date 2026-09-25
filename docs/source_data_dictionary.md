@@ -42,7 +42,7 @@ Every field is described by its **ground-truth** definition. The *Defects inject
 - **Nullable**: `No`, or `Yes` followed by *when* a null is legitimate. A null outside that condition is an error (`MISS_ERROR`).
 - **Key**: `PK` primary key, `FK →` foreign key (the parent is authoritative), `Copy of` denormalized copy (**not** authoritative; see overview §4.5), `NK` natural key from an external system.
 - **Obj.**: objectives that use the field: **1** Fraud, **2** Retention, **3** Operations, **4** Region, **5** Policy. `–` means the field is used only for integrity or entity resolution.
-- **PII** (Decision 5): `direct` fields stay in core and never reach a mart; `quasi` fields reach marts only in generalized form (age band, FSA).
+- **PII** (Decision 5): raw preserves source values; downstream layers retain only what is necessary. Names/contact/address fields are scrubbed after staging identity resolution, exact DOB is retained only where needed for age-band derivation, and quasi-identifiers reach marts only in generalized form (age band, province/FSA).
 
 ### Generation parameters
 
@@ -88,12 +88,12 @@ Master file 1 of 3. Grain: one row per customer.
 | Field | Type | Description | Allowed values / format | Nullable | Key | Obj. | PII |
 |---|---|---|---|---|---|---|---|
 | `customer_id` | string | Customer identifier assigned by the policy administration system. | `C` + 5 digits, e.g. `C00017` | No | PK | 1,2,3,4,5 | none |
-| `first_name` | string | Given name. Used only for duplicate-person resolution in core. | Title case, trimmed (Faker en_CA) | No | – | – | direct |
-| `last_name` | string | Family name. Used only for duplicate-person resolution in core. | Title case, trimmed (Faker en_CA) | No | – | – | direct |
+| `first_name` | string | Given name. Used transiently for duplicate-person resolution in staging, then scrubbed. | Title case, trimmed (Faker en_CA) | No | – | – | direct |
+| `last_name` | string | Family name. Used transiently for duplicate-person resolution in staging, then scrubbed. | Title case, trimmed (Faker en_CA) | No | – | – | direct |
 | `date_of_birth` | date | Policyholder date of birth. Marts receive age / age band only. | ISO date; age 18-89 on the extract end date | No | – | 1,2,4,5 | direct |
 | `gender` | enum | Self-reported gender. | `F`, `M`, `X` | Yes — legit: not disclosed (~3%). No error nulls are injected in this field. | – | 2,5 | none |
 | `address` | string | Street address (civic number, street, optional unit). | e.g. `2410 Albert St Unit 5` | No | – | – | direct |
-| `city` | string | City of residence. | Title case; from reference_data.provinces_served[].cities | No | – | 4 | quasi |
+| `city` | string | City of residence. Retained in raw for source fidelity and staging validation, then scrubbed before core. | Title case; from reference_data.provinces_served[].cities | No | – | – | quasi |
 | `province` | enum | Home province/territory code. Authoritative source for a claim's region (overview 4.5). | `SK`, `AB`, `MB`, `ON`, `BC`, `NS`, `PE`, `NL`, `YT`, `NT` | No | – | 1,2,3,4,5 | quasi |
 | `postal_code` | string | Canadian postal code. First letter must agree with province; marts receive the FSA (first 3 characters) only. | `A1A 1A1`, upper case, one space | No | – | 4 | direct |
 | `phone` | string | Primary phone number; area code consistent with province. | E.164, e.g. `+13065550142` | Yes — legit: not provided (~5%). | – | – | direct |
