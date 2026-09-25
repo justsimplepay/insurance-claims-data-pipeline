@@ -105,10 +105,21 @@ def export_outputs(database_url: str, output_dir: Path, load_id: int | None) -> 
                              || jsonb_build_object('pii_value_redacted', true)
                     ELSE details
                 END AS details,
-                detected_at
+                NULL::timestamptz AS detected_at
             FROM staging.data_quality_log
             WHERE load_id=%s
-            ORDER BY dq_id
+            ORDER BY
+                source_name,
+                source_table,
+                source_record_id,
+                business_key,
+                rule_id,
+                field_name,
+                severity,
+                action,
+                COALESCE(original_value, ''),
+                COALESCE(clean_value, ''),
+                COALESCE(details::text, '')
         """
         count = write_query(
             conn,
