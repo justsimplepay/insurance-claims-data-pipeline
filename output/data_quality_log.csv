@@ -1,0 +1,570 @@
+dq_id,load_id,source_name,source_table,source_record_id,business_key,rule_id,field_name,severity,action,original_value,clean_value,details,detected_at
+2893,3,Customer.csv,raw.customer_csv,4,C00004,FMT_GENDER,gender,info,normalized,MALE,M,,2026-09-25 00:16:29.692367+00:00
+2894,3,Customer.csv,raw.customer_csv,4,C00004,FMT_POSTAL,postal_code,info,normalized,b2a9a8,B2A 9A8,,2026-09-25 00:16:29.692367+00:00
+2895,3,Customer.csv,raw.customer_csv,4,C00004,FMT_PHONE,phone,info,normalized,(782) 555-9659,+17825559659,,2026-09-25 00:16:29.692367+00:00
+2896,3,Customer.csv,raw.customer_csv,4,C00004,FMT_TEXT_WHITESPACE,first_name,info,normalized,DYLAN ,Dylan,,2026-09-25 00:16:29.692367+00:00
+2897,3,Customer.csv,raw.customer_csv,23,C00023,FMT_DATE,customer_since,info,normalized,10/03/2015,2015-03-10,,2026-09-25 00:16:29.692367+00:00
+2898,3,Customer.csv,raw.customer_csv,23,C00023,FMT_POSTAL,postal_code,info,normalized,s7a6a3,S7A 6A3,,2026-09-25 00:16:29.692367+00:00
+2899,3,Customer.csv,raw.customer_csv,23,C00023,FMT_PHONE,phone,info,normalized,(474) 555-3917,+14745553917,,2026-09-25 00:16:29.692367+00:00
+2900,3,Customer.csv,raw.customer_csv,25,C00025,FMT_PROVINCE,province,info,repaired,,MB,,2026-09-25 00:16:29.692367+00:00
+2901,3,Customer.csv,raw.customer_csv,26,C00026,FMT_PROVINCE,province,info,repaired,,SK,,2026-09-25 00:16:29.692367+00:00
+2902,3,Customer.csv,raw.customer_csv,30,C00030,FMT_GENDER,gender,info,normalized,Female,F,,2026-09-25 00:16:29.692367+00:00
+2903,3,Customer.csv,raw.customer_csv,30,C00030,FMT_PROVINCE,province,info,normalized,man.,MB,,2026-09-25 00:16:29.692367+00:00
+2904,3,Customer.csv,raw.customer_csv,30,C00030,FMT_POSTAL,postal_code,info,normalized,r2a6a5,R2A 6A5,,2026-09-25 00:16:29.692367+00:00
+2905,3,Customer.csv,raw.customer_csv,30,C00030,FMT_PHONE,phone,info,normalized,(204) 555-3843,+12045553843,,2026-09-25 00:16:29.692367+00:00
+2906,3,Customer.csv,raw.customer_csv,40,C00040,FMT_PROVINCE,province,info,normalized,Ontario,ON,,2026-09-25 00:16:29.692367+00:00
+2907,3,Customer.csv,raw.customer_csv,40,C00040,FMT_POSTAL,postal_code,info,normalized,m4a8a1,M4A 8A1,,2026-09-25 00:16:29.692367+00:00
+2908,3,Customer.csv,raw.customer_csv,40,C00040,FMT_PHONE,phone,info,normalized,(613) 555-3465,+16135553465,,2026-09-25 00:16:29.692367+00:00
+2909,3,Customer.csv,raw.customer_csv,55,C00055,FMT_GENDER,gender,info,normalized,MALE,M,,2026-09-25 00:16:29.692367+00:00
+2910,3,Customer.csv,raw.customer_csv,55,C00055,FMT_PROVINCE,province,info,normalized,Ontario,ON,,2026-09-25 00:16:29.692367+00:00
+2911,3,Customer.csv,raw.customer_csv,55,C00055,FMT_TEXT_WHITESPACE,first_name,info,normalized,MEGAN ,Megan,,2026-09-25 00:16:29.692367+00:00
+2912,3,Customer.csv,raw.customer_csv,67,C00067,FMT_DATE,date_of_birth,info,normalized,20/02/2007,2007-02-20,,2026-09-25 00:16:29.692367+00:00
+2913,3,Customer.csv,raw.customer_csv,67,C00067,FMT_GENDER,gender,info,normalized,MALE,M,,2026-09-25 00:16:29.692367+00:00
+2914,3,Customer.csv,raw.customer_csv,68,C00068,FMT_GENDER,gender,info,normalized,Female,F,,2026-09-25 00:16:29.692367+00:00
+2915,3,Customer.csv,raw.customer_csv,68,C00068,FMT_PROVINCE,province,info,normalized,man.,MB,,2026-09-25 00:16:29.692367+00:00
+2916,3,Customer.csv,raw.customer_csv,68,C00068,FMT_PHONE,phone,info,normalized,(431) 555-2692,+14315552692,,2026-09-25 00:16:29.692367+00:00
+2917,3,Customer.csv,raw.customer_csv,79,C00079,FMT_DATE,date_of_birth,info,normalized,30/11/1975,1975-11-30,,2026-09-25 00:16:29.692367+00:00
+2918,3,Customer.csv,raw.customer_csv,79,C00079,FMT_GENDER,gender,info,normalized,MALE,M,,2026-09-25 00:16:29.692367+00:00
+2919,3,Customer.csv,raw.customer_csv,79,C00079,FMT_PROVINCE,province,info,normalized,saskatchewan,SK,,2026-09-25 00:16:29.692367+00:00
+2920,3,Customer.csv,raw.customer_csv,79,C00079,FMT_POSTAL,postal_code,info,normalized,s3a8a5,S3A 8A5,,2026-09-25 00:16:29.692367+00:00
+2921,3,Customer.csv,raw.customer_csv,79,C00079,FMT_PHONE,phone,info,normalized,(474) 555-8212,+14745558212,,2026-09-25 00:16:29.692367+00:00
+2922,3,Customer.csv,raw.customer_csv,79,C00079,FMT_TEXT_WHITESPACE,first_name,info,normalized,DOUGLAS ,Douglas,,2026-09-25 00:16:29.692367+00:00
+2923,3,Customer.csv,raw.customer_csv,86,C00086,FMT_DATE,date_of_birth,info,normalized,24/11/1994,1994-11-24,,2026-09-25 00:16:29.692367+00:00
+2924,3,Customer.csv,raw.customer_csv,101,C00101,FMT_GENDER,gender,info,normalized,Female,F,,2026-09-25 00:16:29.692367+00:00
+2925,3,Customer.csv,raw.customer_csv,101,C00101,FMT_POSTAL,postal_code,info,normalized,b0a6a3,B0A 6A3,,2026-09-25 00:16:29.692367+00:00
+2926,3,Customer.csv,raw.customer_csv,101,C00101,FMT_PHONE,phone,info,normalized,(902) 555-6516,+19025556516,,2026-09-25 00:16:29.692367+00:00
+2927,3,Customer.csv,raw.customer_csv,101,C00101,FMT_TEXT_WHITESPACE,first_name,info,normalized,HANNAH ,Hannah,,2026-09-25 00:16:29.692367+00:00
+2928,3,Customer.csv,raw.customer_csv,105,C00105,FMT_POSTAL,postal_code,info,normalized,s8a1a6,S8A 1A6,,2026-09-25 00:16:29.692367+00:00
+2929,3,Customer.csv,raw.customer_csv,105,C00105,FMT_PHONE,phone,info,normalized,(474) 555-2145,+14745552145,,2026-09-25 00:16:29.692367+00:00
+2930,3,Customer.csv,raw.customer_csv,115,C00115,FMT_DATE,date_of_birth,info,normalized,17/04/1944,1944-04-17,,2026-09-25 00:16:29.692367+00:00
+2931,3,Customer.csv,raw.customer_csv,115,C00115,FMT_GENDER,gender,info,normalized,Female,F,,2026-09-25 00:16:29.692367+00:00
+2932,3,Customer.csv,raw.customer_csv,115,C00115,FMT_PROVINCE,province,info,normalized,british columbia,BC,,2026-09-25 00:16:29.692367+00:00
+2933,3,Customer.csv,raw.customer_csv,115,C00115,FMT_POSTAL,postal_code,info,normalized,v4a1a2,V4A 1A2,,2026-09-25 00:16:29.692367+00:00
+2934,3,Customer.csv,raw.customer_csv,128,C00128,FMT_GENDER,gender,info,normalized,Female,F,,2026-09-25 00:16:29.692367+00:00
+2935,3,Customer.csv,raw.customer_csv,128,C00128,FMT_PROVINCE,province,info,normalized,Alta.,AB,,2026-09-25 00:16:29.692367+00:00
+2936,3,Customer.csv,raw.customer_csv,138,C00138,FMT_DATE,date_of_birth,info,normalized,24/07/1986,1986-07-24,,2026-09-25 00:16:29.692367+00:00
+2937,3,Customer.csv,raw.customer_csv,138,C00138,FMT_POSTAL,postal_code,info,normalized,t1a9a2,T1A 9A2,,2026-09-25 00:16:29.692367+00:00
+2938,3,Customer.csv,raw.customer_csv,138,C00138,FMT_PHONE,phone,info,normalized,(780) 555-8935,+17805558935,,2026-09-25 00:16:29.692367+00:00
+2939,3,Customer.csv,raw.customer_csv,138,C00138,FMT_TEXT_WHITESPACE,first_name,info,normalized,TONI ,Toni,,2026-09-25 00:16:29.692367+00:00
+2940,3,Customer.csv,raw.customer_csv,21,C00021,INV_AGE,date_of_birth,error,flagged,2030-01-01,2030-01-01,{'reason': 'sentinel or future DOB'},2026-09-25 00:16:29.692367+00:00
+2941,3,Customer.csv,raw.customer_csv,22,C00022,INV_AGE,date_of_birth,error,flagged,1900-01-01,1900-01-01,{'reason': 'sentinel or future DOB'},2026-09-25 00:16:29.692367+00:00
+2942,3,Customer.csv,raw.customer_csv,23,C00023,MISS_ERROR,date_of_birth,error,flagged,,,{'reason': 'required source DOB is missing'},2026-09-25 00:16:29.692367+00:00
+2943,3,Customer.csv,raw.customer_csv,24,C00024,MISS_ERROR,date_of_birth,error,flagged,,,{'reason': 'required source DOB is missing'},2026-09-25 00:16:29.692367+00:00
+2944,3,Customer.csv,raw.customer_csv,25,C00025,MISS_ERROR,province,error,repaired,,MB,{'recovered_from_postal_code': True},2026-09-25 00:16:29.692367+00:00
+2945,3,Customer.csv,raw.customer_csv,26,C00026,MISS_ERROR,province,error,repaired,,SK,{'recovered_from_postal_code': True},2026-09-25 00:16:29.692367+00:00
+2946,3,Customer.csv,raw.customer_csv,155,C00155,INV_UNSERVED_PROVINCE,province,error,quarantined,QC,QC,{'reason': 'province is outside the served-province domain'},2026-09-25 00:16:29.692367+00:00
+2947,3,Customer.csv,raw.customer_csv,156,C00156,INV_UNSERVED_PROVINCE,province,error,quarantined,NB,NB,{'reason': 'province is outside the served-province domain'},2026-09-25 00:16:29.692367+00:00
+2948,3,Customer.csv,raw.customer_csv,157,C00157,INV_UNSERVED_PROVINCE,province,error,quarantined,NU,NU,{'reason': 'province is outside the served-province domain'},2026-09-25 00:16:29.692367+00:00
+2949,3,Customer.csv,raw.customer_csv,151,C00151,DUP_ENTITY,customer_id,warning,deduplicated,C00151,C00001,"{'resolution': 'high_confidence_match_with_invalid_dob', 'survivor_customer_id': 'C00001'}",2026-09-25 00:16:29.692367+00:00
+2950,3,Customer.csv,raw.customer_csv,152,C00152,DUP_ENTITY,customer_id,warning,deduplicated,C00152,C00002,"{'resolution': 'normalized_identity_key', 'survivor_customer_id': 'C00002'}",2026-09-25 00:16:29.692367+00:00
+2951,3,Customer.csv,raw.customer_csv,153,C00153,DUP_ENTITY,customer_id,warning,deduplicated,C00153,C00003,"{'resolution': 'normalized_identity_key', 'survivor_customer_id': 'C00003'}",2026-09-25 00:16:29.692367+00:00
+2952,3,Customer.csv,raw.customer_csv,154,C00154,DUP_ENTITY,customer_id,warning,deduplicated,C00154,C00004,"{'resolution': 'normalized_identity_key', 'survivor_customer_id': 'C00004'}",2026-09-25 00:16:29.692367+00:00
+2953,3,Policy.csv,raw.policy_csv,5,P00005,FMT_CATEGORY_CASE,policy_type,info,normalized,Health ,health,,2026-09-25 00:16:29.692367+00:00
+2954,3,Policy.csv,raw.policy_csv,15,P00015,FMT_CATEGORY_CASE,policy_type,info,normalized,Health ,health,,2026-09-25 00:16:29.692367+00:00
+2955,3,Policy.csv,raw.policy_csv,47,P00047,FMT_CATEGORY_CASE,policy_type,info,normalized,Dental ,dental,,2026-09-25 00:16:29.692367+00:00
+2956,3,Policy.csv,raw.policy_csv,62,P00062,FMT_CATEGORY_CASE,policy_type,info,normalized,Health ,health,,2026-09-25 00:16:29.692367+00:00
+2957,3,Policy.csv,raw.policy_csv,62,P00062,FMT_DATE,start_date,info,normalized,04/08/2022,2022-04-08,,2026-09-25 00:16:29.692367+00:00
+2958,3,Policy.csv,raw.policy_csv,66,P00066,TYPE_AMOUNT_TEXT,coverage_amount,info,normalized,"$2,000.00",2000.00,,2026-09-25 00:16:29.692367+00:00
+2959,3,Policy.csv,raw.policy_csv,82,P00082,FMT_DATE,start_date,info,normalized,08/06/2022,2022-08-06,,2026-09-25 00:16:29.692367+00:00
+2960,3,Policy.csv,raw.policy_csv,90,P00090,FMT_DATE,start_date,info,normalized,02/22/2024,2024-02-22,,2026-09-25 00:16:29.692367+00:00
+2961,3,Policy.csv,raw.policy_csv,100,P00100,FMT_CATEGORY_CASE,policy_type,info,normalized,Health ,health,,2026-09-25 00:16:29.692367+00:00
+2962,3,Policy.csv,raw.policy_csv,100,P00100,TYPE_AMOUNT_TEXT,coverage_amount,info,normalized,"$5,000.00",5000.00,,2026-09-25 00:16:29.692367+00:00
+2963,3,Policy.csv,raw.policy_csv,105,P00105,TYPE_AMOUNT_TEXT,coverage_amount,info,normalized,"$3,000.00",3000.00,,2026-09-25 00:16:29.692367+00:00
+2964,3,Policy.csv,raw.policy_csv,113,P00113,FMT_ID,customer_id,info,normalized,c00039 ,C00039,,2026-09-25 00:16:29.692367+00:00
+2965,3,Policy.csv,raw.policy_csv,113,P00113,FMT_CATEGORY_CASE,policy_type,info,normalized,Travel ,travel,,2026-09-25 00:16:29.692367+00:00
+2966,3,Policy.csv,raw.policy_csv,113,P00113,FMT_DATE,start_date,info,normalized,10/03/2024,2024-10-03,,2026-09-25 00:16:29.692367+00:00
+2967,3,Policy.csv,raw.policy_csv,113,P00113,TYPE_AMOUNT_TEXT,coverage_amount,info,normalized,"$5,000,000.00",5000000.00,,2026-09-25 00:16:29.692367+00:00
+2968,3,Policy.csv,raw.policy_csv,125,P00125,FMT_ID,customer_id,info,normalized,c00027 ,C00027,,2026-09-25 00:16:29.692367+00:00
+2969,3,Policy.csv,raw.policy_csv,125,P00125,FMT_DATE,start_date,info,normalized,04/25/2023,2023-04-25,,2026-09-25 00:16:29.692367+00:00
+2970,3,Policy.csv,raw.policy_csv,125,P00125,TYPE_AMOUNT_TEXT,coverage_amount,info,normalized,"$5,000.00",5000.00,,2026-09-25 00:16:29.692367+00:00
+2971,3,Policy.csv,raw.policy_csv,134,P00134,FMT_CATEGORY_CASE,policy_type,info,normalized,Dental ,dental,,2026-09-25 00:16:29.692367+00:00
+2972,3,Policy.csv,raw.policy_csv,134,P00134,FMT_DATE,start_date,info,normalized,04/08/2025,2025-04-08,,2026-09-25 00:16:29.692367+00:00
+2973,3,Policy.csv,raw.policy_csv,134,P00134,TYPE_AMOUNT_TEXT,coverage_amount,info,normalized,"$1,000.00",1000.00,,2026-09-25 00:16:29.692367+00:00
+2974,3,Policy.csv,raw.policy_csv,140,P00140,TYPE_AMOUNT_TEXT,coverage_amount,info,normalized,"$1,000.00",1000.00,,2026-09-25 00:16:29.692367+00:00
+2975,3,Policy.csv,raw.policy_csv,152,P00152,FMT_DATE,start_date,info,normalized,04/08/2025,2025-04-08,,2026-09-25 00:16:29.692367+00:00
+2976,3,Policy.csv,raw.policy_csv,17,P00017,MISS_ERROR,plan_name,info,repaired,,OmniPlan,,2026-09-25 00:16:29.692367+00:00
+2977,3,Policy.csv,raw.policy_csv,18,P00018,MISS_ERROR,plan_name,info,repaired,,BasicPlan,,2026-09-25 00:16:29.692367+00:00
+2978,3,Claim.csv,raw.claim_csv,3,D00002,FMT_CATEGORY_CASE,claim_type,info,normalized,Preventive ,preventive,,2026-09-25 00:16:29.692367+00:00
+2979,3,Claim.csv,raw.claim_csv,7,D00006,FMT_CATEGORY_CASE,claim_type,info,normalized,Major ,major,,2026-09-25 00:16:29.692367+00:00
+2980,3,Claim.csv,raw.claim_csv,7,D00006,FMT_DATE,service_date,info,normalized,18/11/2023,2023-11-18,,2026-09-25 00:16:29.692367+00:00
+2981,3,Claim.csv,raw.claim_csv,11,D00010,FMT_DATE,service_date,info,normalized,14/01/2024,2024-01-14,,2026-09-25 00:16:29.692367+00:00
+2982,3,Claim.csv,raw.claim_csv,19,H00018,FMT_CATEGORY_CASE,claim_status,info,normalized,Approved ,approved,,2026-09-25 00:16:29.692367+00:00
+2983,3,Claim.csv,raw.claim_csv,19,H00018,FMT_PROVINCE,region,info,normalized,p.e.i.,PE,,2026-09-25 00:16:29.692367+00:00
+2984,3,Claim.csv,raw.claim_csv,19,H00018,TYPE_AMOUNT_TEXT,claim_amount,info,normalized,$321.73,321.73,,2026-09-25 00:16:29.692367+00:00
+2985,3,Claim.csv,raw.claim_csv,21,H00020,FMT_CATEGORY_CASE,claim_status,info,normalized,Approved ,approved,,2026-09-25 00:16:29.692367+00:00
+2986,3,Claim.csv,raw.claim_csv,21,H00020,FMT_PROVINCE,region,info,normalized,saskatchewan,SK,,2026-09-25 00:16:29.692367+00:00
+2987,3,Claim.csv,raw.claim_csv,21,H00020,TYPE_AMOUNT_TEXT,claim_amount,info,normalized,$49.28,49.28,,2026-09-25 00:16:29.692367+00:00
+2988,3,Claim.csv,raw.claim_csv,28,H00027,FMT_ID,policy_id,info,normalized,p00160 ,P00160,,2026-09-25 00:16:29.692367+00:00
+2989,3,Claim.csv,raw.claim_csv,28,H00027,FMT_PROVINCE,region,info,normalized,saskatchewan,SK,,2026-09-25 00:16:29.692367+00:00
+2990,3,Claim.csv,raw.claim_csv,28,H00027,FMT_DATE,claim_date,info,normalized,05/06/2024,2024-06-05,,2026-09-25 00:16:29.692367+00:00
+2991,3,Claim.csv,raw.claim_csv,37,H00036,TYPE_AMOUNT_TEXT,approved_amount,info,normalized,$205.60,205.60,,2026-09-25 00:16:29.692367+00:00
+2992,3,Claim.csv,raw.claim_csv,38,T00037,FMT_CATEGORY_CASE,claim_status,info,normalized,Approved ,approved,,2026-09-25 00:16:29.692367+00:00
+2993,3,Claim.csv,raw.claim_csv,38,T00037,FMT_PROVINCE,region,info,normalized,Alta.,AB,,2026-09-25 00:16:29.692367+00:00
+2994,3,Claim.csv,raw.claim_csv,38,T00037,FMT_DATE,claim_date,info,normalized,28/09/2024,2024-09-28,,2026-09-25 00:16:29.692367+00:00
+2995,3,Claim.csv,raw.claim_csv,75,D00074,FMT_CATEGORY_CASE,claim_status,info,normalized,Approved ,approved,,2026-09-25 00:16:29.692367+00:00
+2996,3,Claim.csv,raw.claim_csv,76,H00075,FMT_PROVINCE,region,info,normalized,Alta.,AB,,2026-09-25 00:16:29.692367+00:00
+2997,3,Claim.csv,raw.claim_csv,76,H00075,FMT_DATE,service_date,info,normalized,22/04/2025,2025-04-22,,2026-09-25 00:16:29.692367+00:00
+2998,3,Claim.csv,raw.claim_csv,80,D00079,FMT_ID,policy_id,info,normalized,p00022 ,P00022,,2026-09-25 00:16:29.692367+00:00
+2999,3,Claim.csv,raw.claim_csv,80,D00079,FMT_CATEGORY_CASE,claim_status,info,normalized,Denied ,denied,,2026-09-25 00:16:29.692367+00:00
+3000,3,Claim.csv,raw.claim_csv,170,H00169,FMT_DATE,service_date,info,normalized,17/02/2026,2026-02-17,,2026-09-25 00:16:29.692367+00:00
+3001,3,Claim.csv,raw.claim_csv,174,D00173,FMT_DATE,service_date,info,normalized,21/02/2026,2026-02-21,,2026-09-25 00:16:29.692367+00:00
+3002,3,Claim.csv,raw.claim_csv,177,H00176,FMT_PROVINCE,region,info,normalized,man.,MB,,2026-09-25 00:16:29.692367+00:00
+3003,3,Claim.csv,raw.claim_csv,177,H00176,TYPE_AMOUNT_TEXT,claim_amount,info,normalized,$59.62,59.62,,2026-09-25 00:16:29.692367+00:00
+3004,3,Claim.csv,raw.claim_csv,179,H00178,FMT_PROVINCE,region,info,normalized,saskatchewan,SK,,2026-09-25 00:16:29.692367+00:00
+3005,3,Claim.csv,raw.claim_csv,179,H00178,TYPE_AMOUNT_TEXT,claim_amount,info,normalized,$49.17,49.17,,2026-09-25 00:16:29.692367+00:00
+3006,3,Claim.csv,raw.claim_csv,213,D00002,FMT_CATEGORY_CASE,claim_type,info,normalized,Preventive ,preventive,,2026-09-25 00:16:29.692367+00:00
+3007,3,Claim.csv,raw.claim_csv,217,D00006,FMT_CATEGORY_CASE,claim_type,info,normalized,Major ,major,,2026-09-25 00:16:29.692367+00:00
+3008,3,Claim.csv,raw.claim_csv,217,D00006,FMT_DATE,service_date,info,normalized,18/11/2023,2023-11-18,,2026-09-25 00:16:29.692367+00:00
+3009,3,Claim.csv,raw.claim_csv,218,T00007,FMT_ID,claim_id,info,normalized,t00007 ,T00007,,2026-09-25 00:16:29.692367+00:00
+3010,3,Claim.csv,raw.claim_csv,219,D00008,FMT_ID,claim_id,info,normalized,d00008 ,D00008,,2026-09-25 00:16:29.692367+00:00
+3011,3,Claim.csv,raw.claim_csv,220,H00009,FMT_ID,claim_id,info,normalized,h00009 ,H00009,,2026-09-25 00:16:29.692367+00:00
+3012,3,Claim.csv,raw.claim_csv,221,D00010,FMT_ID,claim_id,info,normalized,d00010 ,D00010,,2026-09-25 00:16:29.692367+00:00
+3013,3,Claim.csv,raw.claim_csv,221,D00010,FMT_DATE,service_date,info,normalized,14/01/2024,2024-01-14,,2026-09-25 00:16:29.692367+00:00
+3014,3,Claim.csv,raw.claim_csv,212,H00001,DUP_EXACT,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'H00001'},2026-09-25 00:16:29.692367+00:00
+3015,3,Claim.csv,raw.claim_csv,213,D00002,DUP_EXACT,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'D00002'},2026-09-25 00:16:29.692367+00:00
+3016,3,Claim.csv,raw.claim_csv,214,H00003,DUP_EXACT,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'H00003'},2026-09-25 00:16:29.692367+00:00
+3017,3,Claim.csv,raw.claim_csv,215,H00004,DUP_EXACT,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'H00004'},2026-09-25 00:16:29.692367+00:00
+3018,3,Claim.csv,raw.claim_csv,216,H00005,DUP_EXACT,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'H00005'},2026-09-25 00:16:29.692367+00:00
+3019,3,Claim.csv,raw.claim_csv,217,D00006,DUP_EXACT,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'D00006'},2026-09-25 00:16:29.692367+00:00
+3020,3,Claim.csv,raw.claim_csv,218,T00007,DUP_NEAR_KEY,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'T00007'},2026-09-25 00:16:29.692367+00:00
+3021,3,Claim.csv,raw.claim_csv,219,D00008,DUP_NEAR_KEY,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'D00008'},2026-09-25 00:16:29.692367+00:00
+3022,3,Claim.csv,raw.claim_csv,220,H00009,DUP_NEAR_KEY,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'H00009'},2026-09-25 00:16:29.692367+00:00
+3023,3,Claim.csv,raw.claim_csv,221,D00010,DUP_NEAR_KEY,claim_id,warning,deduplicated,,,{'normalized_claim_id': 'D00010'},2026-09-25 00:16:29.692367+00:00
+3024,3,Claim_Payment.csv,raw.claim_payment_csv,18,PAY00018,FMT_DATE,processing_start_date,info,normalized,20240321,2024-03-21,,2026-09-25 00:16:29.692367+00:00
+3025,3,Claim_Payment.csv,raw.claim_payment_csv,19,PAY00019,FMT_CATEGORY_CASE,decision_outcome,info,normalized,Partially Approved,partially_approved,,2026-09-25 00:16:29.692367+00:00
+3026,3,Claim_Payment.csv,raw.claim_payment_csv,30,PAY00030,FMT_DATE,processing_start_date,info,normalized,20240725,2024-07-25,,2026-09-25 00:16:29.692367+00:00
+3027,3,Claim_Payment.csv,raw.claim_payment_csv,30,PAY00030,FMT_CATEGORY_CASE,decision_outcome,info,normalized,Denied ,denied,,2026-09-25 00:16:29.692367+00:00
+3028,3,Claim_Payment.csv,raw.claim_payment_csv,30,PAY00030,TYPE_AMOUNT_TEXT,payment_amount,info,normalized,$0.00,0.00,,2026-09-25 00:16:29.692367+00:00
+3029,3,Claim_Payment.csv,raw.claim_payment_csv,71,PAY00071,FMT_CATEGORY_CASE,decision_outcome,info,normalized,Approved ,approved,,2026-09-25 00:16:29.692367+00:00
+3030,3,Claim_Payment.csv,raw.claim_payment_csv,74,PAY00074,FMT_ID,claim_id,info,normalized,d00072 ,D00072,,2026-09-25 00:16:29.692367+00:00
+3031,3,Claim_Payment.csv,raw.claim_payment_csv,74,PAY00074,TYPE_AMOUNT_TEXT,payment_amount,info,normalized,$175.81,175.81,,2026-09-25 00:16:29.692367+00:00
+3032,3,Claim_Payment.csv,raw.claim_payment_csv,83,PAY00083,FMT_DATE,processing_start_date,info,normalized,20250531,2025-05-31,,2026-09-25 00:16:29.692367+00:00
+3033,3,Claim_Payment.csv,raw.claim_payment_csv,83,PAY00083,FMT_CATEGORY_CASE,decision_outcome,info,normalized,Approved ,approved,,2026-09-25 00:16:29.692367+00:00
+3034,3,Claim_Payment.csv,raw.claim_payment_csv,83,PAY00083,TYPE_AMOUNT_TEXT,payment_amount,info,normalized,"$2,820.00",2820.00,,2026-09-25 00:16:29.692367+00:00
+3035,3,Claim_Payment.csv,raw.claim_payment_csv,86,PAY00086,FMT_ID,claim_id,info,normalized,h00086 ,H00086,,2026-09-25 00:16:29.692367+00:00
+3036,3,Claim_Payment.csv,raw.claim_payment_csv,86,PAY00086,FMT_CATEGORY_CASE,decision_outcome,info,normalized,Approved ,approved,,2026-09-25 00:16:29.692367+00:00
+3037,3,Claim_Payment.csv,raw.claim_payment_csv,90,PAY00090,FMT_DATE,processing_start_date,info,normalized,20250710,2025-07-10,,2026-09-25 00:16:29.692367+00:00
+3038,3,Claim_Payment.csv,raw.claim_payment_csv,92,PAY00092,TYPE_AMOUNT_TEXT,payment_amount,info,normalized,$177.06,177.06,,2026-09-25 00:16:29.692367+00:00
+3039,3,Claim_Payment.csv,raw.claim_payment_csv,96,PAY00096,FMT_DATE,processing_start_date,info,normalized,20250718,2025-07-18,,2026-09-25 00:16:29.692367+00:00
+3040,3,Claim_Payment.csv,raw.claim_payment_csv,105,PAY00105,FMT_CATEGORY_CASE,decision_outcome,info,normalized,Approved ,approved,,2026-09-25 00:16:29.692367+00:00
+3041,3,Claim_Payment.csv,raw.claim_payment_csv,163,PAY00163,FMT_DATE,processing_start_date,info,normalized,20260131,2026-01-31,,2026-09-25 00:16:29.692367+00:00
+3042,3,Claim_Payment.csv,raw.claim_payment_csv,163,PAY00163,TYPE_AMOUNT_TEXT,payment_amount,info,normalized,$244.46,244.46,,2026-09-25 00:16:29.692367+00:00
+3043,3,Claim_Payment.csv,raw.claim_payment_csv,199,PAY00001,DUP_EXACT,payment_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3044,3,Claim_Payment.csv,raw.claim_payment_csv,200,PAY00002,DUP_EXACT,payment_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3045,3,Claim_Payment.csv,raw.claim_payment_csv,201,PAY00003,DUP_EXACT,payment_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3046,3,Claim_Payment.csv,raw.claim_payment_csv,202,PAY00004,DUP_EXACT,payment_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3047,3,Claim_Payment.csv,raw.claim_payment_csv,203,PAY00005,DUP_EXACT,payment_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3048,3,Policy_Premium.csv,raw.policy_premium_csv,3,PRM000003,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$161.50 CAD,161.50,,2026-09-25 00:16:29.692367+00:00
+3049,3,Policy_Premium.csv,raw.policy_premium_csv,30,PRM000030,INV_DERIVED_STATUS,payment_status,warning,repaired,paid,late,,2026-09-25 00:16:29.692367+00:00
+3050,3,Policy_Premium.csv,raw.policy_premium_csv,31,PRM000031,INV_DERIVED_STATUS,payment_status,warning,repaired,paid,late,,2026-09-25 00:16:29.692367+00:00
+3051,3,Policy_Premium.csv,raw.policy_premium_csv,32,PRM000032,INV_DERIVED_STATUS,payment_status,warning,repaired,paid,late,,2026-09-25 00:16:29.692367+00:00
+3052,3,Policy_Premium.csv,raw.policy_premium_csv,33,PRM000033,INV_DERIVED_STATUS,payment_status,warning,repaired,paid,late,,2026-09-25 00:16:29.692367+00:00
+3053,3,Policy_Premium.csv,raw.policy_premium_csv,34,PRM000034,INV_DERIVED_STATUS,payment_status,warning,repaired,paid,late,,2026-09-25 00:16:29.692367+00:00
+3054,3,Policy_Premium.csv,raw.policy_premium_csv,45,PRM000045,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3055,3,Policy_Premium.csv,raw.policy_premium_csv,65,PRM000065,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$192.00 CAD,192.00,,2026-09-25 00:16:29.692367+00:00
+3056,3,Policy_Premium.csv,raw.policy_premium_csv,160,PRM000160,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$63.00 CAD,63.00,,2026-09-25 00:16:29.692367+00:00
+3057,3,Policy_Premium.csv,raw.policy_premium_csv,179,PRM000179,FMT_DATE,due_date,info,normalized,11/06/2023,2023-11-06,,2026-09-25 00:16:29.692367+00:00
+3058,3,Policy_Premium.csv,raw.policy_premium_csv,184,PRM000184,FMT_ID,policy_id,info,normalized,p00057 ,P00057,,2026-09-25 00:16:29.692367+00:00
+3059,3,Policy_Premium.csv,raw.policy_premium_csv,184,PRM000184,FMT_DATE,due_date,info,normalized,11/10/2023,2023-11-10,,2026-09-25 00:16:29.692367+00:00
+3060,3,Policy_Premium.csv,raw.policy_premium_csv,184,PRM000184,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3061,3,Policy_Premium.csv,raw.policy_premium_csv,190,PRM000190,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$397.80 CAD,397.80,,2026-09-25 00:16:29.692367+00:00
+3062,3,Policy_Premium.csv,raw.policy_premium_csv,255,PRM000255,FMT_ID,policy_id,info,normalized,p00117 ,P00117,,2026-09-25 00:16:29.692367+00:00
+3063,3,Policy_Premium.csv,raw.policy_premium_csv,269,PRM000269,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$161.50 CAD,161.50,,2026-09-25 00:16:29.692367+00:00
+3064,3,Policy_Premium.csv,raw.policy_premium_csv,296,PRM000296,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$196.00 CAD,196.00,,2026-09-25 00:16:29.692367+00:00
+3065,3,Policy_Premium.csv,raw.policy_premium_csv,296,PRM000296,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3066,3,Policy_Premium.csv,raw.policy_premium_csv,329,PRM000329,FMT_ID,policy_id,info,normalized,p00054 ,P00054,,2026-09-25 00:16:29.692367+00:00
+3067,3,Policy_Premium.csv,raw.policy_premium_csv,329,PRM000329,FMT_DATE,due_date,info,normalized,01/30/2024,2024-01-30,,2026-09-25 00:16:29.692367+00:00
+3068,3,Policy_Premium.csv,raw.policy_premium_csv,333,PRM000333,FMT_ID,policy_id,info,normalized,p00015 ,P00015,,2026-09-25 00:16:29.692367+00:00
+3069,3,Policy_Premium.csv,raw.policy_premium_csv,409,PRM000409,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$358.80 CAD,358.80,,2026-09-25 00:16:29.692367+00:00
+3070,3,Policy_Premium.csv,raw.policy_premium_csv,443,PRM000443,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$84.00 CAD,84.00,,2026-09-25 00:16:29.692367+00:00
+3071,3,Policy_Premium.csv,raw.policy_premium_csv,443,PRM000443,FMT_DATE,due_date,info,normalized,03/26/2024,2024-03-26,,2026-09-25 00:16:29.692367+00:00
+3072,3,Policy_Premium.csv,raw.policy_premium_csv,453,PRM000453,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$91.00 CAD,91.00,,2026-09-25 00:16:29.692367+00:00
+3073,3,Policy_Premium.csv,raw.policy_premium_csv,534,PRM000534,FMT_DATE,due_date,info,normalized,05/04/2024,2024-05-04,,2026-09-25 00:16:29.692367+00:00
+3074,3,Policy_Premium.csv,raw.policy_premium_csv,534,PRM000534,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3075,3,Policy_Premium.csv,raw.policy_premium_csv,673,PRM000673,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$152.95 CAD,152.95,,2026-09-25 00:16:29.692367+00:00
+3076,3,Policy_Premium.csv,raw.policy_premium_csv,673,PRM000673,FMT_DATE,due_date,info,normalized,07/03/2024,2024-07-03,,2026-09-25 00:16:29.692367+00:00
+3077,3,Policy_Premium.csv,raw.policy_premium_csv,673,PRM000673,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3078,3,Policy_Premium.csv,raw.policy_premium_csv,678,PRM000678,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$51.75 CAD,51.75,,2026-09-25 00:16:29.692367+00:00
+3079,3,Policy_Premium.csv,raw.policy_premium_csv,733,PRM000733,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$290.70 CAD,290.70,,2026-09-25 00:16:29.692367+00:00
+3080,3,Policy_Premium.csv,raw.policy_premium_csv,817,PRM000817,FMT_DATE,due_date,info,normalized,09/01/2024,2024-09-01,,2026-09-25 00:16:29.692367+00:00
+3081,3,Policy_Premium.csv,raw.policy_premium_csv,827,PRM000827,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3082,3,Policy_Premium.csv,raw.policy_premium_csv,869,PRM000869,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$131.10 CAD,131.10,,2026-09-25 00:16:29.692367+00:00
+3083,3,Policy_Premium.csv,raw.policy_premium_csv,881,PRM000881,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3084,3,Policy_Premium.csv,raw.policy_premium_csv,917,PRM000917,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$45.00 CAD,45.00,,2026-09-25 00:16:29.692367+00:00
+3085,3,Policy_Premium.csv,raw.policy_premium_csv,917,PRM000917,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3086,3,Policy_Premium.csv,raw.policy_premium_csv,993,PRM000993,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$168.00 CAD,168.00,,2026-09-25 00:16:29.692367+00:00
+3087,3,Policy_Premium.csv,raw.policy_premium_csv,1013,PRM001013,FMT_DATE,due_date,info,normalized,11/12/2024,2024-11-12,,2026-09-25 00:16:29.692367+00:00
+3088,3,Policy_Premium.csv,raw.policy_premium_csv,1013,PRM001013,FMT_CATEGORY_CASE,payment_status,info,normalized,Late ,late,,2026-09-25 00:16:29.692367+00:00
+3089,3,Policy_Premium.csv,raw.policy_premium_csv,1051,PRM001051,FMT_CATEGORY_CASE,payment_status,info,normalized,Missed ,missed,,2026-09-25 00:16:29.692367+00:00
+3090,3,Policy_Premium.csv,raw.policy_premium_csv,1057,PRM001057,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3091,3,Policy_Premium.csv,raw.policy_premium_csv,1086,PRM001086,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3092,3,Policy_Premium.csv,raw.policy_premium_csv,1096,PRM001096,FMT_DATE,due_date,info,normalized,12/10/2024,2024-12-10,,2026-09-25 00:16:29.692367+00:00
+3093,3,Policy_Premium.csv,raw.policy_premium_csv,1096,PRM001096,FMT_CATEGORY_CASE,payment_status,info,normalized,Missed ,missed,,2026-09-25 00:16:29.692367+00:00
+3094,3,Policy_Premium.csv,raw.policy_premium_csv,1288,PRM001288,FMT_DATE,due_date,info,normalized,02/13/2025,2025-02-13,,2026-09-25 00:16:29.692367+00:00
+3095,3,Policy_Premium.csv,raw.policy_premium_csv,1349,PRM001349,FMT_DATE,due_date,info,normalized,03/04/2025,2025-03-04,,2026-09-25 00:16:29.692367+00:00
+3096,3,Policy_Premium.csv,raw.policy_premium_csv,1349,PRM001349,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3097,3,Policy_Premium.csv,raw.policy_premium_csv,1367,PRM001367,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3098,3,Policy_Premium.csv,raw.policy_premium_csv,1384,PRM001384,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$127.40 CAD,127.40,,2026-09-25 00:16:29.692367+00:00
+3099,3,Policy_Premium.csv,raw.policy_premium_csv,1457,PRM001457,FMT_DATE,due_date,info,normalized,04/08/2025,2025-04-08,,2026-09-25 00:16:29.692367+00:00
+3100,3,Policy_Premium.csv,raw.policy_premium_csv,1464,PRM001464,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$85.00 CAD,85.00,,2026-09-25 00:16:29.692367+00:00
+3101,3,Policy_Premium.csv,raw.policy_premium_csv,1464,PRM001464,FMT_DATE,due_date,info,normalized,04/09/2025,2025-04-09,,2026-09-25 00:16:29.692367+00:00
+3102,3,Policy_Premium.csv,raw.policy_premium_csv,1547,PRM001547,FMT_DATE,due_date,info,normalized,05/06/2025,2025-05-06,,2026-09-25 00:16:29.692367+00:00
+3103,3,Policy_Premium.csv,raw.policy_premium_csv,1576,PRM001576,FMT_DATE,due_date,info,normalized,05/15/2025,2025-05-15,,2026-09-25 00:16:29.692367+00:00
+3104,3,Policy_Premium.csv,raw.policy_premium_csv,1591,PRM001591,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$384.00 CAD,384.00,,2026-09-25 00:16:29.692367+00:00
+3105,3,Policy_Premium.csv,raw.policy_premium_csv,1655,PRM001655,FMT_ID,policy_id,info,normalized,p00089 ,P00089,,2026-09-25 00:16:29.692367+00:00
+3106,3,Policy_Premium.csv,raw.policy_premium_csv,1655,PRM001655,FMT_DATE,due_date,info,normalized,06/09/2025,2025-06-09,,2026-09-25 00:16:29.692367+00:00
+3107,3,Policy_Premium.csv,raw.policy_premium_csv,1703,PRM001703,FMT_ID,policy_id,info,normalized,p00119 ,P00119,,2026-09-25 00:16:29.692367+00:00
+3108,3,Policy_Premium.csv,raw.policy_premium_csv,1730,PRM001730,FMT_ID,policy_id,info,normalized,p00023 ,P00023,,2026-09-25 00:16:29.692367+00:00
+3109,3,Policy_Premium.csv,raw.policy_premium_csv,1730,PRM001730,FMT_DATE,due_date,info,normalized,07/02/2025,2025-07-02,,2026-09-25 00:16:29.692367+00:00
+3110,3,Policy_Premium.csv,raw.policy_premium_csv,1832,PRM001832,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$410.40 CAD,410.40,,2026-09-25 00:16:29.692367+00:00
+3111,3,Policy_Premium.csv,raw.policy_premium_csv,1832,PRM001832,FMT_DATE,due_date,info,normalized,07/29/2025,2025-07-29,,2026-09-25 00:16:29.692367+00:00
+3112,3,Policy_Premium.csv,raw.policy_premium_csv,1878,PRM001878,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$49.00 CAD,49.00,,2026-09-25 00:16:29.692367+00:00
+3113,3,Policy_Premium.csv,raw.policy_premium_csv,1878,PRM001878,FMT_DATE,due_date,info,normalized,08/13/2025,2025-08-13,,2026-09-25 00:16:29.692367+00:00
+3114,3,Policy_Premium.csv,raw.policy_premium_csv,1891,PRM001891,FMT_ID,policy_id,info,normalized,p00118 ,P00118,,2026-09-25 00:16:29.692367+00:00
+3115,3,Policy_Premium.csv,raw.policy_premium_csv,1897,PRM001897,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3116,3,Policy_Premium.csv,raw.policy_premium_csv,2006,PRM002006,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$530.40 CAD,530.40,,2026-09-25 00:16:29.692367+00:00
+3117,3,Policy_Premium.csv,raw.policy_premium_csv,2013,PRM002013,FMT_CATEGORY_CASE,payment_status,info,normalized,Late ,late,,2026-09-25 00:16:29.692367+00:00
+3118,3,Policy_Premium.csv,raw.policy_premium_csv,2032,PRM002032,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$108.00 CAD,108.00,,2026-09-25 00:16:29.692367+00:00
+3119,3,Policy_Premium.csv,raw.policy_premium_csv,2078,PRM002078,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$499.20 CAD,499.20,,2026-09-25 00:16:29.692367+00:00
+3120,3,Policy_Premium.csv,raw.policy_premium_csv,2078,PRM002078,FMT_DATE,due_date,info,normalized,10/05/2025,2025-10-05,,2026-09-25 00:16:29.692367+00:00
+3121,3,Policy_Premium.csv,raw.policy_premium_csv,2097,PRM002097,FMT_DATE,due_date,info,normalized,10/09/2025,2025-10-09,,2026-09-25 00:16:29.692367+00:00
+3122,3,Policy_Premium.csv,raw.policy_premium_csv,2097,PRM002097,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3123,3,Policy_Premium.csv,raw.policy_premium_csv,2110,PRM002110,FMT_ID,policy_id,info,normalized,p00064 ,P00064,,2026-09-25 00:16:29.692367+00:00
+3124,3,Policy_Premium.csv,raw.policy_premium_csv,2159,PRM002159,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$117.00 CAD,117.00,,2026-09-25 00:16:29.692367+00:00
+3125,3,Policy_Premium.csv,raw.policy_premium_csv,2159,PRM002159,FMT_DATE,due_date,info,normalized,10/28/2025,2025-10-28,,2026-09-25 00:16:29.692367+00:00
+3126,3,Policy_Premium.csv,raw.policy_premium_csv,2168,PRM002168,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$76.48 CAD,76.48,,2026-09-25 00:16:29.692367+00:00
+3127,3,Policy_Premium.csv,raw.policy_premium_csv,2168,PRM002168,FMT_CATEGORY_CASE,payment_status,info,normalized,Late ,late,,2026-09-25 00:16:29.692367+00:00
+3128,3,Policy_Premium.csv,raw.policy_premium_csv,2217,PRM002217,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$707.20 CAD,707.20,,2026-09-25 00:16:29.692367+00:00
+3129,3,Policy_Premium.csv,raw.policy_premium_csv,2229,PRM002229,FMT_DATE,due_date,info,normalized,11/14/2025,2025-11-14,,2026-09-25 00:16:29.692367+00:00
+3130,3,Policy_Premium.csv,raw.policy_premium_csv,2277,PRM002277,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3131,3,Policy_Premium.csv,raw.policy_premium_csv,2287,PRM002287,FMT_DATE,due_date,info,normalized,11/29/2025,2025-11-29,,2026-09-25 00:16:29.692367+00:00
+3132,3,Policy_Premium.csv,raw.policy_premium_csv,2380,PRM002380,FMT_ID,policy_id,info,normalized,p00056 ,P00056,,2026-09-25 00:16:29.692367+00:00
+3133,3,Policy_Premium.csv,raw.policy_premium_csv,2380,PRM002380,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$120.00 CAD,120.00,,2026-09-25 00:16:29.692367+00:00
+3134,3,Policy_Premium.csv,raw.policy_premium_csv,2380,PRM002380,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3135,3,Policy_Premium.csv,raw.policy_premium_csv,2449,PRM002449,FMT_ID,policy_id,info,normalized,p00152 ,P00152,,2026-09-25 00:16:29.692367+00:00
+3136,3,Policy_Premium.csv,raw.policy_premium_csv,2460,PRM002460,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3137,3,Policy_Premium.csv,raw.policy_premium_csv,2489,PRM002489,FMT_DATE,due_date,info,normalized,01/18/2026,2026-01-18,,2026-09-25 00:16:29.692367+00:00
+3138,3,Policy_Premium.csv,raw.policy_premium_csv,2499,PRM002499,FMT_DATE,due_date,info,normalized,01/21/2026,2026-01-21,,2026-09-25 00:16:29.692367+00:00
+3139,3,Policy_Premium.csv,raw.policy_premium_csv,2500,PRM002500,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$478.80 CAD,478.80,,2026-09-25 00:16:29.692367+00:00
+3140,3,Policy_Premium.csv,raw.policy_premium_csv,2500,PRM002500,FMT_DATE,due_date,info,normalized,01/22/2026,2026-01-22,,2026-09-25 00:16:29.692367+00:00
+3141,3,Policy_Premium.csv,raw.policy_premium_csv,2559,PRM002559,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3142,3,Policy_Premium.csv,raw.policy_premium_csv,2577,PRM002577,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$76.48 CAD,76.48,,2026-09-25 00:16:29.692367+00:00
+3143,3,Policy_Premium.csv,raw.policy_premium_csv,2577,PRM002577,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3144,3,Policy_Premium.csv,raw.policy_premium_csv,2641,PRM002641,FMT_DATE,due_date,info,normalized,02/28/2026,2026-02-28,,2026-09-25 00:16:29.692367+00:00
+3145,3,Policy_Premium.csv,raw.policy_premium_csv,2701,PRM002701,FMT_DATE,due_date,info,normalized,03/12/2026,2026-03-12,,2026-09-25 00:16:29.692367+00:00
+3146,3,Policy_Premium.csv,raw.policy_premium_csv,2701,PRM002701,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3147,3,Policy_Premium.csv,raw.policy_premium_csv,2745,PRM002745,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3148,3,Policy_Premium.csv,raw.policy_premium_csv,2785,PRM002785,FMT_DATE,due_date,info,normalized,04/04/2026,2026-04-04,,2026-09-25 00:16:29.692367+00:00
+3149,3,Policy_Premium.csv,raw.policy_premium_csv,2816,PRM002816,FMT_DATE,due_date,info,normalized,04/09/2026,2026-04-09,,2026-09-25 00:16:29.692367+00:00
+3150,3,Policy_Premium.csv,raw.policy_premium_csv,2820,PRM002820,FMT_ID,policy_id,info,normalized,p00047 ,P00047,,2026-09-25 00:16:29.692367+00:00
+3151,3,Policy_Premium.csv,raw.policy_premium_csv,2893,PRM002893,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3152,3,Policy_Premium.csv,raw.policy_premium_csv,2935,PRM002935,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3153,3,Policy_Premium.csv,raw.policy_premium_csv,2965,PRM002965,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3154,3,Policy_Premium.csv,raw.policy_premium_csv,3042,PRM003042,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$384.00 CAD,384.00,,2026-09-25 00:16:29.692367+00:00
+3155,3,Policy_Premium.csv,raw.policy_premium_csv,3074,PRM003074,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3156,3,Policy_Premium.csv,raw.policy_premium_csv,3101,PRM003101,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$290.70 CAD,290.70,,2026-09-25 00:16:29.692367+00:00
+3157,3,Policy_Premium.csv,raw.policy_premium_csv,3101,PRM003101,FMT_CATEGORY_CASE,payment_status,info,normalized,Paid ,paid,,2026-09-25 00:16:29.692367+00:00
+3158,3,Policy_Premium.csv,raw.policy_premium_csv,3119,PRM000003,TYPE_AMOUNT_TEXT,premium_amount,info,normalized,$161.50 CAD,161.50,,2026-09-25 00:16:29.692367+00:00
+3159,3,Policy_Premium.csv,raw.policy_premium_csv,3117,PRM000001,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3160,3,Policy_Premium.csv,raw.policy_premium_csv,3118,PRM000002,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3161,3,Policy_Premium.csv,raw.policy_premium_csv,3119,PRM000003,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3162,3,Policy_Premium.csv,raw.policy_premium_csv,3120,PRM000004,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3163,3,Policy_Premium.csv,raw.policy_premium_csv,3121,PRM000005,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3164,3,Policy_Premium.csv,raw.policy_premium_csv,3122,PRM000006,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3165,3,Policy_Premium.csv,raw.policy_premium_csv,3123,PRM000007,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3166,3,Policy_Premium.csv,raw.policy_premium_csv,3124,PRM000008,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3167,3,Policy_Premium.csv,raw.policy_premium_csv,3125,PRM000009,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3168,3,Policy_Premium.csv,raw.policy_premium_csv,3126,PRM000010,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3169,3,Policy_Premium.csv,raw.policy_premium_csv,3127,PRM000011,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3170,3,Policy_Premium.csv,raw.policy_premium_csv,3128,PRM000012,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3171,3,Policy_Premium.csv,raw.policy_premium_csv,3129,PRM000013,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3172,3,Policy_Premium.csv,raw.policy_premium_csv,3130,PRM000014,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3173,3,Policy_Premium.csv,raw.policy_premium_csv,3131,PRM000015,DUP_EXACT,premium_id,warning,deduplicated,,,,2026-09-25 00:16:29.692367+00:00
+3174,3,D00101.json,raw.claim_detail_files,23,D00101,JSON_KEY_DRIFT,line_items,warning,normalized,lineItems,line_items,{'legacy_key': 'lineItems'},2026-09-25 00:16:29.692367+00:00
+3175,3,H00053.json,raw.claim_detail_files,81,H00053,JSON_MISSING_KEY,documents_submitted,error,flagged,,,{'key_absent': True},2026-09-25 00:16:29.692367+00:00
+3176,3,H00091.json,raw.claim_detail_files,101,H00091,JSON_SHAPE_DRIFT,documents_submitted,warning,normalized,string,array,"{'source_shape': 'string', 'target_shape': 'array'}",2026-09-25 00:16:29.692367+00:00
+3177,3,H00093.json,raw.claim_detail_files,103,H00093,JSON_MISSING_KEY,submission_channel,error,flagged,,,{'key_absent': True},2026-09-25 00:16:29.692367+00:00
+3178,3,H00154.json,raw.claim_detail_files,135,H00154,JSON_MISSING_KEY,documents_submitted,error,flagged,,,{'key_absent': True},2026-09-25 00:16:29.692367+00:00
+3179,3,H00178.json,raw.claim_detail_files,154,H00178,JSON_SHAPE_DRIFT,documents_submitted,warning,normalized,string,array,"{'source_shape': 'string', 'target_shape': 'array'}",2026-09-25 00:16:29.692367+00:00
+3180,3,T00042.json,raw.claim_detail_files,189,T00042,JSON_MISSING_KEY,provider.type,error,flagged,,,{'key_absent': True},2026-09-25 00:16:29.692367+00:00
+3181,3,T00146.json,raw.claim_detail_files,200,T00146,JSON_KEY_DRIFT,line_items,warning,normalized,lineItems,line_items,{'legacy_key': 'lineItems'},2026-09-25 00:16:29.692367+00:00
+3182,3,D00070.json,raw.claim_detail_files,7,D00070,JSON_MALFORMED,,error,quarantined,"{
+  ""schema_version"": ""1.0"",
+  ""claim_id"": ""D00070"",
+  ""product_line"": ""dental"",
+  ""submission_channel"": ""online_portal"",
+  ""submitted_at"": ""2025-04-19T15:53:00-06:00"",
+  ""provider"": {
+    ""provider_id"": ""PRV0015"",
+    ""name"": ""Synthetic dental_clinic 15"",
+    ""type"": ""dental_clinic""
+  },
+  ""line_items"": [
+    {
+      ""line_no"": 1,
+      ""service_date"": ""2025-04-18"",
+      ""description"": ""Synthetic preventive"",
+      ""quantity"": 1,
+      ""unit_amount"": 60.7,
+      ""amount"": 60.",,"{'parse_error': ""JSONDecodeError: Expecting ',' delimiter: line 44 column 1 (char 1081)""}",2026-09-25 00:16:29.692367+00:00
+3183,3,D00071.json,raw.claim_detail_files,8,D00071,JSON_MALFORMED,,error,quarantined,"{
+  ""schema_version"": ""1.0"",
+  ""claim_id"": ""D00071"",
+  ""product_line"": ""dental"",
+  ""submission_channel"": ""online_portal"",
+  ""submitted_at"": ""2025-04-19T20:21:00-06:00"",
+  ""provider"": {
+    ""provider_id"": ""PRV0028"",
+    ""name"": ""Synthetic dental_clinic 28"",
+    ""type"": ""dental_clinic""
+  },
+  ""line_items"": [
+    {
+      ""line_no"": 1,
+      ""service_date"": ""2025-04-09"",
+      ""description"": ""Synthetic preventive"",
+      ""quantity"": 1,
+      ""unit_amount"": 77.87,
+      ""amount"": 77",,{'parse_error': 'JSONDecodeError: Expecting property name enclosed in double quotes: line 44 column 1 (char 1084)'},2026-09-25 00:16:29.692367+00:00
+3184,3,Claim_Payment.csv,raw.claim_payment_csv,4,PAY00004,INV_DATE_ORDER,decision_date,error,flagged,2023-10-28,,"{'decision_date': '2023-10-28', 'core_treatment': 'retain decision row and null invalid decision_date', 'processing_start_date': '2023-10-29'}",2026-09-25 00:16:29.692367+00:00
+3185,3,Claim_Payment.csv,raw.claim_payment_csv,5,PAY00005,INV_DATE_ORDER,decision_date,error,flagged,2023-11-20,,"{'decision_date': '2023-11-20', 'core_treatment': 'retain decision row and null invalid decision_date', 'processing_start_date': '2023-11-21'}",2026-09-25 00:16:29.692367+00:00
+3186,3,Policy.csv,raw.policy_csv,11,P00011,ORPHAN_FK,,error,quarantined,,,{'customer_id': 'C90001'},2026-09-25 00:16:29.692367+00:00
+3187,3,Policy.csv,raw.policy_csv,12,P00012,ORPHAN_FK,,error,quarantined,,,{'customer_id': 'C90002'},2026-09-25 00:16:29.692367+00:00
+3188,3,Policy.csv,raw.policy_csv,13,P00013,INV_DATE_ORDER,,error,quarantined,,,{'customer_id': 'C00034'},2026-09-25 00:16:29.692367+00:00
+3189,3,Policy.csv,raw.policy_csv,14,P00014,INV_DATE_ORDER,,error,quarantined,,,{'customer_id': 'C00040'},2026-09-25 00:16:29.692367+00:00
+3190,3,Policy.csv,raw.policy_csv,181,P00181,ORPHAN_FK,,error,quarantined,,,{'customer_id': 'C00155'},2026-09-25 00:16:29.692367+00:00
+3191,3,Policy.csv,raw.policy_csv,182,P00182,ORPHAN_FK,,error,quarantined,,,{'customer_id': 'C00156'},2026-09-25 00:16:29.692367+00:00
+3192,3,Policy.csv,raw.policy_csv,183,P00183,ORPHAN_FK,,error,quarantined,,,{'customer_id': 'C00157'},2026-09-25 00:16:29.692367+00:00
+3193,3,Claim.csv,raw.claim_csv,20,H00019,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3194,3,Claim.csv,raw.claim_csv,23,T00022,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P90001'},2026-09-25 00:16:29.692367+00:00
+3195,3,Claim.csv,raw.claim_csv,24,D00023,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P90002'},2026-09-25 00:16:29.692367+00:00
+3196,3,Claim.csv,raw.claim_csv,25,H00024,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P90003'},2026-09-25 00:16:29.692367+00:00
+3197,3,Claim.csv,raw.claim_csv,34,H00033,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3198,3,Claim.csv,raw.claim_csv,71,D00070,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00011'},2026-09-25 00:16:29.692367+00:00
+3199,3,Claim.csv,raw.claim_csv,73,D00072,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00011'},2026-09-25 00:16:29.692367+00:00
+3200,3,Claim.csv,raw.claim_csv,78,D00077,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00011'},2026-09-25 00:16:29.692367+00:00
+3201,3,Claim.csv,raw.claim_csv,101,D00100,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00011'},2026-09-25 00:16:29.692367+00:00
+3202,3,Claim.csv,raw.claim_csv,110,D00109,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00011'},2026-09-25 00:16:29.692367+00:00
+3203,3,Claim.csv,raw.claim_csv,127,T00126,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00012'},2026-09-25 00:16:29.692367+00:00
+3204,3,Claim.csv,raw.claim_csv,159,T00158,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00012'},2026-09-25 00:16:29.692367+00:00
+3205,3,Claim.csv,raw.claim_csv,177,H00176,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3206,3,Claim.csv,raw.claim_csv,204,H00203,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3207,3,Claim_Payment.csv,raw.claim_payment_csv,18,PAY00018,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'H00019'},2026-09-25 00:16:29.692367+00:00
+3208,3,Claim_Payment.csv,raw.claim_payment_csv,22,PAY00022,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'D00023'},2026-09-25 00:16:29.692367+00:00
+3209,3,Claim_Payment.csv,raw.claim_payment_csv,23,PAY00023,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'T00022'},2026-09-25 00:16:29.692367+00:00
+3210,3,Claim_Payment.csv,raw.claim_payment_csv,24,PAY00024,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'H00024'},2026-09-25 00:16:29.692367+00:00
+3211,3,Claim_Payment.csv,raw.claim_payment_csv,33,PAY00033,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'H00033'},2026-09-25 00:16:29.692367+00:00
+3212,3,Claim_Payment.csv,raw.claim_payment_csv,70,PAY00070,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'D00070'},2026-09-25 00:16:29.692367+00:00
+3213,3,Claim_Payment.csv,raw.claim_payment_csv,74,PAY00074,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'D00072'},2026-09-25 00:16:29.692367+00:00
+3214,3,Claim_Payment.csv,raw.claim_payment_csv,77,PAY00077,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'D00077'},2026-09-25 00:16:29.692367+00:00
+3215,3,Claim_Payment.csv,raw.claim_payment_csv,102,PAY00102,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'D00100'},2026-09-25 00:16:29.692367+00:00
+3216,3,Claim_Payment.csv,raw.claim_payment_csv,109,PAY00109,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'D00109'},2026-09-25 00:16:29.692367+00:00
+3217,3,Claim_Payment.csv,raw.claim_payment_csv,128,PAY00128,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'T00126'},2026-09-25 00:16:29.692367+00:00
+3218,3,Claim_Payment.csv,raw.claim_payment_csv,158,PAY00158,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'T00158'},2026-09-25 00:16:29.692367+00:00
+3219,3,Claim_Payment.csv,raw.claim_payment_csv,176,PAY00176,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'H00176'},2026-09-25 00:16:29.692367+00:00
+3220,3,Claim_Payment.csv,raw.claim_payment_csv,196,PAY00196,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'H90001'},2026-09-25 00:16:29.692367+00:00
+3221,3,Claim_Payment.csv,raw.claim_payment_csv,197,PAY00197,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'H90002'},2026-09-25 00:16:29.692367+00:00
+3222,3,Claim_Payment.csv,raw.claim_payment_csv,198,PAY00198,ORPHAN_FK,,error,quarantined,,,{'claim_id': 'H90003'},2026-09-25 00:16:29.692367+00:00
+3223,3,Policy_Premium.csv,raw.policy_premium_csv,646,PRM000646,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3224,3,Policy_Premium.csv,raw.policy_premium_csv,2267,PRM002267,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3225,3,Policy_Premium.csv,raw.policy_premium_csv,3,PRM000003,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3226,3,Policy_Premium.csv,raw.policy_premium_csv,26,PRM000026,INVALID_REQUIRED,,error,quarantined,,,{'policy_id': 'P00141'},2026-09-25 00:16:29.692367+00:00
+3227,3,Policy_Premium.csv,raw.policy_premium_csv,27,PRM000027,INVALID_REQUIRED,,error,quarantined,,,{'policy_id': 'P00142'},2026-09-25 00:16:29.692367+00:00
+3228,3,Policy_Premium.csv,raw.policy_premium_csv,28,PRM000028,INVALID_REQUIRED,,error,quarantined,,,{'policy_id': 'P00103'},2026-09-25 00:16:29.692367+00:00
+3229,3,Policy_Premium.csv,raw.policy_premium_csv,29,PRM000029,INVALID_REQUIRED,,error,quarantined,,,{'policy_id': 'P00098'},2026-09-25 00:16:29.692367+00:00
+3230,3,Policy_Premium.csv,raw.policy_premium_csv,33,PRM000033,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3231,3,Policy_Premium.csv,raw.policy_premium_csv,35,PRM000035,INVALID_REQUIRED,,error,quarantined,,,{'policy_id': 'P00096'},2026-09-25 00:16:29.692367+00:00
+3232,3,Policy_Premium.csv,raw.policy_premium_csv,36,PRM000036,INVALID_REQUIRED,,error,quarantined,,,{'policy_id': 'P00046'},2026-09-25 00:16:29.692367+00:00
+3233,3,Policy_Premium.csv,raw.policy_premium_csv,37,PRM000037,INVALID_REQUIRED,,error,quarantined,,,{'policy_id': 'P00050'},2026-09-25 00:16:29.692367+00:00
+3234,3,Policy_Premium.csv,raw.policy_premium_csv,38,PRM000038,INVALID_REQUIRED,,error,quarantined,,,{'policy_id': 'P00101'},2026-09-25 00:16:29.692367+00:00
+3235,3,Policy_Premium.csv,raw.policy_premium_csv,42,PRM000042,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3236,3,Policy_Premium.csv,raw.policy_premium_csv,70,PRM000070,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3237,3,Policy_Premium.csv,raw.policy_premium_csv,80,PRM000080,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3238,3,Policy_Premium.csv,raw.policy_premium_csv,111,PRM000111,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3239,3,Policy_Premium.csv,raw.policy_premium_csv,122,PRM000122,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3240,3,Policy_Premium.csv,raw.policy_premium_csv,156,PRM000156,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3241,3,Policy_Premium.csv,raw.policy_premium_csv,168,PRM000168,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3242,3,Policy_Premium.csv,raw.policy_premium_csv,200,PRM000200,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3243,3,Policy_Premium.csv,raw.policy_premium_csv,213,PRM000213,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3244,3,Policy_Premium.csv,raw.policy_premium_csv,253,PRM000253,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3245,3,Policy_Premium.csv,raw.policy_premium_csv,269,PRM000269,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3246,3,Policy_Premium.csv,raw.policy_premium_csv,276,PRM000276,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00011'},2026-09-25 00:16:29.692367+00:00
+3247,3,Policy_Premium.csv,raw.policy_premium_csv,315,PRM000315,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3248,3,Policy_Premium.csv,raw.policy_premium_csv,332,PRM000332,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3249,3,Policy_Premium.csv,raw.policy_premium_csv,376,PRM000376,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3250,3,Policy_Premium.csv,raw.policy_premium_csv,392,PRM000392,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3251,3,Policy_Premium.csv,raw.policy_premium_csv,440,PRM000440,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3252,3,Policy_Premium.csv,raw.policy_premium_csv,458,PRM000458,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3253,3,Policy_Premium.csv,raw.policy_premium_csv,508,PRM000508,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3254,3,Policy_Premium.csv,raw.policy_premium_csv,525,PRM000525,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3255,3,Policy_Premium.csv,raw.policy_premium_csv,573,PRM000573,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3256,3,Policy_Premium.csv,raw.policy_premium_csv,591,PRM000591,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3257,3,Policy_Premium.csv,raw.policy_premium_csv,665,PRM000665,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3258,3,Policy_Premium.csv,raw.policy_premium_csv,723,PRM000723,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3259,3,Policy_Premium.csv,raw.policy_premium_csv,742,PRM000742,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3260,3,Policy_Premium.csv,raw.policy_premium_csv,797,PRM000797,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3261,3,Policy_Premium.csv,raw.policy_premium_csv,818,PRM000818,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3262,3,Policy_Premium.csv,raw.policy_premium_csv,879,PRM000879,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3263,3,Policy_Premium.csv,raw.policy_premium_csv,899,PRM000899,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3264,3,Policy_Premium.csv,raw.policy_premium_csv,965,PRM000965,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3265,3,Policy_Premium.csv,raw.policy_premium_csv,984,PRM000984,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3266,3,Policy_Premium.csv,raw.policy_premium_csv,1049,PRM001049,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3267,3,Policy_Premium.csv,raw.policy_premium_csv,1070,PRM001070,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3268,3,Policy_Premium.csv,raw.policy_premium_csv,1135,PRM001135,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3269,3,Policy_Premium.csv,raw.policy_premium_csv,1154,PRM001154,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3270,3,Policy_Premium.csv,raw.policy_premium_csv,1165,PRM001165,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00011'},2026-09-25 00:16:29.692367+00:00
+3271,3,Policy_Premium.csv,raw.policy_premium_csv,1228,PRM001228,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3272,3,Policy_Premium.csv,raw.policy_premium_csv,1248,PRM001248,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3273,3,Policy_Premium.csv,raw.policy_premium_csv,1316,PRM001316,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3274,3,Policy_Premium.csv,raw.policy_premium_csv,1337,PRM001337,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3275,3,Policy_Premium.csv,raw.policy_premium_csv,1408,PRM001408,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3276,3,Policy_Premium.csv,raw.policy_premium_csv,1429,PRM001429,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3277,3,Policy_Premium.csv,raw.policy_premium_csv,1509,PRM001509,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3278,3,Policy_Premium.csv,raw.policy_premium_csv,1528,PRM001528,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3279,3,Policy_Premium.csv,raw.policy_premium_csv,1605,PRM001605,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3280,3,Policy_Premium.csv,raw.policy_premium_csv,1626,PRM001626,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3281,3,Policy_Premium.csv,raw.policy_premium_csv,1706,PRM001706,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3282,3,Policy_Premium.csv,raw.policy_premium_csv,1728,PRM001728,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3283,3,Policy_Premium.csv,raw.policy_premium_csv,1814,PRM001814,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3284,3,Policy_Premium.csv,raw.policy_premium_csv,1835,PRM001835,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3285,3,Policy_Premium.csv,raw.policy_premium_csv,1889,PRM001889,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00012'},2026-09-25 00:16:29.692367+00:00
+3286,3,Policy_Premium.csv,raw.policy_premium_csv,1921,PRM001921,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3287,3,Policy_Premium.csv,raw.policy_premium_csv,1943,PRM001943,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3288,3,Policy_Premium.csv,raw.policy_premium_csv,2032,PRM002032,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3289,3,Policy_Premium.csv,raw.policy_premium_csv,2054,PRM002054,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3290,3,Policy_Premium.csv,raw.policy_premium_csv,2151,PRM002151,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3291,3,Policy_Premium.csv,raw.policy_premium_csv,2172,PRM002172,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3292,3,Policy_Premium.csv,raw.policy_premium_csv,2291,PRM002291,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3293,3,Policy_Premium.csv,raw.policy_premium_csv,2388,PRM002388,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3294,3,Policy_Premium.csv,raw.policy_premium_csv,2411,PRM002411,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3295,3,Policy_Premium.csv,raw.policy_premium_csv,2425,PRM002425,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00011'},2026-09-25 00:16:29.692367+00:00
+3296,3,Policy_Premium.csv,raw.policy_premium_csv,2513,PRM002513,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3297,3,Policy_Premium.csv,raw.policy_premium_csv,2535,PRM002535,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3298,3,Policy_Premium.csv,raw.policy_premium_csv,2630,PRM002630,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3299,3,Policy_Premium.csv,raw.policy_premium_csv,2653,PRM002653,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3300,3,Policy_Premium.csv,raw.policy_premium_csv,2748,PRM002748,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3301,3,Policy_Premium.csv,raw.policy_premium_csv,2771,PRM002771,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3302,3,Policy_Premium.csv,raw.policy_premium_csv,2872,PRM002872,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3303,3,Policy_Premium.csv,raw.policy_premium_csv,2895,PRM002895,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00013'},2026-09-25 00:16:29.692367+00:00
+3304,3,Policy_Premium.csv,raw.policy_premium_csv,2988,PRM002988,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3305,3,Policy_Premium.csv,raw.policy_premium_csv,3093,PRM003093,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00014'},2026-09-25 00:16:29.692367+00:00
+3306,3,Policy_Premium.csv,raw.policy_premium_csv,3109,PRM003109,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00181'},2026-09-25 00:16:29.692367+00:00
+3307,3,Policy_Premium.csv,raw.policy_premium_csv,3110,PRM003110,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00182'},2026-09-25 00:16:29.692367+00:00
+3308,3,Policy_Premium.csv,raw.policy_premium_csv,3111,PRM003111,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P00183'},2026-09-25 00:16:29.692367+00:00
+3309,3,Policy_Premium.csv,raw.policy_premium_csv,3112,PRM003112,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P90001'},2026-09-25 00:16:29.692367+00:00
+3310,3,Policy_Premium.csv,raw.policy_premium_csv,3113,PRM003113,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P90002'},2026-09-25 00:16:29.692367+00:00
+3311,3,Policy_Premium.csv,raw.policy_premium_csv,3114,PRM003114,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P90003'},2026-09-25 00:16:29.692367+00:00
+3312,3,Policy_Premium.csv,raw.policy_premium_csv,3115,PRM003115,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P90004'},2026-09-25 00:16:29.692367+00:00
+3313,3,Policy_Premium.csv,raw.policy_premium_csv,3116,PRM003116,ORPHAN_FK,,error,quarantined,,,{'policy_id': 'P90005'},2026-09-25 00:16:29.692367+00:00
+3314,3,D00072.json,raw.claim_detail_files,9,D00072,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'D00072'},2026-09-25 00:16:29.692367+00:00
+3315,3,D00077.json,raw.claim_detail_files,13,D00077,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'D00077'},2026-09-25 00:16:29.692367+00:00
+3316,3,D00100.json,raw.claim_detail_files,22,D00100,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'D00100'},2026-09-25 00:16:29.692367+00:00
+3317,3,D00109.json,raw.claim_detail_files,27,D00109,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'D00109'},2026-09-25 00:16:29.692367+00:00
+3318,3,H00019.json,raw.claim_detail_files,66,H00019,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'H00019'},2026-09-25 00:16:29.692367+00:00
+3319,3,H00024.json,raw.claim_detail_files,69,H00024,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'H00024'},2026-09-25 00:16:29.692367+00:00
+3320,3,H00033.json,raw.claim_detail_files,75,H00033,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'H00033'},2026-09-25 00:16:29.692367+00:00
+3321,3,H00176.json,raw.claim_detail_files,152,H00176,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'H00176'},2026-09-25 00:16:29.692367+00:00
+3322,3,H00203.json,raw.claim_detail_files,167,H00203,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'H00203'},2026-09-25 00:16:29.692367+00:00
+3323,3,H90001.json,raw.claim_detail_files,172,H90001,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'H90001'},2026-09-25 00:16:29.692367+00:00
+3324,3,H90002.json,raw.claim_detail_files,173,H90002,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'H90002'},2026-09-25 00:16:29.692367+00:00
+3325,3,H90003.json,raw.claim_detail_files,174,H90003,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'H90003'},2026-09-25 00:16:29.692367+00:00
+3326,3,H90004.json,raw.claim_detail_files,175,H90004,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'H90004'},2026-09-25 00:16:29.692367+00:00
+3327,3,T00022.json,raw.claim_detail_files,180,T00022,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'T00022'},2026-09-25 00:16:29.692367+00:00
+3328,3,T00126.json,raw.claim_detail_files,198,T00126,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'T00126'},2026-09-25 00:16:29.692367+00:00
+3329,3,T00158.json,raw.claim_detail_files,202,T00158,JSON_ORPHAN,,error,quarantined,,,{'claim_id': 'T00158'},2026-09-25 00:16:29.692367+00:00
+3330,3,Claim.csv,raw.claim_csv,38,T00037,MISS_ERROR,service_date,error,flagged,,,{'repair_candidate': 'JSON min(line_items.service_date)'},2026-09-25 00:16:29.692367+00:00
+3331,3,Claim.csv,raw.claim_csv,39,T00038,MISS_ERROR,service_date,error,flagged,,,{'repair_candidate': 'JSON min(line_items.service_date)'},2026-09-25 00:16:29.692367+00:00
+3332,3,Claim.csv,raw.claim_csv,36,T00035,MISS_ERROR,claim_amount,error,flagged,,,{'repair_candidate': 'JSON reconciled line-item total'},2026-09-25 00:16:29.692367+00:00
+3333,3,Claim.csv,raw.claim_csv,37,H00036,MISS_ERROR,claim_amount,error,flagged,,,{'repair_candidate': 'JSON reconciled line-item total'},2026-09-25 00:16:29.692367+00:00
+3334,3,Claim_Payment.csv,raw.claim_payment_csv,9,PAY00009,MISS_ERROR,decision_date,error,flagged,,,{'reason': 'decided payment row is missing decision_date'},2026-09-25 00:16:29.692367+00:00
+3335,3,Claim_Payment.csv,raw.claim_payment_csv,10,PAY00010,MISS_ERROR,decision_date,error,flagged,,,{'reason': 'decided payment row is missing decision_date'},2026-09-25 00:16:29.692367+00:00
+3336,3,Claim.csv / JSON directory,staging.claims,3,D00002,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3337,3,Claim.csv / JSON directory,staging.claims,7,D00006,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3338,3,Claim.csv / JSON directory,staging.claims,9,D00008,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3339,3,Claim.csv / JSON directory,staging.claims,11,D00010,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3340,3,Claim.csv / JSON directory,staging.claims,31,D00030,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3341,3,Claim.csv / JSON directory,staging.claims,35,D00034,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3342,3,Claim.csv / JSON directory,staging.claims,44,D00043,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3343,3,Claim.csv / JSON directory,staging.claims,46,D00045,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3344,3,Claim.csv / JSON directory,staging.claims,49,D00048,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3345,3,Claim.csv / JSON directory,staging.claims,50,D00049,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3346,3,Claim.csv / JSON directory,staging.claims,62,D00061,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3347,3,Claim.csv / JSON directory,staging.claims,66,D00065,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3348,3,Claim.csv / JSON directory,staging.claims,69,D00068,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3349,3,Claim.csv / JSON directory,staging.claims,72,D00071,JSON_MISSING_FILE,,warning,flagged,,,{'reason': 'no parseable JSON detail exists for the claim'},2026-09-25 00:16:29.692367+00:00
+3350,3,Customer.csv,staging.customers,21,C00021,CORE_DOB_NULLIFIED,date_of_birth,error,repaired,2030-01-01,,{'reason': 'DOB is outside the valid extract-end age range (18-89) and no authoritative alternate source exists'},2026-09-25 00:16:31.795313+00:00
+3351,3,Customer.csv,staging.customers,22,C00022,CORE_DOB_NULLIFIED,date_of_birth,error,repaired,1900-01-01,,{'reason': 'DOB is outside the valid extract-end age range (18-89) and no authoritative alternate source exists'},2026-09-25 00:16:31.795313+00:00
+3352,3,Claim.csv + JSON,staging.claims,26,H00025,CORE_SERVICE_DATE_REPAIRED,service_date,error,repaired,2023-11-10,2024-05-07,{'json_service_date': '2024-05-07'},2026-09-25 00:16:31.795313+00:00
+3353,3,Claim.csv + JSON,staging.claims,27,H00026,CORE_SERVICE_DATE_REPAIRED,service_date,error,repaired,2022-03-15,2024-05-04,{'json_service_date': '2024-05-04'},2026-09-25 00:16:31.795313+00:00
+3354,3,Claim.csv + JSON,staging.claims,29,H00028,CORE_SERVICE_DATE_REPAIRED,service_date,error,repaired,2024-06-12,2024-05-31,{'json_service_date': '2024-05-31'},2026-09-25 00:16:31.795313+00:00
+3355,3,Claim.csv + JSON,staging.claims,30,T00029,CORE_SERVICE_DATE_REPAIRED,service_date,error,repaired,2024-07-14,2024-07-11,{'json_service_date': '2024-07-11'},2026-09-25 00:16:31.795313+00:00
+3356,3,Claim.csv + JSON,staging.claims,28,H00027,CORE_SERVICE_DATE_REPAIRED,service_date,error,repaired,2022-09-03,2024-05-27,{'json_service_date': '2024-05-27'},2026-09-25 00:16:31.795313+00:00
+3357,3,Claim.csv + JSON,staging.claims,38,T00037,CORE_SERVICE_DATE_REPAIRED,service_date,error,repaired,,2024-09-16,{'json_service_date': '2024-09-16'},2026-09-25 00:16:31.795313+00:00
+3358,3,Claim.csv + JSON,staging.claims,39,T00038,CORE_SERVICE_DATE_REPAIRED,service_date,error,repaired,,2024-09-30,{'json_service_date': '2024-09-30'},2026-09-25 00:16:31.795313+00:00
+3359,3,Claim.csv + JSON,staging.claims,32,T00031,CORE_CLAIM_AMOUNT_REPAIRED,claim_amount,error,repaired,-464.11,464.11,{'json_claim_amount': 464.11},2026-09-25 00:16:31.795313+00:00
+3360,3,Claim.csv + JSON,staging.claims,33,H00032,CORE_CLAIM_AMOUNT_REPAIRED,claim_amount,error,repaired,-120.42,120.42,{'json_claim_amount': 120.42},2026-09-25 00:16:31.795313+00:00
+3361,3,Claim.csv + JSON,staging.claims,36,T00035,CORE_CLAIM_AMOUNT_REPAIRED,claim_amount,error,repaired,,592.07,{'json_claim_amount': 592.07},2026-09-25 00:16:31.795313+00:00
+3362,3,Claim.csv + JSON,staging.claims,37,H00036,CORE_CLAIM_AMOUNT_REPAIRED,claim_amount,error,repaired,,257.00,{'json_claim_amount': 257.0},2026-09-25 00:16:31.795313+00:00
+3363,3,Claim.csv + JSON,staging.claims,31,D00030,CORE_CLAIM_AMOUNT_UNRECOVERABLE,claim_amount,error,flagged,-491.15,,{'json_claim_amount': None},2026-09-25 00:16:31.795313+00:00
+3364,3,Claim.csv + JSON,staging.claims,41,T00040,CORE_AMOUNT_RECON_MISMATCH,claim_amount,warning,flagged,4030.84,3359.03,"{'treatment': 'retain valid Claim.csv header amount; mismatch remains an analytical/fraud signal', 'difference_cad': 671.81}",2026-09-25 00:16:31.795313+00:00
+3365,3,Claim.csv + JSON,staging.claims,67,H00066,CORE_AMOUNT_RECON_MISMATCH,claim_amount,warning,flagged,299.42,249.52,"{'treatment': 'retain valid Claim.csv header amount; mismatch remains an analytical/fraud signal', 'difference_cad': 49.9}",2026-09-25 00:16:31.795313+00:00
+3366,3,Claim.csv + JSON,staging.claims,113,H00112,CORE_AMOUNT_RECON_MISMATCH,claim_amount,warning,flagged,206.51,172.09,"{'treatment': 'retain valid Claim.csv header amount; mismatch remains an analytical/fraud signal', 'difference_cad': 34.42}",2026-09-25 00:16:31.795313+00:00
+3367,3,Claim.csv + JSON,staging.claims,152,T00151,CORE_AMOUNT_RECON_MISMATCH,claim_amount,warning,flagged,1483.26,1236.05,"{'treatment': 'retain valid Claim.csv header amount; mismatch remains an analytical/fraud signal', 'difference_cad': 247.21}",2026-09-25 00:16:31.795313+00:00
+3368,3,Claim.csv + JSON,staging.claims,168,H00167,CORE_AMOUNT_RECON_MISMATCH,claim_amount,warning,flagged,62.92,52.43,"{'treatment': 'retain valid Claim.csv header amount; mismatch remains an analytical/fraud signal', 'difference_cad': 10.49}",2026-09-25 00:16:31.795313+00:00
+3369,3,Claim.csv vs Policy.csv,staging.claims,18,T00017,CORE_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00121,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3370,3,Claim.csv vs Policy.csv,staging.claims,22,H00021,CORE_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00012,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3371,3,Claim.csv vs Policy.csv,staging.claims,19,H00018,CORE_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00135,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3372,3,Claim.csv vs Policy.csv,staging.claims,21,H00020,CORE_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00005,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3373,3,Claim.csv vs Customer.csv,staging.claims,10,H00009,CORE_REGION_CONFLICT,region,warning,repaired,AB,PE,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3374,3,Claim.csv vs Customer.csv,staging.claims,12,H00011,CORE_REGION_CONFLICT,region,warning,repaired,AB,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3375,3,Claim.csv vs Customer.csv,staging.claims,13,H00012,CORE_REGION_CONFLICT,region,warning,repaired,SK,AB,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3376,3,Claim.csv vs Customer.csv,staging.claims,14,T00013,CORE_REGION_CONFLICT,region,warning,repaired,AB,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3377,3,Claim.csv vs Customer.csv,staging.claims,15,H00014,CORE_REGION_CONFLICT,region,warning,repaired,AB,MB,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3378,3,Claim.csv vs Customer.csv,staging.claims,16,T00015,CORE_REGION_CONFLICT,region,warning,repaired,AB,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3379,3,Claim.csv vs Customer.csv,staging.claims,17,H00016,CORE_REGION_CONFLICT,region,warning,repaired,AB,ON,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3380,3,Claim.csv vs Customer.csv,staging.claims,86,H00085,CORE_REGION_CONFLICT,region,warning,repaired,NL,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3381,3,Claim.csv vs Customer.csv,staging.claims,88,H00087,CORE_REGION_CONFLICT,region,warning,repaired,BC,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3382,3,Claim.csv vs Customer.csv,staging.claims,89,H00088,CORE_REGION_CONFLICT,region,warning,repaired,NL,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3383,3,Claim.csv vs Customer.csv,staging.claims,91,H00090,CORE_REGION_CONFLICT,region,warning,repaired,BC,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3384,3,Claim.csv vs Customer.csv,staging.claims,92,H00091,CORE_REGION_CONFLICT,region,warning,repaired,NL,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3385,3,Claim.csv vs Customer.csv,staging.claims,93,H00092,CORE_REGION_CONFLICT,region,warning,repaired,BC,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3386,3,Claim.csv vs Customer.csv,staging.claims,162,H00161,CORE_REGION_CONFLICT,region,warning,repaired,NL,SK,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3387,3,Claim.csv vs Customer.csv,staging.claims,11,D00010,CORE_REGION_CONFLICT,region,warning,repaired,AB,BC,{'authoritative_source': 'Customer.csv.province'},2026-09-25 00:16:31.795313+00:00
+3388,3,Claim.csv vs Claim_Payment.csv,staging.claims,2,H00001,CORE_STATUS_CONFLICT,claim_status,warning,repaired,denied,approved,{'authoritative_source': 'Claim_Payment.csv decision presence/outcome'},2026-09-25 00:16:31.795313+00:00
+3389,3,Claim.csv vs Claim_Payment.csv,staging.claims,4,H00003,CORE_STATUS_CONFLICT,claim_status,warning,repaired,denied,approved,{'authoritative_source': 'Claim_Payment.csv decision presence/outcome'},2026-09-25 00:16:31.795313+00:00
+3390,3,Claim.csv vs Claim_Payment.csv,staging.claims,5,H00004,CORE_STATUS_CONFLICT,claim_status,warning,repaired,denied,approved,{'authoritative_source': 'Claim_Payment.csv decision presence/outcome'},2026-09-25 00:16:31.795313+00:00
+3391,3,Claim.csv vs Claim_Payment.csv,staging.claims,6,H00005,CORE_STATUS_CONFLICT,claim_status,warning,repaired,denied,approved,{'authoritative_source': 'Claim_Payment.csv decision presence/outcome'},2026-09-25 00:16:31.795313+00:00
+3392,3,Claim.csv vs Claim_Payment.csv,staging.claims,8,T00007,CORE_STATUS_CONFLICT,claim_status,warning,repaired,denied,partially_approved,{'authoritative_source': 'Claim_Payment.csv decision presence/outcome'},2026-09-25 00:16:31.795313+00:00
+3393,3,Claim.csv vs Claim_Payment.csv,staging.claims,9,D00008,CORE_STATUS_CONFLICT,claim_status,warning,repaired,denied,approved,{'authoritative_source': 'Claim_Payment.csv decision presence/outcome'},2026-09-25 00:16:31.795313+00:00
+3394,3,Claim.csv vs Claim_Payment.csv,staging.claims,7,D00006,CORE_STATUS_CONFLICT,claim_status,warning,repaired,denied,approved,{'authoritative_source': 'Claim_Payment.csv decision presence/outcome'},2026-09-25 00:16:31.795313+00:00
+3395,3,Claim.csv vs Claim_Payment.csv,staging.claims,3,D00002,CORE_STATUS_CONFLICT,claim_status,warning,repaired,denied,partially_approved,{'authoritative_source': 'Claim_Payment.csv decision presence/outcome'},2026-09-25 00:16:31.795313+00:00
+3396,3,Claim.csv vs Claim_Payment.csv,staging.claim_payments,6,PAY00006,CORE_PAYMENT_AMOUNT_CONFLICT,payment_amount,warning,flagged,800.00,817.37,{'authoritative_source': 'Claim_Payment.csv.payment_amount'},2026-09-25 00:16:31.795313+00:00
+3397,3,Claim.csv vs Claim_Payment.csv,staging.claim_payments,7,PAY00007,CORE_PAYMENT_AMOUNT_CONFLICT,payment_amount,warning,flagged,1890.20,1907.57,{'authoritative_source': 'Claim_Payment.csv.payment_amount'},2026-09-25 00:16:31.795313+00:00
+3398,3,Claim.csv vs Claim_Payment.csv,staging.claim_payments,8,PAY00008,CORE_PAYMENT_AMOUNT_CONFLICT,payment_amount,warning,flagged,1600.00,1617.37,{'authoritative_source': 'Claim_Payment.csv.payment_amount'},2026-09-25 00:16:31.795313+00:00
+3399,3,Claim_Payment.csv,staging.claim_payments,4,PAY00004,CORE_DECISION_DATE_NULLIFIED,decision_date,error,repaired,2023-10-28,,{'processing_start_date': '2023-10-29'},2026-09-25 00:16:31.795313+00:00
+3400,3,Claim_Payment.csv,staging.claim_payments,5,PAY00005,CORE_DECISION_DATE_NULLIFIED,decision_date,error,repaired,2023-11-20,,{'processing_start_date': '2023-11-21'},2026-09-25 00:16:31.795313+00:00
+3401,3,Claim_Payment.csv + Claim.csv,staging.claim_payments,1,PAY00001,CORE_PAYMENT_DATE_NULLIFIED,payment_date,error,repaired,2023-08-07,,"{'claim_date': '2023-08-08', 'decision_date': '2023-08-17', 'payment_status_treatment': 'set core payment_status to null because paid date is unusable'}",2026-09-25 00:16:31.795313+00:00
+3402,3,Claim_Payment.csv + Claim.csv,staging.claim_payments,2,PAY00002,CORE_PAYMENT_DATE_NULLIFIED,payment_date,error,repaired,2023-10-09,,"{'claim_date': '2023-10-10', 'decision_date': '2023-10-22', 'payment_status_treatment': 'set core payment_status to null because paid date is unusable'}",2026-09-25 00:16:31.795313+00:00
+3403,3,Claim_Payment.csv + Claim.csv,staging.claim_payments,3,PAY00003,CORE_PAYMENT_DATE_NULLIFIED,payment_date,error,repaired,2023-10-25,,"{'claim_date': '2023-10-26', 'decision_date': '2023-10-28', 'payment_status_treatment': 'set core payment_status to null because paid date is unusable'}",2026-09-25 00:16:31.795313+00:00
+3404,3,Policy_Premium.csv vs Policy.csv,staging.policy_premiums,1,PRM000001,CORE_PREMIUM_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00104,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3405,3,Policy_Premium.csv vs Policy.csv,staging.policy_premiums,2,PRM000002,CORE_PREMIUM_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00076,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3406,3,Policy_Premium.csv vs Policy.csv,staging.policy_premiums,4,PRM000004,CORE_PREMIUM_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00059,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3407,3,Policy_Premium.csv vs Policy.csv,staging.policy_premiums,5,PRM000005,CORE_PREMIUM_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00134,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3408,3,Policy_Premium.csv vs Policy.csv,staging.policy_premiums,6,PRM000006,CORE_PREMIUM_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00102,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3409,3,Policy_Premium.csv vs Policy.csv,staging.policy_premiums,7,PRM000007,CORE_PREMIUM_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00014,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3410,3,Policy_Premium.csv vs Policy.csv,staging.policy_premiums,8,PRM000008,CORE_PREMIUM_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00018,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3411,3,Policy_Premium.csv vs Policy.csv,staging.policy_premiums,9,PRM000009,CORE_PREMIUM_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00066,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3412,3,Policy_Premium.csv vs Policy.csv,staging.policy_premiums,10,PRM000010,CORE_PREMIUM_OWNER_CONFLICT,customer_id,warning,repaired,C00150,C00084,{'authoritative_source': 'Policy.csv.customer_id'},2026-09-25 00:16:31.795313+00:00
+3413,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,1397,PRM001397,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,45-54,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3414,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,1496,PRM001496,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,45-54,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3415,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,1693,PRM001693,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,45-54,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3416,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,1801,PRM001801,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,45-54,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3417,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,1907,PRM001907,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,45-54,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3418,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,2018,PRM002018,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,55-64,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3419,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,2136,PRM002136,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,55-64,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3420,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,2250,PRM002250,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,55-64,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3421,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,2370,PRM002370,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,55-64,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3422,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,2495,PRM002495,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,55-64,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3423,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,2612,PRM002612,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,55-64,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3424,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,2730,PRM002730,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,55-64,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
+3425,3,Policy_Premium.csv + Customer.csv,staging.policy_premiums,1591,PRM001591,CORE_AGE_BAND_REPAIRED,age_band,warning,repaired,75+,45-54,{'authoritative_basis': 'canonical DOB at premium due_date'},2026-09-25 00:16:31.795313+00:00
