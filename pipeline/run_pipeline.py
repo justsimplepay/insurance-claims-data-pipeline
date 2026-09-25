@@ -103,11 +103,56 @@ def validate_pipeline(
                   'phone',
                   'postal_code',
                   'date_of_birth',
-                  'address'
+                  'address',
+                  'city'
               )
             ORDER BY table_name, column_name
             """
         ).fetchall()
+
+        core_direct_columns = conn.execute(
+            """
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_schema='core'
+              AND table_name='customers'
+              AND column_name IN (
+                  'first_name','last_name','address','city',
+                  'postal_code','phone','email'
+              )
+            ORDER BY column_name
+            """
+        ).fetchall()
+
+        staging_direct_values = conn.execute(
+            """
+            SELECT count(*)
+            FROM staging.customers
+            WHERE load_id=%s
+              AND (
+                  first_name IS NOT NULL OR last_name IS NOT NULL
+                  OR address IS NOT NULL OR city IS NOT NULL
+                  OR postal_code IS NOT NULL OR phone IS NOT NULL
+                  OR email IS NOT NULL
+              )
+            """,
+            (load_id,),
+        ).fetchone()[0]
+
+        exposed_dq_values = conn.execute(
+            """
+            SELECT count(*)
+            FROM staging.data_quality_log
+            WHERE load_id=%s
+              AND source_table='raw.customer_csv'
+              AND field_name IN (
+                  'first_name','last_name','date_of_birth','address',
+                  'city','postal_code','phone','email'
+              )
+              AND (original_value IS NOT NULL OR clean_value IS NOT NULL)
+            """,
+            (load_id,),
+        ).fetchone()[0]
 
     checks = [
         (
@@ -146,13 +191,32 @@ def validate_pipeline(
             f"events={dq_events}",
         ),
         (
-            "marts exclude direct-identifying columns",
+            "marts exclude direct and fine-grained quasi identifiers",
             len(sensitive_columns) == 0,
             (
                 "none"
                 if not sensitive_columns
                 else ", ".join(f"{t}.{c}" for t, c in sensitive_columns)
             ),
+        ),
+        (
+            "core customers exclude unnecessary direct-identifier columns",
+            len(core_direct_columns) == 0,
+            (
+                "none"
+                if not core_direct_columns
+                else ", ".join(c[0] for c in core_direct_columns)
+            ),
+        ),
+        (
+            "staging customer direct identifiers are scrubbed after resolution",
+            staging_direct_values == 0,
+            f"rows_with_direct_values={staging_direct_values}",
+        ),
+        (
+            "staging DQ log redacts customer PII values",
+            exposed_dq_values == 0,
+            f"events_with_exposed_values={exposed_dq_values}",
         ),
     ]
 
