@@ -31,6 +31,9 @@ CREATE TABLE IF NOT EXISTS staging.customers (
         CHECK (dq_issue_count >= 0)
 );
 
+ALTER TABLE staging.customers
+ADD COLUMN IF NOT EXISTS fsa text;
+
 CREATE TABLE IF NOT EXISTS staging.policies (
     stg_policy_row_id    bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     load_id              bigint NOT NULL REFERENCES raw.ingestion_runs(load_id),
