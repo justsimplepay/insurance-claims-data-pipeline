@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS staging.customers (
     city                 text,
     province             text,
     postal_code          text,
+    fsa                  text,
     phone                text,
     email                text,
     customer_since       date,
