@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import traceback
 import uuid
 import zipfile
 from pathlib import Path, PurePosixPath
