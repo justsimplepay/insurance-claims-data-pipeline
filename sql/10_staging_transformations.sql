@@ -1107,9 +1107,13 @@ SELECT
     p.load_id, sf.source_name, 'raw.policy_csv', p.raw_row_id, p.policy_id,
     CASE
       WHEN NOT EXISTS (
+          SELECT 1 FROM staging.customers c
+          WHERE c.load_id=p.load_id AND c.customer_id=p.customer_id
+      ) THEN 'ORPHAN_FK'
+      WHEN NOT EXISTS (
           SELECT 1 FROM staging.customer_identity_map m
           WHERE m.load_id=p.load_id AND m.source_customer_id=p.customer_id
-      ) THEN 'ORPHAN_FK'
+      ) THEN 'UPSTREAM_PARENT_REJECTED'
       WHEN p.end_date IS NOT NULL AND p.start_date IS NOT NULL AND p.end_date < p.start_date
         THEN 'INV_DATE_ORDER'
       ELSE 'INVALID_REQUIRED'
