@@ -1,39 +1,39 @@
 {
   "schema_version": "1.0",
-  "claim_id": "D00095",
+  "claim_id": "D00065",
   "product_line": "dental",
-  "submission_channel": "mobile_app",
-  "submitted_at": "2025-07-12T14:02:00-06:00",
+  "submission_channel": "online_portal",
+  "submitted_at": "2025-03-12T19:59:00-06:00",
   "provider": {
-    "provider_id": "PRV0054",
-    "name": "Synthetic dental_clinic 54",
+    "provider_id": "PRV0015",
+    "name": "Synthetic dental_clinic 15",
     "type": "dental_clinic"
   },
   "line_items": [
     {
       "line_no": 1,
-      "service_date": "2025-07-06",
+      "service_date": "2025-03-10",
       "description": "Synthetic preventive",
       "quantity": 1,
-      "unit_amount": 110.76,
-      "amount": 110.76,
+      "unit_amount": 151.94,
+      "amount": 151.94,
       "procedure_code": "10000",
       "procedure_category": "preventive",
       "tooth_number": null
     },
     {
       "line_no": 2,
-      "service_date": "2025-07-06",
+      "service_date": "2025-03-10",
       "description": "Synthetic preventive",
       "quantity": 1,
-      "unit_amount": 110.77,
-      "amount": 110.77,
+      "unit_amount": 151.93,
+      "amount": 151.93,
       "procedure_code": "10001",
       "procedure_category": "preventive",
       "tooth_number": null
     }
   ],
-  "adjuster_id": "ADJ010",
+  "adjuster_id": "ADJ001",
   "adjuster_notes": null,
   "documents_submitted": [
     "receipt"

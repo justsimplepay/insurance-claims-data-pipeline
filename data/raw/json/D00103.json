@@ -15,7 +15,7 @@
       "service_date": "2025-07-31",
       "description": "Synthetic basic",
       "quantity": 1,
-      "unit_amount": 113.01,
+      "unit_amount": "$113.01",
       "amount": 113.01,
       "procedure_code": "10000",
       "procedure_category": "basic",

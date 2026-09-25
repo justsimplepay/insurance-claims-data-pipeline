@@ -9,7 +9,15 @@
     "name": "Synthetic dental_clinic 67",
     "type": "dental_clinic"
   },
-  "line_items": [
+  "adjuster_id": "ADJ009",
+  "adjuster_notes": null,
+  "documents_submitted": [
+    "receipt"
+  ],
+  "dental": {
+    "claim_category": "basic"
+  },
+  "lineItems": [
     {
       "line_no": 1,
       "service_date": "2025-05-06",
@@ -32,13 +40,5 @@
       "procedure_category": "basic",
       "tooth_number": null
     }
-  ],
-  "adjuster_id": "ADJ009",
-  "adjuster_notes": null,
-  "documents_submitted": [
-    "receipt"
-  ],
-  "dental": {
-    "claim_category": "basic"
-  }
+  ]
 }
