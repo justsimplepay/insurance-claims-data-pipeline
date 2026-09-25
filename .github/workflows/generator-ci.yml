@@ -51,6 +51,43 @@ jobs:
       - run: python generate_data.py
       - name: Run clean database bootstrap and end-to-end pipeline
         run: python pipeline/run_pipeline.py --batch-name ci-${{ github.sha }} --output-dir output/ci
+      - name: Re-run pipeline and verify idempotent outputs
+        run: |
+          python pipeline/run_pipeline.py --batch-name ci-rerun-${{ github.sha }} --output-dir output/ci-rerun
+          python - <<'PY'
+          from pathlib import Path
+          import csv
+          import hashlib
+
+          first = Path("output/ci")
+          second = Path("output/ci-rerun")
+          names = [
+              "fraud_detection.csv",
+              "customer_retention.csv",
+              "operational_efficiency.csv",
+              "region_wise_insights.csv",
+              "policy_optimization.csv",
+              "data_quality_log.csv",
+          ]
+
+          failed = False
+          for name in names:
+              a = first / name
+              b = second / name
+              with a.open(newline="", encoding="utf-8") as fa:
+                  rows_a = sum(1 for _ in csv.reader(fa)) - 1
+              with b.open(newline="", encoding="utf-8") as fb:
+                  rows_b = sum(1 for _ in csv.reader(fb)) - 1
+              sha_a = hashlib.sha256(a.read_bytes()).hexdigest()
+              sha_b = hashlib.sha256(b.read_bytes()).hexdigest()
+              same = rows_a == rows_b and sha_a == sha_b
+              print(f"{name}: first={rows_a}, rerun={rows_b}, identical={same}, sha256={sha_b}")
+              failed |= not same
+
+          if failed:
+              raise SystemExit("Idempotency comparison failed")
+          print("Idempotency comparison passed: all exported row counts and file contents are identical")
+          PY
       - name: Freeze validated source inputs in repository
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
