@@ -1,0 +1,166 @@
+policy_type,plan_name,age_band,coverage_type,province,policy_count,policy_months,premium_installment_count,premium_due_total,claim_count,decided_claim_count,approved_claim_count,approved_claim_amount,claims_to_premium_performance_ratio,low_exposure_flag
+dental,Dental Basic,35-44,couple,BC,2,38,18,2906.04,3,3,2,376.27,0.1295,False
+dental,Dental Basic,35-44,couple,MB,2,42,26,3670.92,0,0,0,0,0.0000,False
+dental,Dental Basic,35-44,couple,SK,1,19,19,1453.12,1,1,1,171.60,0.1181,False
+dental,Dental Basic,35-44,single,BC,1,11,11,442.75,0,0,0,0,0.0000,True
+dental,Dental Basic,35-44,single,SK,1,26,9,1086.75,0,0,0,0,0.0000,False
+dental,Dental Basic,45-54,family,SK,1,27,27,3439.80,1,1,1,417.80,0.1215,False
+dental,Dental Basic,45-54,single,AB,2,38,37,1911.00,1,1,1,208.71,0.1092,False
+dental,Dental Basic,45-54,single,BC,1,19,19,931.00,0,0,0,0,0.0000,False
+dental,Dental Basic,45-54,single,MB,1,13,11,539.00,2,2,1,817.37,1.5165,False
+dental,Dental Basic,45-54,single,SK,1,18,18,882.00,4,4,4,899.88,1.0203,False
+dental,Dental Basic,55-64,single,AB,1,16,5,945.00,1,1,1,279.17,0.2954,False
+dental,Dental Basic,55-64,single,MB,1,23,24,1512.00,0,0,0,0,0.0000,False
+dental,Dental Basic,55-64,single,NT,1,25,25,1575.00,0,0,0,0,0.0000,False
+dental,Dental Basic,55-64,single,ON,1,36,35,2205.00,1,1,1,303.87,0.1378,False
+dental,Dental Basic,55-64,single,SK,1,10,10,630.00,0,0,0,0,0.0000,True
+dental,Dental Basic,65-74,family,SK,1,8,3,1965.60,1,1,1,263.96,0.1343,True
+dental,Dental Basic,65-74,single,MB,1,14,14,1176.00,0,0,0,0,0.0000,False
+dental,Dental Basic,65-74,single,NS,1,24,24,2016.00,0,0,0,0,0.0000,False
+dental,Dental Basic,65-74,single,ON,1,20,19,1596.00,0,0,0,0,0.0000,False
+dental,Dental Basic,75+,single,AB,2,48,38,5376.00,5,4,4,802.03,0.1492,False
+dental,Dental Basic,75+,single,MB,1,26,26,2912.00,0,0,0,0,0.0000,False
+dental,Dental Basic,75+,single,ON,1,15,16,1792.00,0,0,0,0,0.0000,False
+dental,Dental Basic,75+,single,SK,2,47,47,5264.00,2,2,2,437.62,0.0831,False
+dental,Dental Basic,Under 35,couple,BC,1,6,1,199.50,0,0,0,0,0.0000,True
+dental,Dental Basic,Under 35,couple,MB,1,35,33,2194.50,1,1,0,0.00,0.0000,False
+dental,Dental Basic,Under 35,couple,ON,1,12,4,798.00,2,2,1,223.55,0.2801,False
+dental,Dental Basic,Under 35,family,AB,1,32,32,2912.00,3,2,1,417.65,0.1434,False
+dental,Dental Basic,Under 35,family,MB,1,28,28,2548.00,0,0,0,0,0.0000,False
+dental,Dental Basic,Under 35,family,ON,1,17,17,1547.00,1,1,1,331.97,0.2146,False
+dental,Dental Basic,Under 35,single,MB,1,35,35,1225.00,2,2,2,889.40,0.7260,False
+dental,Dental Basic,Under 35,single,SK,2,61,15,2520.00,0,0,0,0,0.0000,False
+dental,Dental Plus,35-44,couple,ON,1,30,30,3933.00,0,0,0,0,0.0000,False
+dental,Dental Plus,35-44,single,MB,2,55,42,3726.00,1,1,1,155.42,0.0417,False
+dental,Dental Plus,45-54,couple,SK,1,3,3,478.80,1,0,0,0,0.0000,True
+dental,Dental Plus,45-54,family,MB,1,36,36,7862.40,2,2,2,1139.01,0.1449,False
+dental,Dental Plus,45-54,single,SK,1,10,10,840.00,2,2,1,410.03,0.4881,True
+dental,Dental Plus,55-64,couple,AB,1,31,11,6771.60,1,1,1,106.57,0.0157,False
+dental,Dental Plus,55-64,couple,ON,1,8,8,1641.60,2,1,1,244.46,0.1489,True
+dental,Dental Plus,55-64,family,AB,1,34,12,10108.80,2,2,1,475.45,0.0470,False
+dental,Dental Plus,55-64,single,AB,2,41,41,4428.00,0,0,0,0,0.0000,False
+dental,Dental Plus,55-64,single,NS,1,18,17,1836.00,0,0,0,0,0.0000,False
+dental,Dental Plus,55-64,single,ON,1,14,14,1512.00,4,4,3,461.03,0.3049,False
+dental,Dental Plus,65-74,single,SK,2,16,14,2016.00,2,2,1,635.56,0.3153,False
+dental,Dental Plus,75+,family,MB,1,36,36,17971.20,0,0,0,0,0.0000,False
+dental,Dental Plus,75+,family,NL,1,22,21,10483.20,3,3,3,676.74,0.0646,False
+dental,Dental Plus,75+,single,BC,1,24,8,4608.00,2,2,2,462.38,0.1003,False
+dental,Dental Plus,75+,single,ON,2,72,39,13824.00,6,6,6,1125.60,0.0814,False
+dental,Dental Plus,75+,single,SK,1,34,35,6720.00,2,2,1,1617.37,0.2407,False
+dental,Dental Plus,Under 35,single,AB,1,31,11,1980.00,1,1,1,361.31,0.1825,False
+dental,Dental Plus,Under 35,single,MB,1,20,20,1200.00,1,1,1,242.03,0.2017,False
+health,BasicPlan,35-44,couple,SK,1,15,14,1376.48,0,0,0,0,0.0000,False
+health,BasicPlan,35-44,family,SK,2,27,16,3229.20,2,2,2,657.05,0.2035,False
+health,BasicPlan,35-44,single,MB,2,39,38,1966.50,1,1,1,47.17,0.0240,False
+health,BasicPlan,35-44,single,SK,1,15,4,621.00,0,0,0,0,0.0000,False
+health,BasicPlan,45-54,family,SK,1,21,8,3931.20,0,0,0,0,0.0000,False
+health,BasicPlan,45-54,single,MB,1,8,8,504.00,1,0,0,0,0.0000,True
+health,BasicPlan,45-54,single,SK,1,21,8,1512.00,2,2,2,186.52,0.1234,False
+health,BasicPlan,55-64,couple,MB,1,20,7,3231.90,1,1,1,202.24,0.0626,False
+health,BasicPlan,55-64,family,ON,1,22,21,4422.60,1,1,1,44.20,0.0100,False
+health,BasicPlan,55-64,family,SK,1,33,32,6739.20,1,1,1,72.86,0.0108,False
+health,BasicPlan,55-64,single,AB,1,27,3,2916.00,0,0,0,0,0.0000,False
+health,BasicPlan,55-64,single,SK,1,20,7,1701.00,0,0,0,0,0.0000,False
+health,BasicPlan,65-74,couple,SK,1,10,10,2052.00,0,0,0,0,0.0000,True
+health,BasicPlan,65-74,family,ON,1,10,11,3088.80,0,0,0,0,0.0000,True
+health,BasicPlan,65-74,family,SK,1,36,12,10108.80,4,3,3,232.84,0.0230,False
+health,BasicPlan,65-74,single,BC,1,30,3,3888.00,1,1,1,207.97,0.0535,False
+health,BasicPlan,65-74,single,ON,1,36,36,3888.00,2,1,1,153.75,0.0395,False
+health,BasicPlan,65-74,single,SK,1,5,2,648.00,1,1,1,35.29,0.0545,True
+health,BasicPlan,75+,couple,NL,1,2,2,547.20,0,0,0,0,0.0000,True
+health,BasicPlan,75+,family,ON,2,31,24,11980.80,3,3,3,89.74,0.0075,False
+health,BasicPlan,75+,family,SK,1,21,21,7862.40,0,0,0,0,0.0000,False
+health,BasicPlan,75+,single,SK,1,28,28,4032.00,0,0,0,0,0.0000,False
+health,BasicPlan,Under 35,couple,AB,1,10,10,855.00,2,2,2,205.46,0.2403,True
+health,BasicPlan,Under 35,family,AB,1,11,11,1287.00,0,0,0,0,0.0000,True
+health,BasicPlan,Under 35,family,MB,1,36,35,4095.00,0,0,0,0,0.0000,False
+health,BasicPlan,Under 35,single,BC,1,31,31,1395.00,1,1,1,56.79,0.0407,False
+health,BasicPlan,Under 35,single,ON,2,61,61,2745.00,2,2,2,231.16,0.0842,False
+health,BasicPlan,Under 35,single,SK,2,43,43,1935.00,3,3,3,424.56,0.2194,False
+health,ExtendaPlan,35-44,couple,AB,1,13,13,2414.36,2,2,2,1724.79,0.7144,False
+health,ExtendaPlan,35-44,couple,MB,2,27,3,5014.58,1,1,1,43.24,0.0086,False
+health,ExtendaPlan,35-44,couple,SK,1,2,0,0,0,0,0,0,,True
+health,ExtendaPlan,35-44,family,NS,1,14,14,3558.10,0,0,0,0,0.0000,False
+health,ExtendaPlan,35-44,single,MB,1,8,7,684.25,0,0,0,0,0.0000,True
+health,ExtendaPlan,45-54,couple,MB,2,38,10,8817.90,1,1,1,367.85,0.0417,False
+health,ExtendaPlan,45-54,single,ON,1,11,1,1428.00,2,1,1,319.05,0.2234,True
+health,ExtendaPlan,55-64,couple,AB,1,31,31,9011.70,1,1,1,2820.00,0.3129,False
+health,ExtendaPlan,55-64,couple,ON,1,36,36,10465.20,0,0,0,0,0.0000,False
+health,ExtendaPlan,55-64,family,AB,1,36,36,14320.80,0,0,0,0,0.0000,False
+health,ExtendaPlan,55-64,single,AB,1,12,4,1836.00,3,3,2,143.54,0.0782,False
+health,ExtendaPlan,65-74,family,BC,1,36,36,19094.40,1,0,0,0,0.0000,False
+health,ExtendaPlan,65-74,family,SK,1,36,36,19094.40,0,0,0,0,0.0000,False
+health,ExtendaPlan,75+,couple,SK,1,16,6,9302.40,2,2,2,339.60,0.0365,False
+health,ExtendaPlan,75+,family,AB,1,23,23,16265.60,1,1,0,0.00,0.0000,False
+health,ExtendaPlan,75+,single,BC,1,3,3,816.00,0,0,0,0,0.0000,True
+health,ExtendaPlan,75+,single,MB,1,36,36,9792.00,0,0,0,0,0.0000,False
+health,ExtendaPlan,75+,single,ON,1,9,9,2448.00,1,1,1,219.05,0.0895,True
+health,ExtendaPlan,75+,single,SK,2,67,67,18224.00,3,3,3,2917.85,0.1601,False
+health,ExtendaPlan,Under 35,couple,MB,1,35,35,5652.50,2,2,2,186.95,0.0331,False
+health,ExtendaPlan,Under 35,couple,SK,2,70,46,10982.00,0,0,0,0,0.0000,False
+health,ExtendaPlan,Under 35,family,ON,1,26,3,7956.00,2,1,1,20.00,0.0025,False
+health,ExtendaPlan,Under 35,single,MB,1,21,21,1785.00,1,1,1,190.00,0.1064,False
+health,ExtendaPlan,Under 35,single,ON,1,19,19,1615.00,2,2,2,2874.66,1.7800,False
+health,ExtendaPlan,Under 35,single,SK,4,127,104,10880.00,3,3,3,469.58,0.0432,False
+health,OmniPlan,35-44,couple,SK,1,36,12,11012.40,2,2,2,370.98,0.0337,False
+health,OmniPlan,45-54,couple,AB,1,2,2,744.80,0,0,0,0,0.0000,True
+health,OmniPlan,45-54,single,AB,1,18,6,3528.00,2,2,1,159.56,0.0452,False
+health,OmniPlan,45-54,single,SK,1,35,35,6860.00,1,1,1,195.95,0.0286,False
+health,OmniPlan,55-64,couple,AB,1,12,12,5745.60,1,1,1,4700.00,0.8180,False
+health,OmniPlan,55-64,couple,ON,1,36,36,17236.80,2,2,2,137.63,0.0080,False
+health,OmniPlan,55-64,family,MB,1,13,2,15724.80,1,0,0,0,0.0000,False
+health,OmniPlan,55-64,single,AB,1,18,6,4536.00,0,0,0,0,0.0000,False
+health,OmniPlan,65-74,couple,PE,1,25,25,15960.00,0,0,0,0,0.0000,False
+health,OmniPlan,65-74,couple,SK,1,36,36,22982.40,1,1,1,80.52,0.0035,False
+health,OmniPlan,65-74,single,SK,2,70,48,24192.00,1,1,1,143.43,0.0059,False
+health,OmniPlan,75+,couple,NL,1,12,11,9363.20,2,2,2,512.73,0.0548,False
+health,OmniPlan,75+,couple,SK,1,20,7,17875.20,4,4,1,105.63,0.0059,False
+health,OmniPlan,75+,single,AB,2,59,38,25984.00,2,2,2,714.52,0.0275,False
+health,OmniPlan,75+,single,MB,1,11,11,4928.00,1,1,1,50.79,0.0103,True
+health,OmniPlan,75+,single,PE,1,36,36,16128.00,3,3,3,649.58,0.0403,False
+health,OmniPlan,75+,single,SK,2,25,23,10304.00,1,1,1,21.23,0.0021,False
+health,OmniPlan,75+,single,YT,1,20,2,10752.00,3,3,2,343.15,0.0319,False
+health,OmniPlan,Under 35,couple,AB,1,33,33,8778.00,1,1,1,38.42,0.0044,False
+health,OmniPlan,Under 35,couple,ON,1,30,10,7980.00,0,0,0,0,0.0000,False
+health,OmniPlan,Under 35,family,MB,1,35,34,12376.00,1,1,1,27.93,0.0023,False
+health,OmniPlan,Under 35,family,SK,2,17,17,6188.00,1,1,1,606.11,0.0979,False
+health,OmniPlan,Under 35,single,SK,1,36,36,5040.00,1,1,1,4700.00,0.9325,False
+health,Replacement Health,35-44,couple,AB,2,31,32,8390.40,4,3,3,1723.70,0.2054,False
+health,Replacement Health,35-44,single,AB,1,22,22,3036.00,0,0,0,0,0.0000,False
+health,Replacement Health,45-54,single,AB,1,22,22,3696.00,1,1,1,59.87,0.0162,False
+health,Replacement Health,45-54,single,SK,2,8,8,2640.00,4,4,4,538.94,0.2041,True
+health,Replacement Health,55-64,couple,ON,1,12,12,4924.80,1,1,1,101.61,0.0206,False
+health,Replacement Health,55-64,single,SK,3,43,41,10032.00,5,5,4,177.42,0.0177,False
+health,Replacement Health,65-74,single,AB,1,11,11,3168.00,2,2,1,206.51,0.0652,True
+health,Replacement Health,75+,single,AB,1,15,15,5760.00,4,2,2,435.34,0.0756,False
+health,Replacement Health,75+,single,BC,1,10,10,3840.00,1,1,1,177.01,0.0461,True
+health,Replacement Health,75+,single,SK,2,54,53,20352.00,2,2,2,94.16,0.0046,False
+health,Replacement Health,Under 35,couple,AB,1,17,16,3648.00,0,0,0,0,0.0000,False
+health,Replacement Health,Under 35,single,SK,1,7,7,840.00,2,2,2,174.62,0.2079,True
+travel,StudentPlan,35-44,couple,AB,1,13,12,1835.40,1,1,1,1955.90,1.0657,False
+travel,StudentPlan,35-44,couple,SK,1,13,12,1835.40,1,1,1,1907.57,1.0393,False
+travel,StudentPlan,35-44,family,MB,1,12,13,2720.90,1,1,1,464.11,0.1706,False
+travel,StudentPlan,35-44,single,AB,1,11,11,885.50,5,5,5,5151.53,5.8177,True
+travel,StudentPlan,35-44,single,MB,1,11,1,966.00,2,2,2,68585.55,70.9995,True
+travel,StudentPlan,35-44,single,ON,2,26,13,1932.00,0,0,0,0,0.0000,False
+travel,StudentPlan,45-54,single,SK,1,13,12,1176.00,1,1,1,942.77,0.8017,False
+travel,StudentPlan,55-64,couple,AB,1,7,1,2872.80,2,1,0,0.00,0.0000,True
+travel,StudentPlan,65-74,single,MB,1,13,1,2016.00,1,1,1,2393.22,1.1871,False
+travel,StudentPlan,Under 35,family,MB,1,1,0,0,0,0,0,0,,True
+travel,StudentPlan,Under 35,single,BC,1,13,12,840.00,1,1,1,1053.40,1.2540,False
+travel,TravelStar,35-44,couple,ON,1,3,1,180.00,1,1,1,592.07,3.2893,True
+travel,TravelStar,35-44,couple,SK,1,2,1,146.00,1,1,0,0.00,0.0000,True
+travel,TravelStar,35-44,single,AB,1,2,1,150.00,2,2,2,57352.53,382.3502,True
+travel,TravelStar,45-54,family,BC,1,1,1,110.00,0,0,0,0,0.0000,True
+travel,TravelStar,45-54,family,MB,1,3,1,164.00,0,0,0,0,0.0000,True
+travel,TravelStar,45-54,single,MB,1,2,1,112.00,1,1,1,1313.57,11.7283,True
+travel,TravelStar,45-54,single,SK,1,2,1,100.00,1,1,1,648.15,6.4815,True
+travel,TravelStar,55-64,couple,AB,1,2,1,148.00,0,0,0,0,0.0000,True
+travel,TravelStar,55-64,couple,BC,1,3,1,208.00,0,0,0,0,0.0000,True
+travel,TravelStar,55-64,family,AB,1,2,1,160.00,2,2,2,2635.30,16.4706,True
+travel,TravelStar,55-64,single,SK,1,3,1,166.00,3,3,2,2014.17,12.1336,True
+travel,TravelStar,65-74,family,SK,1,2,1,192.00,0,0,0,0,0.0000,True
+travel,TravelStar,75+,family,SK,1,3,1,184.00,0,0,0,0,0.0000,True
+travel,TravelStar,Under 35,family,AB,1,2,1,172.00,1,1,1,25000.00,145.3488,True
+travel,TravelStar,Under 35,family,SK,1,3,1,208.00,0,0,0,0,0.0000,True
+travel,TravelStar,Under 35,single,AB,1,3,1,132.00,1,1,1,3224.67,24.4293,True
